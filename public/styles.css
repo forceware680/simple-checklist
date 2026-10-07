@@ -73,6 +73,17 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .field-label{ font-family:var(--font-display); font-size:13px; }
 .select.big{ width:100%; font-family:var(--font-body); font-weight:700; font-size:16px; padding:14px; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); background:var(--paper); appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><path d='M3 5l5 6 5-6' stroke='%23171512' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>"); background-repeat:no-repeat; background-position:right 14px center; padding-right:40px; cursor:pointer; }
 .select.big:disabled{ opacity:.6; cursor:not-allowed; }
+.opd-ac{ position:relative; }
+.input.big{ width:100%; font-family:var(--font-body); font-weight:700; font-size:16px; padding:14px; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); background:var(--paper); color:var(--ink); }
+.input.big:focus{ outline:none; box-shadow:0 0 0 3px var(--blue); border-color:var(--ink); }
+.input.big::placeholder{ color:var(--muted); font-weight:600; }
+.opd-list{ position:absolute; top:100%; left:0; right:0; margin-top:6px; background:var(--paper); border:var(--border) solid var(--ink); border-radius:var(--radius-sm); box-shadow:var(--shadow); max-height:280px; overflow:auto; z-index:30; padding:6px; list-style:none; }
+.opd-list[hidden]{ display:none; }
+.opd-list li[role=option]{ display:flex; flex-direction:column; gap:2px; padding:10px 11px; border-radius:6px; cursor:pointer; }
+.opd-list li[role=option]:hover, .opd-list li[role=option].active{ background:var(--yellow-soft); }
+.opd-ac-name{ font-family:var(--font-body); font-weight:700; font-size:15px; }
+.opd-ac-code{ font-family:var(--font-body); font-weight:600; font-size:11px; color:var(--muted); }
+.opd-empty{ padding:11px; font-family:var(--font-body); font-weight:600; font-size:13px; color:var(--muted); }
 
 /* ---------- Buttons ---------- */
 .btn{ font-family:var(--font-display); font-size:15px; cursor:pointer; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); padding:13px 20px; background:var(--paper); color:var(--ink); box-shadow:var(--shadow); transition:transform .08s ease, box-shadow .08s ease; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; }

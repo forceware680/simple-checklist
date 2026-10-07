@@ -65,18 +65,18 @@ async function renderLanding() {
           <p class="hero-sub">Checklist untuk membantu <b>penyandingan data persediaan</b> OPD dengan aplikasi <b>SIMASET</b>. Catat <b>total penerimaan per bulan</b> (Jan–Des) dan <b>total pengeluaran per semester</b> (2 semester), lalu cocokkan dengan data SIMASET.</p>
         </div>
         <div class="opd-card card">
-          <label class="field-label" for="opd-select">Pilih OPD / Unit kamu</label>
-          <select id="opd-select" class="select big" disabled>
-            <option value="">Memuat daftar OPD…</option>
-          </select>
-          <button id="start-btn" class="btn primary" disabled>Mulai Checklist</button>
+          <label class="field-label" for="opd-input">Pilih OPD / Unit kamu</label>
+          <div class="opd-ac">
+            <input id="opd-input" class="input big" type="text" autocomplete="off" placeholder="Ketik nama / kode OPD…" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="opd-list">
+            <div id="opd-list" class="opd-list" role="listbox" aria-label="Daftar OPD" hidden></div>
+          </div>
         </div>
       </section>
 
       <section class="howto card">
         <h2>Cara pakai</h2>
         <ol class="steps">
-          <li>Pilih <b>OPD</b> kamu di daftar di atas.</li>
+          <li>Ketik <b>nama / kode OPD</b> kamu, lalu pilih dari daftar.</li>
           <li>Isi <b>total penerimaan</b> untuk tiap bulan (Jan–Des).</li>
           <li>Isi <b>total pengeluaran</b> untuk tiap semester (S1 &amp; S2).</li>
           <li>Klik <b>Simpan Checklist</b> — total &amp; stock opname terhitung otomatis.</li>
@@ -87,20 +87,59 @@ async function renderLanding() {
     </main>
     ${footer()}`;
 
-  const sel = document.getElementById('opd-select');
-  const btn = document.getElementById('start-btn');
+  const input = document.getElementById('opd-input');
+  const list = document.getElementById('opd-list');
+  let activeIdx = -1;
+  let docHandler = null;
+
+  const go = code => { location.hash = '#/opd/' + encodeURIComponent(code); };
+  const matches = q => {
+    const s = q.trim().toLowerCase();
+    if (!s) return OPDS;
+    return OPDS.filter(o => (o.KetPBSubk + ' ' + o.PBSubk).toLowerCase().includes(s));
+  };
+  const renderList = q => {
+    const items = matches(q);
+    list.innerHTML = items.length
+      ? items.map((o, i) => `<li role="option" data-code="${esc(o.PBSubk)}" class="${i === activeIdx ? 'active' : ''}"><span class="opd-ac-name">${esc(o.KetPBSubk)}</span><span class="opd-ac-code">${esc(o.PBSubk)}</span></li>`).join('')
+      : '<li class="opd-empty">Tidak ada OPD cocok</li>';
+    list.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+  };
+  const setActive = idx => {
+    const items = [...list.querySelectorAll('li[role=option]')];
+    if (!items.length) return;
+    activeIdx = (idx + items.length) % items.length;
+    items.forEach((li, i) => li.classList.toggle('active', i === activeIdx));
+    input.value = items[activeIdx].querySelector('.opd-ac-name').textContent;
+    items[activeIdx].scrollIntoView({ block: 'nearest' });
+  };
+  const hideList = () => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); };
+
   try {
     await loadOpds();
-    sel.innerHTML = '<option value="">-- Pilih OPD kamu --</option>' +
-      OPDS.map(o => `<option value="${esc(o.PBSubk)}">${esc(o.KetPBSubk)}</option>`).join('');
-    sel.disabled = false;
-    btn.disabled = true;
-    sel.addEventListener('change', () => { btn.disabled = !sel.value; });
   } catch (err) {
-    sel.innerHTML = '<option value="">Gagal memuat daftar OPD</option>';
+    input.disabled = true;
+    input.placeholder = 'Gagal memuat daftar OPD';
+    return;
   }
-  btn.addEventListener('click', () => {
-    if (sel.value) location.hash = '#/opd/' + encodeURIComponent(sel.value);
+
+  if (docHandler) document.removeEventListener('click', docHandler);
+  docHandler = e => { if (!e.target.closest('.opd-ac')) hideList(); };
+  document.addEventListener('click', docHandler);
+
+  input.addEventListener('input', () => { activeIdx = -1; renderList(input.value); });
+  input.addEventListener('focus', () => renderList(input.value));
+  input.addEventListener('keydown', e => {
+    const items = [...list.querySelectorAll('li[role=option]')];
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActive(activeIdx + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(activeIdx - 1); }
+    else if (e.key === 'Enter') { e.preventDefault(); const cur = items[activeIdx >= 0 ? activeIdx : 0]; if (cur) go(cur.dataset.code); }
+    else if (e.key === 'Escape') hideList();
+  });
+  list.addEventListener('mousedown', e => {
+    const li = e.target.closest('li[role=option]');
+    if (li) { e.preventDefault(); go(li.dataset.code); }
   });
 }
 
