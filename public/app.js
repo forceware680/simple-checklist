@@ -262,7 +262,10 @@ async function renderStatistik() {
       <section class="card admin-summary">
         <div class="sum-head">
           <h2>Rekap OPD</h2>
-          <button id="fs-btn" class="btn ghost" type="button">Full Screen</button>
+          <div class="sum-actions">
+            <input id="opd-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari nama atau kode OPD">
+            <button id="fs-btn" class="btn ghost" type="button">Full Screen</button>
+          </div>
         </div>
         <div id="summary">${loadingBlock('Memuat rekap…')}</div>
       </section>
@@ -272,6 +275,13 @@ async function renderStatistik() {
   document.getElementById('fs-btn').addEventListener('click', () => {
     const on = wrap.classList.toggle('full');
     document.getElementById('fs-btn').textContent = on ? 'Keluar Full Screen' : 'Full Screen';
+  });
+  const searchInput = document.getElementById('opd-search');
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    document.querySelectorAll('#summary tbody tr').forEach(tr => {
+      tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
+    });
   });
   try {
     const sum = await api('/api/statistik');
@@ -318,7 +328,7 @@ function renderSummary(sum) {
           </tr>
         </thead>
         <tbody>${sum.map(s => `
-          <tr>
+          <tr data-search="${esc((s.name + ' ' + s.code).toLowerCase())}">
             <td class="stick"><span class="opd-name">${esc(s.name)}</span><span class="sum-code">${esc(s.code)}${s.filled ? '' : '<span class="badge belum">Belum</span>'}</span></td>
             <td class="n saldo">${s.saldo_awal}</td>
             ${s.months.slice(0, 6).map(v => `<td class="n">${v}</td>`).join('')}

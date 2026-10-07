@@ -149,6 +149,10 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .sum-head h2{ margin:0; }
 .sum-head .btn{ padding:9px 14px; font-size:13px; box-shadow:var(--shadow-sm); }
 .sum-head .btn:hover{ box-shadow:4px 4px 0 var(--ink); }
+.sum-actions{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.sum-head .search{ font-family:var(--font-body); font-size:14px; font-weight:600; padding:9px 12px; border:2px solid var(--ink); border-radius:7px; background:var(--paper); color:var(--ink); min-width:220px; }
+.sum-head .search::placeholder{ color:var(--muted); }
+.sum-head .search:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
 .summary-stat b{ font-family:var(--font-display); font-size:20px; color:var(--pink-deep); }
 .sum-table{ overflow:auto; max-height:82vh; border:2px solid var(--ink); border-radius:8px; }
 .sum-table table{ border-collapse:separate; border-spacing:0; width:100%; min-width:1600px; font-size:12px; }
