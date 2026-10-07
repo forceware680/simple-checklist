@@ -1,0 +1,73 @@
+# Checklist Persediaan 2026
+
+Aplikasi web sederhana untuk checklist persediaan barang OPD tahun 2026.
+
+> **Tujuan**: mempermudah **penyandingan (rekonsiliasi) data persediaan** OPD dengan aplikasi **SIMASET**. Pengurus mencatat total penerimaan per bulan & total pengeluaran per semester, lalu mencocokkannya dengan data di SIMASET.
+
+- **Penerimaan**: dicatat **per bulan** (Januari – Desember), berupa **total** penerimaan bulan itu.
+- **Pengeluaran**: dicatat **per semester** (Semester 1, Semester 2), berupa **total** pengeluaran semester itu.
+- **Saldo Awal 2026**: stok di awal tahun, diisi oleh pengurus.
+- **Saldo Awal Juli**: stok di awal semester 2, diisi oleh pengurus.
+- **Total penerimaan** per semester: S1 = Jan–Jun, S2 = Jul–Des (otomatis).
+- **Pengeluaran tahunan** = S1 + S2 (otomatis).
+- **Stock opname** dihitung otomatis (di menu Statistik):
+  - Stock Sem 1 = saldo awal + penerimaan Jan–Jun − pengeluaran S1
+  - Stock Sem 2 = saldo awal Juli + penerimaan Jul–Des − pengeluaran S2
+  - Stock Tahunan = saldo awal + penerimaan Jan–Des − pengeluaran tahunan (S1+S2)
+- Setiap **pengurus barang** membuka satu link, memilih **OPD-nya**, lalu mengisi total penerimaan per bulan dan total pengeluaran per semester. Rekap seluruh OPD ada di menu **Statistik**.
+
+> Catatan: isian **tidak per barang**. Tiap OPD hanya mengisi **total** per bulan / per semester.
+
+## Alur
+
+1. Publikasikan link domain kamu (mis. `https://domainkamu.com`).
+2. Pengurus barang membuka link → memilih OPD-nya → mengisi 12 total penerimaan (per bulan) + 2 total pengeluaran (per semester) → **Simpan Checklist**.
+3. Buka menu **Statistik** → rekap seluruh OPD: penerimaan per bulan, pengeluaran per semester, dan stock opname per semester.
+
+## Menjalankan (lokal)
+
+```bash
+npm install
+cp .env.example .env    # lalu isi kredensial Postgres di .env
+npm start               # http://localhost:3000
+```
+
+Aplikasi membaca koneksi dari `.env` (variabel `DATABASE_URL`). Tabel `entries` dibuat otomatis di database kamu saat server mulai.
+
+## Men-deploy ke domain
+
+Aplikasi Node.js standar (Express + PostgreSQL). Deploy ke hosting apa pun yang menjalankan Node (VPS, Render, Railway, dsb.):
+
+1. Upload/kopi seluruh folder proyek.
+2. `npm install`
+3. Buat file `.env` berisi `DATABASE_URL` (jangan commit `.env` ke repo — sudah di-.gitignore).
+4. Jalankan dengan `npm start` (atau proses manager seperti PM2). Server membaca `PORT` dari environment.
+5. Arahkan domain ke server tersebut.
+
+> Catatan: tidak ada autentikasi. Menu Statistik bisa diakses siapa pun yang tahu link-nya. Jika perlu, tambahkan proteksi (mis. basic auth di server atau reverse-proxy) sebelum dipublikasikan.
+
+## Struktur
+
+```
+server.js          Express + pg (PostgreSQL) — API + statis
+.env               kredensial Postgres (DI-GITIGNORE, jangan di-commit)
+.env.example       template .env
+OPDHerman.json     daftar 38 OPD
+public/
+  index.html       shell SPA
+  styles.css       desain neo-brutalism
+  app.js           logika SPA (hash routing)
+```
+
+## API
+
+| Method | Path | Fungsi |
+|---|---|---|
+| GET | `/api/opds` | daftar OPD |
+| GET | `/api/opds/:code` | isian satu OPD |
+| PUT | `/api/opds/:code` | simpan isian satu OPD |
+| GET | `/api/statistik` | rekap seluruh OPD (per bulan & per semester) |
+
+## Desain
+
+Neo-brutalism: border tebal + hard offset shadow (bukan shadow lembut), warna solid flat, sudut kecil, tipografi berat (Archivo Black + Manrope). Warna berfungsi sebagai hierarki: kuning = penerimaan, pink = pengeluaran, biru = fokus keyboard.

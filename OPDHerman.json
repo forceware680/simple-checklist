@@ -1,0 +1,154 @@
+[
+  {
+    "PBSubk": "010201.00000.00000",
+    "KetPBSubk": "Dinas Kesehatan"
+  },
+  {
+    "PBSubk": "010502.00000.00000",
+    "KetPBSubk": "Badan Penanggulangan Bencana Daerah"
+  },
+  {
+    "PBSubk": "021101.00000.00000",
+    "KetPBSubk": "Dinas Lingkungan Hidup"
+  },
+  {
+    "PBSubk": "021201.00000.00000",
+    "KetPBSubk": "Dinas Kependudukan dan Pencatatan Sipil"
+  },
+  {
+    "PBSubk": "021301.00000.00000",
+    "KetPBSubk": "Dinas Pemberdayaan Masyarakat, Perempuan, Perlindungan Anak, Pengendalian Penduduk dan Keluarga Berencana"
+  },
+  {
+    "PBSubk": "021501.00000.00000",
+    "KetPBSubk": "Dinas Perhubungan"
+  },
+  {
+    "PBSubk": "021601.00000.00000",
+    "KetPBSubk": "Dinas Komunikasi, Informatika, dan Statistik"
+  },
+  {
+    "PBSubk": "021801.00000.00000",
+    "KetPBSubk": "Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu"
+  },
+  {
+    "PBSubk": "032701.00000.00000",
+    "KetPBSubk": "Dinas Pertanian dan Pangan"
+  },
+  {
+    "PBSubk": "050301.00000.00000",
+    "KetPBSubk": "Badan Kepegawaian dan Pengembangan Sumber Daya Manusia"
+  },
+  {
+    "PBSubk": "060101.00000.00000",
+    "KetPBSubk": "Inspektorat"
+  },
+  {
+    "PBSubk": "070101.00000.00000",
+    "KetPBSubk": "Kecamatan Magelang Selatan"
+  },
+  {
+    "PBSubk": "010201.00001.00000",
+    "KetPBSubk": "Puskesmas Magelang Selatan"
+  },
+  {
+    "PBSubk": "010201.00002.00000",
+    "KetPBSubk": "Puskesmas Jurangombo"
+  },
+  {
+    "PBSubk": "010201.00003.00000",
+    "KetPBSubk": "Puskesmas Magelang Tengah (Botton)"
+  },
+  {
+    "PBSubk": "021901.00000.00000",
+    "KetPBSubk": "Dinas Kepemudaan, Olahraga, dan Pariwisata"
+  },
+  {
+    "PBSubk": "021901.00001.00000",
+    "KetPBSubk": "UPT Pengelolaan Sport Center"
+  },
+  {
+    "PBSubk": "040201.00000.00000",
+    "KetPBSubk": "Sekretariat Dewan Perwakilan Rakyat Daerah"
+  },
+  {
+    "PBSubk": "010201.00004.00000",
+    "KetPBSubk": "Puskesmas Kerkopan"
+  },
+  {
+    "PBSubk": "010201.00005.00000",
+    "KetPBSubk": "Puskesmas Magelang Utara"
+  },
+  {
+    "PBSubk": "010201.00006.00000",
+    "KetPBSubk": "Rumah Sakit Umum Daerah Budi Rahayu"
+  },
+  {
+    "PBSubk": "010201.00007.00000",
+    "KetPBSubk": "Rumah Sakit Umum Daerah Tidar"
+  },
+  {
+    "PBSubk": "010201.00008.00000",
+    "KetPBSubk": "UPT Laboratorium Kesehatan"
+  },
+  {
+    "PBSubk": "010201.00009.00000",
+    "KetPBSubk": "UPT Instalasi Farmasi"
+  },
+  {
+    "PBSubk": "010201.00010.00000",
+    "KetPBSubk": "UPT RS Bersalin Paten"
+  },
+  {
+    "PBSubk": "010201.00011.00000",
+    "KetPBSubk": "UPT JPKM"
+  },
+  {
+    "PBSubk": "010201.00012.00000",
+    "KetPBSubk": "Public Safety Center"
+  },
+  {
+    "PBSubk": "021101.00001.00000",
+    "KetPBSubk": "UPT Tempat Pengelolaan Sampah Akhir"
+  },
+  {
+    "PBSubk": "021101.00002.00000",
+    "KetPBSubk": "UPT Kebun Raya Gunung Tidar"
+  },
+  {
+    "PBSubk": "032701.00001.00000",
+    "KetPBSubk": "UPT RPH dan Labkesmavet"
+  },
+  {
+    "PBSubk": "032701.00002.00000",
+    "KetPBSubk": "UPT Pusat Kesehatan Hewan"
+  },
+  {
+    "PBSubk": "070101.00001.00000",
+    "KetPBSubk": "Kelurahan Jurangombo Selatan"
+  },
+  {
+    "PBSubk": "070101.00002.00000",
+    "KetPBSubk": "Kelurahan Jurangombo Utara"
+  },
+  {
+    "PBSubk": "070101.00003.00000",
+    "KetPBSubk": "Kelurahan Magersari"
+  },
+  {
+    "PBSubk": "070101.00004.00000",
+    "KetPBSubk": "Kelurahan Rejowinangun Selatan"
+  },
+  {
+    "PBSubk": "070101.00005.00000",
+    "KetPBSubk": "Kelurahan Tidar Selatan"
+  },
+  {
+    "PBSubk": "070101.00006.00000",
+    "KetPBSubk": "Kelurahan Tidar Utara"
+  },
+  {
+    "PBSubk": "050101.00000.00000",
+    "KetPBSubk": "Badan Perencanaan Pembangunan, Riset dan Inovasi Daerah"
+  }
+]
