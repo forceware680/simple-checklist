@@ -27,7 +27,19 @@ function esc(s) {
     ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
 const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
-const fmt = n => String(round2(Number(n) || 0));
+const ID_FMT = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtID = n => ID_FMT.format(round2(Number(n) || 0));
+const parseMoney = raw => { const n = parseFloat(String(raw).replace(/\./g, '').replace(',', '.')); return isFinite(n) ? n : 0; };
+const liveFormat = raw => {
+  let intStr = '', decStr = '', seenDec = false;
+  for (const ch of String(raw)) {
+    if (ch >= '0' && ch <= '9') { if (seenDec) { if (decStr.length < 2) decStr += ch; } else intStr += ch; }
+    else if (ch === ',' && !seenDec) seenDec = true;
+  }
+  intStr = intStr.replace(/^0+(?=\d)/, '');
+  const grouped = intStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return (grouped || '0') + (seenDec ? ',' + decStr : '');
+};
 function loadingBlock(text) {
   return `<div class="loading-block"><span class="spinner"></span>${esc(text)}</div>`;
 }
@@ -185,14 +197,14 @@ function buildForm(entry) {
   const inRows = MONTHS.map(([k, label]) =>
     `<div class="frow">
        <span class="frow-label">${label}</span>
-       <input type="number" min="0" step="0.01" inputmode="decimal" class="num big" data-field="${k}"
-         value="${entry[k] || 0}" aria-label="Total penerimaan ${label}">
+       <input type="text" inputmode="decimal" class="num big" data-field="${k}"
+         value="${fmtID(entry[k] || 0)}" aria-label="Total penerimaan ${label}">
      </div>`).join('');
   const outRows = SEMS.map(([k, label]) =>
     `<div class="frow">
        <span class="frow-label">${label}</span>
-       <input type="number" min="0" step="0.01" inputmode="decimal" class="num big" data-field="${k}"
-         value="${entry[k] || 0}" aria-label="Total pengeluaran ${label}">
+       <input type="text" inputmode="decimal" class="num big" data-field="${k}"
+         value="${fmtID(entry[k] || 0)}" aria-label="Total pengeluaran ${label}">
      </div>`).join('');
 
   return `
@@ -201,14 +213,14 @@ function buildForm(entry) {
       <div class="frows">
         <div class="frow">
           <span class="frow-label">Saldo Awal 2026</span>
-          <input type="number" min="0" step="0.01" inputmode="decimal" class="num big" data-field="saldo_awal"
-            value="${entry.saldo_awal || 0}" aria-label="Saldo Awal 2026">
+          <input type="text" inputmode="decimal" class="num big" data-field="saldo_awal"
+            value="${fmtID(entry.saldo_awal || 0)}" aria-label="Saldo Awal 2026">
         </div>
         <div class="frow">
           <span class="frow-label">Saldo Awal Juli <span class="auto-tag">otomatis</span></span>
           <div class="tip">
-            <input type="number" min="0" step="0.01" inputmode="decimal" class="num big auto" data-field="saldo_awal_juli"
-              value="${entry.saldo_awal_juli || 0}" aria-label="Saldo Awal Juli (otomatis)" aria-describedby="saldo-juli-tip" readonly>
+            <input type="text" inputmode="decimal" class="num big auto" data-field="saldo_awal_juli"
+              value="${fmtID(entry.saldo_awal_juli || 0)}" aria-label="Saldo Awal Juli (otomatis)" aria-describedby="saldo-juli-tip" readonly>
             <span class="tip-bubble" id="saldo-juli-tip" role="tooltip">Terisi otomatis dari <b>(Total S1 + Awal) &minus; (Pengeluaran S1)</b>. Tidak bisa di isi manual.</span>
           </div>
         </div>
@@ -246,7 +258,7 @@ function buildForm(entry) {
 function paintTotals() {
   let inT = 0, outT = 0, inS1 = 0, outS1 = 0, outS2 = 0, saldoAwal = 0;
   document.querySelectorAll('#cl-body input[data-field]').forEach(inp => {
-    const v = round2(parseFloat(inp.value) || 0);
+    const v = round2(parseMoney(inp.value));
     const f = inp.dataset.field;
     if (f === 'saldo_awal_juli') return;      // terhitung otomatis, tidak dibaca dari input
     if (f === 'saldo_awal') { saldoAwal = v; return; }
@@ -259,8 +271,8 @@ function paintTotals() {
   const stock2 = saldoJuli + inS2 - outS2;    // saldo awal Juli + Jul-Des - pengeluaran S2
   const stockYear = saldoAwal + inT - outT;   // saldo awal + Jan-Des - pengeluaran tahunan
   const salJuliEl = document.querySelector('#cl-body input[data-field="saldo_awal_juli"]');
-  if (salJuliEl) salJuliEl.value = fmt(saldoJuli); // isi otomatis
-  const set = (cls, val) => { const el = document.querySelector('.' + cls); if (el) el.textContent = fmt(val); };
+  if (salJuliEl) salJuliEl.value = fmtID(saldoJuli); // isi otomatis
+  const set = (cls, val) => { const el = document.querySelector('.' + cls); if (el) el.textContent = fmtID(val); };
   set('tot-in', inT); set('tot-out', outT);
   set('rk-in', inT); set('rk-out', outT);
   set('rk-stock1', stock1); set('rk-stock2', stock2); set('rk-stocky', stockYear);
@@ -270,8 +282,15 @@ function paintTotals() {
 }
 
 function attachFormListeners() {
-  document.querySelectorAll('#cl-body input[data-field]').forEach(inp =>
-    inp.addEventListener('input', paintTotals));
+  document.querySelectorAll('#cl-body input[data-field]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      if (!inp.readOnly) inp.value = liveFormat(inp.value);
+      paintTotals();
+    });
+    inp.addEventListener('blur', () => {
+      if (!inp.readOnly) inp.value = fmtID(parseMoney(inp.value));
+    });
+  });
   paintTotals();
   document.getElementById('save-btn').addEventListener('click', saveChecklist);
 }
@@ -282,7 +301,7 @@ async function saveChecklist() {
   const msg = document.getElementById('save-msg');
   const data = {};
   document.querySelectorAll('#cl-body input[data-field]').forEach(inp => {
-    data[inp.dataset.field] = round2(parseFloat(inp.value) || 0);
+    data[inp.dataset.field] = round2(parseMoney(inp.value));
   });
   btn.disabled = true;
   msg.className = 'save-msg';
@@ -377,22 +396,22 @@ function renderSummary(sum) {
         <tbody>${sum.map(s => `
           <tr data-search="${esc((s.name + ' ' + s.code).toLowerCase())}">
             <td class="stick"><span class="opd-name">${esc(s.name)}</span><span class="sum-code">${esc(s.code)}${s.filled ? '' : '<span class="badge belum">Belum</span>'}</span></td>
-            <td class="n saldo">${fmt(s.saldo_awal)}</td>
-            ${s.months.slice(0, 6).map(v => `<td class="n">${fmt(v)}</td>`).join('')}
-            <td class="n tot-in">${fmt(s.in_s1)}</td>
-            <td class="n tot-in">${fmt(s.total_s1_dgn)}</td>
-            <td class="n saldo">${fmt(s.saldo_juli)}</td>
-            ${s.months.slice(6).map(v => `<td class="n">${fmt(v)}</td>`).join('')}
-            <td class="n tot-in">${fmt(s.in_s2)}</td>
-            <td class="n tot-in">${fmt(s.total_s2_dgn)}</td>
-            <td class="n strong tot-in">${fmt(s.total_in)}</td>
-            <td class="n tot-in">${fmt(s.total_dgn_saldo)}</td>
-            <td class="n">${fmt(s.sem1)}</td>
-            <td class="n">${fmt(s.sem2)}</td>
-            <td class="n strong tot-out">${fmt(s.total_out)}</td>
-            <td class="n stock${s.stock1 < 0 ? ' neg' : ''}">${fmt(s.stock1)}</td>
-            <td class="n stock${s.stock2 < 0 ? ' neg' : ''}">${fmt(s.stock2)}</td>
-            <td class="n strong stok${s.stock_year < 0 ? ' neg' : ''}">${fmt(s.stock_year)}</td>
+            <td class="n saldo">${fmtID(s.saldo_awal)}</td>
+            ${s.months.slice(0, 6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
+            <td class="n tot-in">${fmtID(s.in_s1)}</td>
+            <td class="n tot-in">${fmtID(s.total_s1_dgn)}</td>
+            <td class="n saldo">${fmtID(s.saldo_juli)}</td>
+            ${s.months.slice(6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
+            <td class="n tot-in">${fmtID(s.in_s2)}</td>
+            <td class="n tot-in">${fmtID(s.total_s2_dgn)}</td>
+            <td class="n strong tot-in">${fmtID(s.total_in)}</td>
+            <td class="n tot-in">${fmtID(s.total_dgn_saldo)}</td>
+            <td class="n">${fmtID(s.sem1)}</td>
+            <td class="n">${fmtID(s.sem2)}</td>
+            <td class="n strong tot-out">${fmtID(s.total_out)}</td>
+            <td class="n stock${s.stock1 < 0 ? ' neg' : ''}">${fmtID(s.stock1)}</td>
+            <td class="n stock${s.stock2 < 0 ? ' neg' : ''}">${fmtID(s.stock2)}</td>
+            <td class="n strong stok${s.stock_year < 0 ? ' neg' : ''}">${fmtID(s.stock_year)}</td>
           </tr>`).join('')}</tbody>
       </table>
     </div>`;

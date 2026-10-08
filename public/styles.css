@@ -123,7 +123,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .frows{ display:grid; grid-template-columns:1fr 1fr; gap:2px 24px; }
 .frow{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0; }
 .frow-label{ font-weight:700; font-size:15px; }
-.num.big{ width:120px; text-align:center; padding:11px 10px; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); font-family:var(--font-body); font-weight:800; font-size:16px; font-variant-numeric:tabular-nums; background:#fff; }
+.num.big{ width:132px; text-align:right; padding:11px 10px; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); font-family:var(--font-body); font-weight:800; font-size:16px; font-variant-numeric:tabular-nums; background:#fff; }
 .num.big:focus{ outline:none; box-shadow:0 0 0 3px var(--blue); border-color:var(--ink); }
 .num.big.auto{ background:#f4efe1; cursor:default; }
 .num.big.auto:focus{ outline:none; box-shadow:none; }
