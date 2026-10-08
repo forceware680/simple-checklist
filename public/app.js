@@ -10,7 +10,7 @@ const MONTH_SET = new Set(MONTHS.map(m => m[0]));
 const S1_MONTHS = new Set(['jan','feb','mar','apr','may','jun']);
 
 let OPDS = [];
-let clCode = null, clDirty = false, clSaving = false, clSaveTimer = null;
+let clCode = null, clDirty = false, clSaving = false;
 const app = document.getElementById('app');
 
 /* ---------- helpers ---------- */
@@ -62,7 +62,6 @@ function header(active) {
 
 /* ---------- router ---------- */
 function render() {
-  if (clDirty && clCode) doSave(); // flush perubahan sebelum pindah halaman
   const hash = location.hash || '#/';
   app.setAttribute('aria-busy', 'true');
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
@@ -110,7 +109,7 @@ async function renderLanding() {
   let activeIdx = -1;
   let docHandler = null;
 
-  const go = code => { location.hash = '#/opd/' + encodeURIComponent(code); };
+  const go = code => { if (clDirty && !confirmLeave()) return; location.hash = '#/opd/' + encodeURIComponent(code); };
   const matches = q => {
     const s = q.trim().toLowerCase();
     if (!s) return OPDS;
@@ -171,7 +170,6 @@ async function renderChecklist(code) {
     return;
   }
   clCode = code; clDirty = false; clSaving = false;
-  if (clSaveTimer) { clearTimeout(clSaveTimer); clSaveTimer = null; }
   window.removeEventListener('beforeunload', clUnload);
   app.innerHTML = header() + `
     <main class="wrap">
@@ -295,7 +293,6 @@ function attachFormListeners() {
         inp.value = liveFormat(inp.value);
         paintTotals();
         setDirty(true);
-        scheduleAutoSave();
       }
     });
     inp.addEventListener('blur', () => {
@@ -309,6 +306,13 @@ function attachFormListeners() {
 function clUnload(e) {
   if (clDirty && !clSaving) { e.preventDefault(); e.returnValue = ''; }
 }
+function confirmLeave() {
+  return window.confirm('Masih ada data yang belum disimpan.\n\nYakin mau keluar? Perubahan yang belum disimpan akan hilang.');
+}
+function guardHashNav(e) {
+  const a = e.target.closest('a[href^="#"]');
+  if (a && clDirty && !confirmLeave()) e.preventDefault();
+}
 function setDirty(dirty) {
   clDirty = dirty;
   const msg = document.getElementById('save-msg');
@@ -319,12 +323,7 @@ function setDirty(dirty) {
     window.removeEventListener('beforeunload', clUnload);
   }
 }
-function scheduleAutoSave() {
-  if (clSaveTimer) clearTimeout(clSaveTimer);
-  clSaveTimer = setTimeout(doSave, 1200);
-}
 async function doSave() {
-  if (clSaveTimer) { clearTimeout(clSaveTimer); clSaveTimer = null; }
   if (clSaving || !clCode) return;
   const btn = document.getElementById('save-btn');
   const msg = document.getElementById('save-msg');
@@ -342,9 +341,7 @@ async function doSave() {
     if (btn) { btn.textContent = 'Tersimpan ✓'; setTimeout(() => { btn.textContent = 'Simpan Checklist'; }, 2000); }
     setDirty(false);
   } catch (err) {
-    if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menyimpan: ' + err.message + ' — coba lagi'; }
-    setDirty(true);
-    scheduleAutoSave(); // ulangi setelah 1,2 dtk
+    if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menyimpan: ' + err.message; }
   }
   clSaving = false;
   if (btn) btn.disabled = false;
@@ -453,6 +450,7 @@ function renderSummary(sum) {
 /* ---------- boot ---------- */
 (async function init() {
   window.addEventListener('hashchange', render);
+  document.addEventListener('click', guardHashNav);
   try {
     await loadOpds();
   } catch (e) {
