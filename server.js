@@ -24,17 +24,20 @@ async function ensureSchema() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS entries (
       opd_code  TEXT PRIMARY KEY,
-      saldo_awal INTEGER NOT NULL DEFAULT 0,
-      saldo_awal_juli INTEGER NOT NULL DEFAULT 0,
-      ${MONTHS.map(m => `${m} INTEGER NOT NULL DEFAULT 0`).join(',\n      ')},
-      sem1 INTEGER NOT NULL DEFAULT 0,
-      sem2 INTEGER NOT NULL DEFAULT 0,
+      saldo_awal NUMERIC(12,2) NOT NULL DEFAULT 0,
+      saldo_awal_juli NUMERIC(12,2) NOT NULL DEFAULT 0,
+      ${MONTHS.map(m => `${m} NUMERIC(12,2) NOT NULL DEFAULT 0`).join(',\n      ')},
+      sem1 NUMERIC(12,2) NOT NULL DEFAULT 0,
+      sem2 NUMERIC(12,2) NOT NULL DEFAULT 0,
       updated_at TIMESTAMPTZ
     )
   `);
-  // migrasi: tambahkan kolom ke tabel yang sudah ada sebelumnya
-  await pool.query('ALTER TABLE entries ADD COLUMN IF NOT EXISTS saldo_awal INTEGER NOT NULL DEFAULT 0');
-  await pool.query('ALTER TABLE entries ADD COLUMN IF NOT EXISTS saldo_awal_juli INTEGER NOT NULL DEFAULT 0');
+  // migrasi: tambahkan kolom ke tabel lama, lalu konversi semua kolom angka ke NUMERIC(12,2) agar dukung desimal
+  await pool.query('ALTER TABLE entries ADD COLUMN IF NOT EXISTS saldo_awal NUMERIC(12,2) NOT NULL DEFAULT 0');
+  await pool.query('ALTER TABLE entries ADD COLUMN IF NOT EXISTS saldo_awal_juli NUMERIC(12,2) NOT NULL DEFAULT 0');
+  for (const c of COLS) {
+    await pool.query(`ALTER TABLE entries ALTER COLUMN ${c} TYPE NUMERIC(12,2)`);
+  }
 }
 
 app.use(express.json({ limit: '1mb' }));
@@ -56,8 +59,9 @@ app.get('/api/opds/:code', async (req, res) => {
 app.put('/api/opds/:code', async (req, res) => {
   const code = req.params.code;
   if (!opds.some(o => o.PBSubk === code)) return res.status(404).json({ error: 'OPD tidak ditemukan' });
+  const num = v => { const n = Math.round((Number(v) + Number.EPSILON) * 100) / 100; return isFinite(n) ? Math.max(0, n) : 0; };
   const vals = {};
-  for (const c of COLS) vals[c] = Math.max(0, parseInt(req.body[c], 10) || 0);
+  for (const c of COLS) vals[c] = num(req.body[c]);
   try {
     const values = COLS.map(c => vals[c]);
     await pool.query(
@@ -81,23 +85,24 @@ app.get('/api/statistik', async (req, res) => {
     const { rows } = await pool.query('SELECT * FROM entries');
     const map = {};
     rows.forEach(r => { map[r.opd_code] = r; });
+    const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
     const out = opds.map(o => {
       const r = map[o.PBSubk];
-      const saldo_awal = (r ? Number(r.saldo_awal) : 0) || 0;
-      const saldo_juli = (r ? Number(r.saldo_awal_juli) : 0) || 0;
-      const months = MONTHS.map(m => (r ? Number(r[m]) : 0) || 0);
-      const total_in = months.reduce((s, v) => s + v, 0);            // Jan-Des
-      const in_s1 = months.slice(0, 6).reduce((s, v) => s + v, 0);   // Jan-Jun
-      const in_s2 = months.slice(6).reduce((s, v) => s + v, 0);      // Jul-Des
-      const total_s1_dgn = saldo_awal + in_s1;                       // saldo awal + Total Penerimaan S1
-      const total_s2_dgn = saldo_juli + in_s2;                       // saldo awal Juli + Total Penerimaan S2
-      const sem1 = (r ? Number(r.sem1) : 0) || 0;
-      const sem2 = (r ? Number(r.sem2) : 0) || 0;
-      const total_out = sem1 + sem2;
-      const total_dgn_saldo = saldo_awal + total_in;                 // total penerimaan + saldo awal
-      const stock1 = saldo_awal + in_s1 - sem1;                      // saldo awal + Jan-Jun - pengeluaran S1
-      const stock2 = saldo_juli + in_s2 - sem2;                      // saldo awal Juli + Jul-Des - pengeluaran S2
-      const stock_year = saldo_awal + total_in - total_out;          // saldo awal + Jan-Des - (S1+S2)
+      const saldo_awal = round2((r ? Number(r.saldo_awal) : 0) || 0);
+      const saldo_juli = round2((r ? Number(r.saldo_awal_juli) : 0) || 0);
+      const months = MONTHS.map(m => round2((r ? Number(r[m]) : 0) || 0));
+      const total_in = round2(months.reduce((s, v) => s + v, 0));            // Jan-Des
+      const in_s1 = round2(months.slice(0, 6).reduce((s, v) => s + v, 0));   // Jan-Jun
+      const in_s2 = round2(months.slice(6).reduce((s, v) => s + v, 0));      // Jul-Des
+      const total_s1_dgn = round2(saldo_awal + in_s1);                       // saldo awal + Total Penerimaan S1
+      const total_s2_dgn = round2(saldo_juli + in_s2);                       // saldo awal Juli + Total Penerimaan S2
+      const sem1 = round2((r ? Number(r.sem1) : 0) || 0);
+      const sem2 = round2((r ? Number(r.sem2) : 0) || 0);
+      const total_out = round2(sem1 + sem2);
+      const total_dgn_saldo = round2(saldo_awal + total_in);                 // total penerimaan + saldo awal
+      const stock1 = round2(saldo_awal + in_s1 - sem1);                      // saldo awal + Jan-Jun - pengeluaran S1
+      const stock2 = round2(saldo_juli + in_s2 - sem2);                      // saldo awal Juli + Jul-Des - pengeluaran S2
+      const stock_year = round2(saldo_awal + total_in - total_out);          // saldo awal + Jan-Des - (S1+S2)
       return {
         code: o.PBSubk,
         name: o.KetPBSubk,
