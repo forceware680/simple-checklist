@@ -204,8 +204,11 @@ function buildForm(entry) {
         </div>
         <div class="frow">
           <span class="frow-label">Saldo Awal Juli <span class="auto-tag">otomatis</span></span>
-          <input type="number" min="0" inputmode="numeric" class="num big auto" data-field="saldo_awal_juli"
-            value="${entry.saldo_awal_juli || 0}" aria-label="Saldo Awal Juli (otomatis)" readonly>
+          <div class="tip">
+            <input type="number" min="0" inputmode="numeric" class="num big auto" data-field="saldo_awal_juli"
+              value="${entry.saldo_awal_juli || 0}" aria-label="Saldo Awal Juli (otomatis)" aria-describedby="saldo-juli-tip" readonly>
+            <span class="tip-bubble" id="saldo-juli-tip" role="tooltip">Terisi otomatis dari <b>(Total S1 + Awal) &minus; (Pengeluaran S1)</b>. Tidak bisa di isi manual.</span>
+          </div>
         </div>
       </div>
       <p class="cl-awal-note">Saldo Awal 2026 = stok di awal tahun (dasar Stock Opname S1). <b>Saldo Awal Juli terisi otomatis</b> = (Total S1 + Awal) &minus; (Pengeluaran S1).</p>
