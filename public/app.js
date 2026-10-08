@@ -91,6 +91,7 @@ async function renderLanding() {
 
       <section class="howto card">
         <h2>Cara pakai</h2>
+        <p class="howto-lead">Angka yang kamu isi berdasarkan <b>Laporan PP Pakai Habis</b> OPD kamu.</p>
         <ol class="steps">
           <li>Ketik <b>nama / kode OPD</b> kamu, lalu pilih dari daftar.</li>
           <li>Isi <b>Saldo Awal 2026</b> — stok di awal tahun (dasar Stock Opname Semester 1).</li>
