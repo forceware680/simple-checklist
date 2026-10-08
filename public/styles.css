@@ -103,6 +103,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .note-chip{ display:inline-block; margin-top:16px; font-family:var(--font-display); font-size:12px; background:var(--pink); color:var(--ink); border:var(--border) solid var(--ink); border-radius:7px; padding:8px 12px; box-shadow:var(--shadow-sm); }
 .howto-note{ margin:14px 0 0; font-size:14px; font-weight:600; color:var(--ink); background:var(--paper); border:2px solid var(--ink); border-left:6px solid var(--blue); border-radius:8px; padding:12px 14px; }
 .howto-lead{ margin:0 0 14px; font-size:15px; font-weight:700; color:var(--ink); }
+.howto-lead .src{ font-family:var(--font-display); font-weight:800; background:var(--yellow); padding:2px 8px; border-radius:5px; box-shadow:2px 2px 0 var(--ink); white-space:nowrap; }
 
 /* ---------- Checklist head ---------- */
 .cl-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
