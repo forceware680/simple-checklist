@@ -210,6 +210,10 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .sum-table thead{ position:sticky; top:0; z-index:5; }
 .sum-table thead th{ line-height:1.2; }
 .sum-table thead th.stick{ z-index:6; background:var(--ink); }
+.sum-table.rekap table{ min-width:1080px; }
+.rekap-year{ font-size:13px; font-weight:700; white-space:nowrap; }
+.rekap-select{ font-family:var(--font-body); font-size:14px; font-weight:700; padding:9px 10px; border:2px solid var(--ink); border-radius:7px; background:var(--paper); color:var(--ink); }
+.rekap-select:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
 
 /* ---------- ADMIN (rekonsiliasi SIMASET) ---------- */
 .admin{ max-width:1280px; }

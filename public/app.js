@@ -56,6 +56,7 @@ function header(active) {
     <nav class="topnav">
       <a href="#/" class="nav-link ${active === 'home' ? 'on' : ''}">Beranda</a>
       <a href="#/statistik" class="nav-link ${active === 'statistik' ? 'on' : ''}">Statistik</a>
+      <a href="#/rekap" class="nav-link ${active === 'rekap' ? 'on' : ''}">Rekap</a>
     </nav>
   </header>`;
 }
@@ -66,6 +67,7 @@ function render() {
   app.setAttribute('aria-busy', 'true');
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
   else if (hash === '#/statistik') renderStatistik();
+  else if (hash === '#/rekap') renderRekap();
   else if (hash.startsWith('#/admin')) renderAdmin();
   else renderLanding();
 }
@@ -449,6 +451,100 @@ function renderSummary(sum) {
             <td class="n strong stok${s.stock_year < 0 ? ' neg' : ''}">${fmtID(s.stock_year)}</td>
             <td class="n rec">${fmtID(s.opname_simaset)}</td>
             <td class="n rec selisih${s.selisih < 0 ? ' neg' : ''}${s.selisih === 0 ? ' zero' : ''}">${fmtID(s.selisih)}</td>
+          </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+/* ---------- REKAP BULANAN (sheet read-only, #/rekap) ---------- */
+async function renderRekap() {
+  app.innerHTML = header('rekap') + `
+    <main class="wrap" id="rekap-wrap">
+      <h1 class="page-title">Rekap Bulanan</h1>
+      <p class="page-sub">Total <b>nilai (TotalHarga)</b> penerimaan dari sumber, per OPD per bulan. <b>Saldo Awal</b> = saldo awal th; kolom bulan dari tanggal <b>BAST</b> saldo berjalan.</p>
+      <div id="rekap-body">${loadingBlock('Memuat rekap…')}</div>
+    </main>
+    ${footer()}`;
+  const me = await api('/api/admin/me').catch(() => ({ authenticated: false }));
+  if (!me.authenticated) {
+    document.getElementById('rekap-body').innerHTML =
+      `<div class="error-state">Halaman ini <b>khusus admin</b>. <a href="#/admin">Login admin</a> untuk lanjut.</div>`;
+    return;
+  }
+  renderRekapTable();
+}
+
+function renderRekapTable() {
+  const body = document.getElementById('rekap-body');
+  const wrap = document.getElementById('rekap-wrap');
+  body.innerHTML = `
+    <section class="card admin-summary">
+      <div class="sum-head">
+        <h2>Rekap OPD</h2>
+        <div class="sum-actions">
+          <label class="rekap-year">Tahun
+            <select id="rekap-year" class="rekap-select" aria-label="Tahun">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+            </select>
+          </label>
+          <input id="rekap-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
+          <button id="rekap-fs" class="btn ghost" type="button">Full Screen</button>
+        </div>
+      </div>
+      <div id="rekap-summary">${loadingBlock('Memuat…')}</div>
+    </section>`;
+  wrap.querySelector('#rekap-fs').addEventListener('click', () => {
+    const on = wrap.classList.toggle('full');
+    wrap.querySelector('#rekap-fs').textContent = on ? 'Keluar Full Screen' : 'Full Screen';
+  });
+  wrap.querySelector('#rekap-search').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('#rekap-summary tbody tr').forEach(tr => {
+      tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
+    });
+  });
+  const yearSel = wrap.querySelector('#rekap-year');
+  yearSel.addEventListener('change', () => loadRekap(yearSel.value));
+  loadRekap(yearSel.value);
+}
+
+async function loadRekap(year) {
+  const el = document.getElementById('rekap-summary');
+  try {
+    const r = await api('/api/tarik/rekap-bulanan?year=' + year);
+    renderRekapRows(r);
+  } catch (err) {
+    el.innerHTML = `<div class="error-state">Gagal memuat: ${esc(err.message)}</div>`;
+  }
+}
+
+function renderRekapRows(r) {
+  const el = document.getElementById('rekap-summary');
+  const done = r.data.filter(d => d.total > 0 || d.saldo_awal > 0).length;
+  const mS1 = MLBL.slice(0, 6).map(m => `<th class="n m">${m}</th>`).join('');
+  const mS2 = MLBL.slice(6).map(m => `<th class="n m">${m}</th>`).join('');
+  el.innerHTML = `<div class="summary-stat"><b>${done}</b> dari ${r.data.length} OPD punya data tahun ${r.year}</div>
+    <div class="sum-table rekap">
+      <table>
+        <thead>
+          <tr class="grp">
+            <th class="stick" rowspan="2">OPD</th>
+            <th rowspan="2" class="saldo">Saldo Awal</th>
+            <th colspan="6" class="grp-in">Penerimaan S1 (Jan–Jun)</th>
+            <th colspan="6" class="grp-in">Penerimaan S2 (Jul–Des)</th>
+            <th rowspan="2" class="tin strong">Total</th>
+          </tr>
+          <tr>${mS1}${mS2}</tr>
+        </thead>
+        <tbody>${r.data.map(d => `
+          <tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
+            <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}</span></td>
+            <td class="n saldo">${fmtID(d.saldo_awal)}</td>
+            ${d.months.slice(0,6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
+            ${d.months.slice(6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
+            <td class="n strong tot-in">${fmtID(d.total)}</td>
           </tr>`).join('')}</tbody>
       </table>
     </div>`;

@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const { Pool } = require('pg');
 const crypto = require('crypto');
+const { isMssqlConfigured, getMssqlPool } = require('./mssql');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,6 +13,9 @@ const PORT = process.env.PORT || 3000;
 const opds = JSON.parse(fs.readFileSync(path.join(__dirname, 'OPDHerman.json'), 'utf8'));
 // salin terurut berdasarkan kode OPD (dipakai untuk tabel statistik + rekonsiliasi + autocomplete)
 const opdsByCode = [...opds].sort((a, b) => a.PBSubk.localeCompare(b.PBSubk));
+// mapping kode OPD <-> 16-char NoTerima prefix (sumber MSSQL)
+const opdToKey = code => String(code || '').replace(/\./g, '');
+const keyToOpd = key => { const k = String(key); return `${k.slice(0,6)}.${k.slice(6,11)}.${k.slice(11,16)}`; };
 
 // --- PostgreSQL (koneksi dari .env) ---
 if (!process.env.DATABASE_URL) {
@@ -222,6 +226,79 @@ app.put('/api/admin/opname/:code', requireAdmin, async (req, res) => {
     );
     res.json({ ok: true, opname_simaset: val });
   } catch (e) { console.error(e); res.status(500).json({ error: 'Gagal menyimpan' }); }
+});
+
+// --- Tarik data dari sumber MSSQL (read-only). Data item-level → admin-only ---
+function mssqlGuard(req, res) { if (!isMssqlConfigured()) { res.status(503).json({ error: 'MSSQL sumber belum dikonfigurasi' }); return false; } return true; }
+
+async function tarikDetail(res, { opd, periodeAwal, periodeAkhir, detailTable, headerTable, asalUsul, noTerimaMode }) {
+  if (!opd || !opds.some(o => o.PBSubk === opd)) return res.status(400).json({ error: 'OPD tidak dikenal' });
+  const noTerima = opdToKey(opd);
+  const noTerimaFilter = noTerimaMode === 'contains' ? "d.NoTerima LIKE '%' + @noTerima + '%'" : "d.NoTerima LIKE @noTerima + '%'";
+  const asalUsulClause = asalUsul ? 'AND h.AsalUsul = ' + asalUsul : '';
+  const q = `
+    WITH FilteredData AS (
+      SELECT d.NoTerima, d.ObjekPersediaan, op.Keterangan AS NamaBarang, d.Satuan, d.MerkType,
+             d.Jumlah, d.Harga, (d.Jumlah*d.Harga) AS TotalHarga, h.TglBAST AS BAST, h.NoBAST,
+             d.Kadaluwarsa, d.Keterangan, h.TglInput AS TglInput, LEFT(d.NoTerima,16) AS PBSubkNoDot
+      FROM ${detailTable} d WITH (NOLOCK)
+      JOIN ${headerTable} h WITH (NOLOCK) ON d.NoTerima = h.NoTerima
+      JOIN AsetMaster90.dbo.ObjekpersediaanPLU op WITH (NOLOCK) ON d.ObjekPersediaan = op.IDPLU
+      WHERE ${noTerimaFilter} ${asalUsulClause}
+        AND h.TglBAST >= CONVERT(DATETIME,@periodeAwal,120)
+        AND h.TglBAST <= CONVERT(DATETIME,@periodeAkhir,120)
+    )
+    SELECT NoTerima, ObjekPersediaan, NamaBarang, Satuan, MerkType, Jumlah, Harga, TotalHarga, BAST, NoBAST, Kadaluwarsa, Keterangan, TglInput
+    FROM FilteredData ORDER BY BAST ASC`;
+  try {
+    const conn = await getMssqlPool();
+    const r = await conn.request().input('noTerima', noTerima).input('periodeAwal', periodeAwal).input('periodeAkhir', periodeAkhir).query(q);
+    res.json({ opd, noTerima, periode_awal: periodeAwal, periode_akhir: periodeAkhir, count: r.recordset.length, data: r.recordset });
+  } catch (e) { console.error('Tarik detail error:', e); res.status(500).json({ error: 'Gagal menarik data dari sumber' }); }
+}
+
+app.get('/api/tarik/saldo-awal', requireAdmin, (req, res) => {
+  if (!mssqlGuard(req, res)) return;
+  tarikDetail(res, { opd: req.query.opd, periodeAwal: req.query.periode_awal || '2026-01-01', periodeAkhir: req.query.periode_akhir || '2026-12-31 23:59:59', detailTable: 'AsetPersediaan90.dbo.PenerimaanDetDPANon', headerTable: 'AsetPersediaan90.dbo.PenerimaanDPANon', asalUsul: "'AWAL'", noTerimaMode: 'prefix' });
+});
+app.get('/api/tarik/saldo-berjalan', requireAdmin, (req, res) => {
+  if (!mssqlGuard(req, res)) return;
+  tarikDetail(res, { opd: req.query.opd, periodeAwal: req.query.periode_awal || '2026-01-01', periodeAkhir: req.query.periode_akhir || '2026-12-31 23:59:59', detailTable: 'AsetPersediaan90.dbo.PenerimaanDetDPA', headerTable: 'AsetPersediaan90.dbo.PenerimaanDPA', asalUsul: null, noTerimaMode: 'contains' });
+});
+
+// Rekap bulanan (semua OPD): saldo awal th + total berjalan per bulan (di-agg di SQL)
+app.get('/api/tarik/rekap-bulanan', requireAdmin, async (req, res) => {
+  if (!mssqlGuard(req, res)) return;
+  const year = Math.min(2999, Math.max(1900, parseInt(req.query.year) || 2026));
+  const start = year + '-01-01', end = (year + 1) + '-01-01';
+  try {
+    const conn = await getMssqlPool();
+    const [berjalan, awal] = await Promise.all([
+      conn.request().input('start', start).input('end', end)
+        .query(`SELECT LEFT(pd.NoTerima,16) AS opd, MONTH(p.TglBAST) AS m, SUM(pd.Jumlah*pd.Harga) AS total
+                 FROM AsetPersediaan90.dbo.PenerimaanDetDPA pd WITH (NOLOCK)
+                 JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON pd.NoTerima = p.NoTerima
+                 WHERE p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
+                 GROUP BY LEFT(pd.NoTerima,16), MONTH(p.TglBAST)`),
+      conn.request().input('start', start).input('end', end)
+        .query(`SELECT LEFT(d.NoTerima,16) AS opd, SUM(d.Jumlah*d.Harga) AS total
+                 FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
+                 JOIN AsetPersediaan90.dbo.PenerimaanDPANon h WITH (NOLOCK) ON d.NoTerima = h.NoTerima
+                 WHERE h.AsalUsul='AWAL' AND h.TglBast >= CONVERT(DATETIME,@start,120) AND h.TglBast < CONVERT(DATETIME,@end,120)
+                 GROUP BY LEFT(d.NoTerima,16)`)
+    ]);
+    const map = {};
+    const ensure = k => (map[k] = map[k] || { saldo_awal: 0, months: Array(12).fill(0) });
+    awal.recordset.forEach(r => { ensure(r.opd).saldo_awal = Number(r.total) || 0; });
+    berjalan.recordset.forEach(r => { const i = Number(r.m) - 1; if (i >= 0 && i < 12) ensure(r.opd).months[i] += Number(r.total) || 0; });
+    const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+    const data = opdsByCode.map(o => {
+      const e = map[opdToKey(o.PBSubk)] || { saldo_awal: 0, months: Array(12).fill(0) };
+      const months = e.months.map(round2);
+      return { code: o.PBSubk, name: o.KetPBSubk, saldo_awal: round2(e.saldo_awal), months, total: round2(months.reduce((s, v) => s + v, 0)) };
+    });
+    res.json({ year, count: data.length, data });
+  } catch (e) { console.error('Rekap bulanan error:', e); res.status(500).json({ error: 'Gagal menarik rekap dari sumber' }); }
 });
 
 // Fallback ke index.html (SPA hash routing)
