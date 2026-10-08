@@ -228,7 +228,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .login-form .save-msg{ text-align:center; }
 .admin-card{ padding:18px; }
 .admin-table{ overflow-x:auto; border:2px solid var(--ink); border-radius:8px; }
-.admin-table table{ width:100%; border-collapse:separate; border-spacing:0; min-width:560px; font-size:13px; }
+.admin-table table{ width:100%; border-collapse:separate; border-spacing:0; min-width:640px; font-size:13px; }
 .admin-table th, .admin-table td{ padding:10px 12px; text-align:left; border-bottom:1.5px solid rgba(23,21,18,.12); }
 .admin-table thead th{ background:var(--ink); color:#fff; font-family:var(--font-display); font-size:11px; white-space:nowrap; }
 .admin-table .n{ text-align:right; font-variant-numeric:tabular-nums; }
@@ -237,6 +237,9 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .admin-table .sum-code{ display:block; font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
 .admin-inp{ width:150px; text-align:right; padding:9px 10px; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); font-family:var(--font-body); font-weight:800; font-size:15px; font-variant-numeric:tabular-nums; background:#fff; }
 .admin-inp:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
+.admin-save-btn{ padding:8px 12px; font-size:12px; box-shadow:var(--shadow-sm); min-width:92px; }
+.admin-save-btn.ok{ background:var(--green); color:#fff; }
+.admin-save-btn.err{ background:var(--red); color:#fff; }
 .admin-actions{ display:flex; align-items:center; gap:16px; margin-top:16px; }
 .admin-tools{ display:flex; align-items:center; gap:12px; }
 .admin .search{ font-family:var(--font-body); font-size:14px; font-weight:600; padding:9px 12px; border:2px solid var(--ink); border-radius:7px; background:var(--paper); color:var(--ink); min-width:200px; }

@@ -503,7 +503,7 @@ async function renderAdminPanel() {
       <div class="admin-head">
         <div>
           <h1 class="page-title">Rekonsiliasi <span>SIMASET</span></h1>
-          <p class="page-sub">Isi <b>Opname Simaset 2026</b> per OPD. Kolom <b>Selisih</b> terhitung otomatis terhadap Stock Opname Tahunan.</p>
+          <p class="page-sub">Isi <b>Opname Simaset 2026</b> per OPD. Kolom <b>Selisih</b> terhitung otomatis terhadap Stock Opname Tahunan. Simpan per OPD atau semua sekaligus.</p>
         </div>
         <div class="admin-tools">
           <input id="opd-search-admin" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari nama atau kode OPD">
@@ -518,8 +518,9 @@ async function renderAdminPanel() {
               <th class="n">Stock Opname Tahunan</th>
               <th class="n">Opname Simaset 2026</th>
               <th class="n">Selisih</th>
+              <th class="n">Aksi</th>
             </tr></thead>
-            <tbody id="admin-tbody"><tr class="loading-row"><td colspan="4"><span class="spinner"></span>Memuat…</td></tr></tbody>
+            <tbody id="admin-tbody"><tr class="loading-row"><td colspan="5"><span class="spinner"></span>Memuat…</td></tr></tbody>
           </table>
         </div>
         <div class="admin-actions">
@@ -550,10 +551,14 @@ async function renderAdminPanel() {
         <td class="n">${fmtID(r.stock_year)}</td>
         <td class="n"><input type="text" inputmode="decimal" class="num admin-inp" data-code="${esc(r.code)}" value="${fmtID(r.opname_simaset)}" aria-label="Opname Simaset 2026 ${esc(r.name)}"></td>
         <td class="n selisih" data-selisih="${esc(r.code)}">${fmtID(r.selisih)}</td>
+        <td class="n"><button type="button" class="btn ghost admin-save-btn" data-code="${esc(r.code)}">Simpan</button></td>
       </tr>`).join('');
     document.querySelectorAll('#admin-tbody .admin-inp').forEach(inp => {
       inp.addEventListener('input', () => { inp.value = liveFormat(inp.value); updateAdminSelisih(inp.dataset.code); });
       inp.addEventListener('blur', () => { inp.value = fmtID(parseMoney(inp.value)); updateAdminSelisih(inp.dataset.code); });
+    });
+    document.querySelectorAll('#admin-tbody .admin-save-btn').forEach(btn => {
+      btn.addEventListener('click', () => saveOne(btn.dataset.code));
     });
     app.setAttribute('aria-busy', 'false');
   } catch (err) {
@@ -583,6 +588,20 @@ async function saveAdmin() {
     msg.className = 'save-msg err'; msg.textContent = 'Gagal: ' + err.message;
   }
   btn.disabled = false;
+}
+async function saveOne(code) {
+  const btn = document.querySelector(`#admin-tbody .admin-save-btn[data-code="${code}"]`);
+  const inp = document.querySelector(`#admin-tbody .admin-inp[data-code="${code}"]`);
+  if (!btn || !inp) return;
+  btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try {
+    await api('/api/admin/opname/' + encodeURIComponent(code), { method: 'PUT', body: JSON.stringify({ opname_simaset: round2(parseMoney(inp.value)) }) });
+    btn.textContent = 'Tersimpan ✓'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Simpan'; btn.classList.remove('ok'); btn.disabled = false; }, 1500);
+  } catch (err) {
+    btn.textContent = 'Gagal'; btn.classList.add('err');
+    setTimeout(() => { btn.textContent = 'Simpan'; btn.classList.remove('err'); btn.disabled = false; }, 1500);
+  }
 }
 
 /* ---------- boot ---------- */
