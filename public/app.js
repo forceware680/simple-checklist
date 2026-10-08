@@ -464,14 +464,23 @@ async function renderAdmin() {
 }
 function renderAdminLogin() {
   app.innerHTML = header() + `
-    <main class="wrap admin">
-      <div class="card admin-login">
-        <h2>Login Admin</h2>
-        <p class="admin-sub">Area khusus admin untuk rekonsiliasi data <b>SIMASET</b>.</p>
-        <form id="admin-login-form">
-          <div class="frow"><label class="field-label" for="al-user">Username</label><input type="text" id="al-user" autocomplete="username" required></div>
-          <div class="frow"><label class="field-label" for="al-pass">Password</label><input type="password" id="al-pass" autocomplete="current-password" required></div>
-          <button type="submit" class="btn primary">Masuk</button>
+    <main class="wrap admin admin-auth">
+      <div class="card login-card">
+        <div class="login-head">
+          <span class="login-badge">ADMIN</span>
+          <h1 class="login-title">Rekonsiliasi <span>SIMASET</span></h1>
+          <p class="login-sub">Area khusus admin. Isi <b>Opname Simaset 2026</b> per OPD, lalu cocokkan dengan stock opname dari checklist.</p>
+        </div>
+        <form id="admin-login-form" class="login-form">
+          <div class="login-field">
+            <label class="field-label" for="al-user">Username</label>
+            <input type="text" id="al-user" autocomplete="username" required placeholder="admin">
+          </div>
+          <div class="login-field">
+            <label class="field-label" for="al-pass">Password</label>
+            <input type="password" id="al-pass" autocomplete="current-password" required placeholder="••••••••••">
+          </div>
+          <button type="submit" class="btn primary login-btn">Masuk</button>
           <div class="save-msg" id="al-msg" role="status" aria-live="polite"></div>
         </form>
       </div>
