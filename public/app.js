@@ -91,12 +91,14 @@ async function renderLanding() {
         <h2>Cara pakai</h2>
         <ol class="steps">
           <li>Ketik <b>nama / kode OPD</b> kamu, lalu pilih dari daftar.</li>
-          <li>Isi <b>total penerimaan</b> untuk tiap bulan (Jan–Des).</li>
-          <li>Isi <b>total pengeluaran</b> untuk tiap semester (S1 &amp; S2).</li>
+          <li>Isi <b>Saldo Awal 2026</b> — stok di awal tahun (dasar Stock Opname S1).</li>
+          <li>Isi <b>total penerimaan</b> tiap bulan (Jan–Des).</li>
+          <li>Isi <b>total pengeluaran</b> tiap semester (S1 &amp; S2).</li>
+          <li><b>Saldo Awal Juli</b> terisi otomatis — nggak perlu diketik.</li>
           <li>Klik <b>Simpan Checklist</b> — total &amp; stock opname terhitung otomatis.</li>
           <li>Cocokkan angka di menu <b>Statistik</b> dengan data <b>SIMASET</b>.</li>
         </ol>
-        <span class="note-chip">Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Stock opname: otomatis</span>
+        <span class="note-chip">Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Stock opname: otomatis &nbsp;·&nbsp; Angka: max 2 desimal</span>
       </section>
     </main>
     ${footer()}`;
