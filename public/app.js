@@ -10,6 +10,7 @@ const MONTH_SET = new Set(MONTHS.map(m => m[0]));
 const S1_MONTHS = new Set(['jan','feb','mar','apr','may','jun']);
 
 let OPDS = [];
+let clCode = null, clDirty = false, clSaving = false, clSaveTimer = null;
 const app = document.getElementById('app');
 
 /* ---------- helpers ---------- */
@@ -61,6 +62,7 @@ function header(active) {
 
 /* ---------- router ---------- */
 function render() {
+  if (clDirty && clCode) doSave(); // flush perubahan sebelum pindah halaman
   const hash = location.hash || '#/';
   app.setAttribute('aria-busy', 'true');
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
@@ -168,6 +170,9 @@ async function renderChecklist(code) {
     </main>` + footer();
     return;
   }
+  clCode = code; clDirty = false; clSaving = false;
+  if (clSaveTimer) { clearTimeout(clSaveTimer); clSaveTimer = null; }
+  window.removeEventListener('beforeunload', clUnload);
   app.innerHTML = header() + `
     <main class="wrap">
       <div class="cl-head">
@@ -286,37 +291,63 @@ function paintTotals() {
 function attachFormListeners() {
   document.querySelectorAll('#cl-body input[data-field]').forEach(inp => {
     inp.addEventListener('input', () => {
-      if (!inp.readOnly) inp.value = liveFormat(inp.value);
-      paintTotals();
+      if (!inp.readOnly) {
+        inp.value = liveFormat(inp.value);
+        paintTotals();
+        setDirty(true);
+        scheduleAutoSave();
+      }
     });
     inp.addEventListener('blur', () => {
       if (!inp.readOnly) inp.value = fmtID(parseMoney(inp.value));
     });
   });
   paintTotals();
-  document.getElementById('save-btn').addEventListener('click', saveChecklist);
+  document.getElementById('save-btn').addEventListener('click', () => doSave());
 }
 
-async function saveChecklist() {
-  const code = location.hash.slice(6);
+function clUnload(e) {
+  if (clDirty && !clSaving) { e.preventDefault(); e.returnValue = ''; }
+}
+function setDirty(dirty) {
+  clDirty = dirty;
+  const msg = document.getElementById('save-msg');
+  if (dirty) {
+    if (msg) { msg.className = 'save-msg'; msg.textContent = 'Belum disimpan…'; }
+    window.addEventListener('beforeunload', clUnload);
+  } else {
+    window.removeEventListener('beforeunload', clUnload);
+  }
+}
+function scheduleAutoSave() {
+  if (clSaveTimer) clearTimeout(clSaveTimer);
+  clSaveTimer = setTimeout(doSave, 1200);
+}
+async function doSave() {
+  if (clSaveTimer) { clearTimeout(clSaveTimer); clSaveTimer = null; }
+  if (clSaving || !clCode) return;
   const btn = document.getElementById('save-btn');
   const msg = document.getElementById('save-msg');
+  clSaving = true;
+  if (btn) btn.disabled = true;
   const data = {};
   document.querySelectorAll('#cl-body input[data-field]').forEach(inp => {
     data[inp.dataset.field] = round2(parseMoney(inp.value));
   });
-  btn.disabled = true;
-  msg.className = 'save-msg';
-  msg.textContent = 'Menyimpan…';
+  if (msg) { msg.className = 'save-msg'; msg.textContent = 'Menyimpan…'; }
   try {
-    await api('/api/opds/' + encodeURIComponent(code), { method: 'PUT', body: JSON.stringify(data) });
-    msg.className = 'save-msg ok';
-    msg.textContent = 'Tersimpan. Terima kasih.';
+    await api('/api/opds/' + encodeURIComponent(clCode), { method: 'PUT', body: JSON.stringify(data) });
+    const t = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Tersimpan ' + t + ' ✓'; }
+    if (btn) { btn.textContent = 'Tersimpan ✓'; setTimeout(() => { btn.textContent = 'Simpan Checklist'; }, 2000); }
+    setDirty(false);
   } catch (err) {
-    msg.className = 'save-msg err';
-    msg.textContent = 'Gagal menyimpan: ' + err.message;
+    if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menyimpan: ' + err.message + ' — coba lagi'; }
+    setDirty(true);
+    scheduleAutoSave(); // ulangi setelah 1,2 dtk
   }
-  btn.disabled = false;
+  clSaving = false;
+  if (btn) btn.disabled = false;
 }
 
 /* ---------- STATISTIK ---------- */
