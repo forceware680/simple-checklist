@@ -66,6 +66,7 @@ function render() {
   app.setAttribute('aria-busy', 'true');
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
   else if (hash === '#/statistik') renderStatistik();
+  else if (hash.startsWith('#/admin')) renderAdmin();
   else renderLanding();
 }
 
@@ -409,6 +410,7 @@ function renderSummary(sum) {
             <th colspan="2" class="grp-in">Penerimaan Tahunan</th>
             <th colspan="3" class="grp-out">Pengeluaran</th>
             <th colspan="3" class="grp-stock">Stock Opname</th>
+            <th colspan="2" class="grp-rec">Rekonsiliasi SIMASET</th>
           </tr>
           <tr>
             ${monthThS1}
@@ -421,6 +423,8 @@ function renderSummary(sum) {
             <th class="n m">S1</th>
             <th class="n m">S2</th>
             <th class="n strong stok">Tahunan</th>
+            <th class="n rec">Opname Simaset 2026</th>
+            <th class="n rec">Selisih</th>
           </tr>
         </thead>
         <tbody>${sum.map(s => `
@@ -442,9 +446,122 @@ function renderSummary(sum) {
             <td class="n stock${s.stock1 < 0 ? ' neg' : ''}">${fmtID(s.stock1)}</td>
             <td class="n stock${s.stock2 < 0 ? ' neg' : ''}">${fmtID(s.stock2)}</td>
             <td class="n strong stok${s.stock_year < 0 ? ' neg' : ''}">${fmtID(s.stock_year)}</td>
+            <td class="n rec">${fmtID(s.opname_simaset)}</td>
+            <td class="n rec selisih${s.selisih < 0 ? ' neg' : ''}${s.selisih === 0 ? ' zero' : ''}">${fmtID(s.selisih)}</td>
           </tr>`).join('')}</tbody>
       </table>
     </div>`;
+}
+
+/* ---------- ADMIN (tersembunyi, #/admin) ---------- */
+let adminStock = {};
+async function renderAdmin() {
+  app.setAttribute('aria-busy', 'true');
+  let me = { authenticated: false };
+  try { me = await api('/api/admin/me'); } catch (e) {}
+  if (!me.authenticated) return renderAdminLogin();
+  return renderAdminPanel();
+}
+function renderAdminLogin() {
+  app.innerHTML = header() + `
+    <main class="wrap admin">
+      <div class="card admin-login">
+        <h2>Login Admin</h2>
+        <p class="admin-sub">Area khusus admin untuk rekonsiliasi data <b>SIMASET</b>.</p>
+        <form id="admin-login-form">
+          <div class="frow"><label class="field-label" for="al-user">Username</label><input type="text" id="al-user" autocomplete="username" required></div>
+          <div class="frow"><label class="field-label" for="al-pass">Password</label><input type="password" id="al-pass" autocomplete="current-password" required></div>
+          <button type="submit" class="btn primary">Masuk</button>
+          <div class="save-msg" id="al-msg" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </main>` + footer();
+  document.getElementById('admin-login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const msg = document.getElementById('al-msg');
+    msg.className = 'save-msg'; msg.textContent = 'Memeriksa…';
+    try {
+      await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ username: document.getElementById('al-user').value, password: document.getElementById('al-pass').value }) });
+      renderAdmin();
+    } catch (err) {
+      msg.className = 'save-msg err'; msg.textContent = err.message;
+    }
+  });
+}
+async function renderAdminPanel() {
+  app.innerHTML = header() + `
+    <main class="wrap admin">
+      <div class="admin-head">
+        <div>
+          <h1 class="page-title">Rekonsiliasi <span>SIMASET</span></h1>
+          <p class="page-sub">Isi <b>Opname Simaset 2026</b> per OPD. Kolom <b>Selisih</b> terhitung otomatis terhadap Stock Opname Tahunan.</p>
+        </div>
+        <button class="btn ghost" id="admin-logout" type="button">Keluar</button>
+      </div>
+      <div class="card admin-card">
+        <div class="admin-table">
+          <table>
+            <thead><tr>
+              <th class="opd-col">OPD</th>
+              <th class="n">Stock Opname Tahunan</th>
+              <th class="n">Opname Simaset 2026</th>
+              <th class="n">Selisih</th>
+            </tr></thead>
+            <tbody id="admin-tbody">${loadingBlock('Memuat…')}</tbody>
+          </table>
+        </div>
+        <div class="admin-actions">
+          <button class="btn primary" id="admin-save" type="button">Simpan Semua</button>
+          <div class="save-msg" id="admin-msg" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </main>` + footer();
+  document.getElementById('admin-logout').addEventListener('click', async () => {
+    try { await api('/api/admin/logout', { method: 'POST' }); } catch (e) {}
+    renderAdminLogin();
+  });
+  document.getElementById('admin-save').addEventListener('click', saveAdmin);
+  try {
+    const data = await api('/api/admin/rekonsiliasi');
+    adminStock = {};
+    data.forEach(r => { adminStock[r.code] = r.stock_year; });
+    document.getElementById('admin-tbody').innerHTML = data.map(r => `
+      <tr data-code="${esc(r.code)}">
+        <td class="opd-col"><span class="opd-name">${esc(r.name)}</span><span class="sum-code">${esc(r.code)}</span></td>
+        <td class="n">${fmtID(r.stock_year)}</td>
+        <td class="n"><input type="text" inputmode="decimal" class="num admin-inp" data-code="${esc(r.code)}" value="${fmtID(r.opname_simaset)}" aria-label="Opname Simaset 2026 ${esc(r.name)}"></td>
+        <td class="n selisih" data-selisih="${esc(r.code)}">${fmtID(r.selisih)}</td>
+      </tr>`).join('');
+    document.querySelectorAll('#admin-tbody .admin-inp').forEach(inp => {
+      inp.addEventListener('input', () => { inp.value = liveFormat(inp.value); updateAdminSelisih(inp.dataset.code); });
+      inp.addEventListener('blur', () => { inp.value = fmtID(parseMoney(inp.value)); updateAdminSelisih(inp.dataset.code); });
+    });
+  } catch (err) {
+    document.getElementById('admin-tbody').innerHTML = `<tr><td colspan="4" class="error-state">Gagal memuat: ${esc(err.message)}</td></tr>`;
+  }
+}
+function updateAdminSelisih(code) {
+  const inp = document.querySelector(`#admin-tbody .admin-inp[data-code="${code}"]`);
+  const cell = document.querySelector(`#admin-tbody [data-selisih="${code}"]`);
+  if (!inp || !cell) return;
+  const sel = round2(parseMoney(inp.value) - (adminStock[code] || 0));
+  cell.textContent = fmtID(sel);
+  cell.classList.toggle('neg', sel < 0);
+  cell.classList.toggle('zero', sel === 0);
+}
+async function saveAdmin() {
+  const msg = document.getElementById('admin-msg');
+  const btn = document.getElementById('admin-save');
+  btn.disabled = true; msg.className = 'save-msg'; msg.textContent = 'Menyimpan…';
+  try {
+    const inputs = [...document.querySelectorAll('#admin-tbody .admin-inp')];
+    await Promise.all(inputs.map(inp =>
+      api('/api/admin/opname/' + encodeURIComponent(inp.dataset.code), { method: 'PUT', body: JSON.stringify({ opname_simaset: round2(parseMoney(inp.value)) }) })));
+    msg.className = 'save-msg ok'; msg.textContent = 'Tersimpan ✓';
+  } catch (err) {
+    msg.className = 'save-msg err'; msg.textContent = 'Gagal: ' + err.message;
+  }
+  btn.disabled = false;
 }
 
 /* ---------- boot ---------- */

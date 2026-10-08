@@ -174,7 +174,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .sum-head .search:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
 .summary-stat b{ font-family:var(--font-display); font-size:20px; color:var(--pink-deep); }
 .sum-table{ overflow:auto; max-height:82vh; border:2px solid var(--ink); border-radius:8px; }
-.sum-table table{ border-collapse:separate; border-spacing:0; width:100%; min-width:1600px; font-size:12px; }
+.sum-table table{ border-collapse:separate; border-spacing:0; width:100%; min-width:1720px; font-size:12px; }
 .sum-table th, .sum-table td{ padding:8px 10px; text-align:left; border-bottom:1.5px solid rgba(23,21,18,.12); }
 .sum-table thead th{ background:var(--ink); color:#fff; font-family:var(--font-display); font-size:10px; white-space:nowrap; }
 .sum-table thead .grp-in{ background:var(--yellow); color:var(--ink); text-align:center; }
@@ -196,11 +196,37 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .sum-table td.stock.neg, .sum-table td.stok.neg{ color:var(--red); }
 .sum-table tbody tr:hover td.stock{ background:#dbe6fa; }
 .sum-table tbody tr:hover td.stok{ background:#c7d9fb; }
+.sum-table thead .grp-rec{ background:var(--ink); color:#fff; text-align:center; }
+.sum-table thead th.rec{ background:var(--ink); color:#fff; }
+.sum-table td.rec{ background:#efeae0; }
+.sum-table td.rec.selisih.zero{ color:var(--green); font-weight:800; }
+.sum-table td.rec.selisih.neg{ color:var(--red); font-weight:800; }
+.sum-table tbody tr:hover td.rec{ background:#e6e0d3; }
 /* kolom OPD: sticky + kompak + fleksibel (nama boleh 2 baris) */
 .sum-table .stick{ position:sticky; left:0; z-index:2; background:var(--paper); min-width:118px; max-width:200px; border-right:2px solid var(--ink); }
 .sum-table thead{ position:sticky; top:0; z-index:5; }
 .sum-table thead th{ line-height:1.2; }
 .sum-table thead th.stick{ z-index:6; background:var(--ink); }
+
+/* ---------- ADMIN (rekonsiliasi SIMASET) ---------- */
+.admin{ max-width:820px; }
+.admin-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:20px; }
+.admin-login{ max-width:420px; margin:48px auto 0; }
+.admin-sub{ color:var(--muted); font-size:14px; margin:6px 0 18px; }
+.admin-card{ padding:18px; }
+.admin-table{ overflow-x:auto; border:2px solid var(--ink); border-radius:8px; }
+.admin-table table{ width:100%; border-collapse:separate; border-spacing:0; min-width:560px; font-size:13px; }
+.admin-table th, .admin-table td{ padding:10px 12px; text-align:left; border-bottom:1.5px solid rgba(23,21,18,.12); }
+.admin-table thead th{ background:var(--ink); color:#fff; font-family:var(--font-display); font-size:11px; white-space:nowrap; }
+.admin-table .n{ text-align:right; font-variant-numeric:tabular-nums; }
+.admin-table .opd-col{ min-width:200px; }
+.admin-table .opd-name{ display:block; font-weight:800; }
+.admin-table .sum-code{ display:block; font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
+.admin-inp{ width:150px; text-align:right; padding:9px 10px; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); font-family:var(--font-body); font-weight:800; font-size:15px; font-variant-numeric:tabular-nums; background:#fff; }
+.admin-inp:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
+.admin-actions{ display:flex; align-items:center; gap:16px; margin-top:16px; }
+.admin .selisih.zero{ color:var(--green); font-weight:800; }
+.admin .selisih.neg{ color:var(--red); font-weight:800; }
 .sum-table .opd-name{ display:block; font-weight:700; font-size:13px; line-height:1.25; }
 .sum-table tbody tr:hover td{ background:#fbf7ec; }
 .sum-table tbody tr:hover td.tot-in{ background:#fff3c4; }

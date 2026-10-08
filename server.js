@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { Pool } = require('pg');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,40 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const MONTHS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
 const COLS = ['saldo_awal', 'saldo_awal_juli', ...MONTHS, 'sem1', 'sem2'];
 
+// --- Admin auth (token signed stateless; secret dari .env) ---
+const ADMIN_SECRET = process.env.ADMIN_SECRET || '';
+const TOKEN_TTL = 12 * 60 * 60 * 1000; // 12 jam
+function adminSign(payloadObj) {
+  const payload = Buffer.from(JSON.stringify(payloadObj)).toString('base64url');
+  const sig = crypto.createHmac('sha256', ADMIN_SECRET).update(payload).digest('base64url');
+  return payload + '.' + sig;
+}
+function adminVerify(token) {
+  if (!token || typeof token !== 'string') return null;
+  const dot = token.indexOf('.');
+  if (dot < 0) return null;
+  const payload = token.slice(0, dot), sig = token.slice(dot + 1);
+  const expect = crypto.createHmac('sha256', ADMIN_SECRET).update(payload).digest('base64url');
+  const a = Buffer.from(sig), b = Buffer.from(expect);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  try {
+    const obj = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    if (!obj.exp || obj.exp < Date.now()) return null;
+    return obj;
+  } catch { return null; }
+}
+function getAdminToken(req) {
+  const c = req.headers.cookie || '';
+  const m = c.match(/(?:^|;\s*)admin_token=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+function requireAdmin(req, res, next) {
+  const obj = adminVerify(getAdminToken(req));
+  if (!obj) return res.status(401).json({ error: 'Belum login admin' });
+  req.admin = obj;
+  next();
+}
+
 async function ensureSchema() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS entries (
@@ -35,6 +70,7 @@ async function ensureSchema() {
   // migrasi: tambahkan kolom ke tabel lama, lalu konversi semua kolom angka ke NUMERIC(12,2) agar dukung desimal
   await pool.query('ALTER TABLE entries ADD COLUMN IF NOT EXISTS saldo_awal NUMERIC(12,2) NOT NULL DEFAULT 0');
   await pool.query('ALTER TABLE entries ADD COLUMN IF NOT EXISTS saldo_awal_juli NUMERIC(12,2) NOT NULL DEFAULT 0');
+  await pool.query('ALTER TABLE entries ADD COLUMN IF NOT EXISTS opname_simaset NUMERIC(12,2) NOT NULL DEFAULT 0');
   for (const c of COLS) {
     await pool.query(`ALTER TABLE entries ALTER COLUMN ${c} TYPE NUMERIC(12,2)`);
   }
@@ -103,6 +139,8 @@ app.get('/api/statistik', async (req, res) => {
       const stock1 = round2(saldo_awal + in_s1 - sem1);                      // saldo awal + Jan-Jun - pengeluaran S1
       const stock2 = round2(saldo_juli + in_s2 - sem2);                      // saldo awal Juli + Jul-Des - pengeluaran S2
       const stock_year = round2(saldo_awal + total_in - total_out);          // saldo awal + Jan-Des - (S1+S2)
+      const opname = round2((r ? Number(r.opname_simaset) : 0) || 0);
+      const selisih = round2(opname - stock_year);                           // Opname Simaset - Stock Opname Tahunan
       return {
         code: o.PBSubk,
         name: o.KetPBSubk,
@@ -121,7 +159,9 @@ app.get('/api/statistik', async (req, res) => {
         total_out,
         stock1,
         stock2,
-        stock_year
+        stock_year,
+        opname_simaset: opname,
+        selisih
       };
     });
     res.json(out);
@@ -129,6 +169,57 @@ app.get('/api/statistik', async (req, res) => {
     console.error(e);
     res.status(500).json({ error: 'Gagal memuat rekap' });
   }
+});
+
+// --- Admin: rekonsiliasi SIMASET (akses via #/admin, tidak tampil di menu) ---
+app.post('/api/admin/login', (req, res) => {
+  const u = (req.body && req.body.username) || '';
+  const p = (req.body && req.body.password) || '';
+  if (!process.env.ADMIN_USER || !process.env.ADMIN_PASS) return res.status(500).json({ error: 'Admin belum dikonfigurasi' });
+  if (u !== process.env.ADMIN_USER || p !== process.env.ADMIN_PASS) return res.status(401).json({ error: 'Username atau password salah' });
+  const token = adminSign({ user: process.env.ADMIN_USER, exp: Date.now() + TOKEN_TTL });
+  res.setHeader('Set-Cookie', `admin_token=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${Math.floor(TOKEN_TTL / 1000)}`);
+  res.json({ ok: true });
+});
+app.post('/api/admin/logout', (req, res) => {
+  res.setHeader('Set-Cookie', 'admin_token=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0');
+  res.json({ ok: true });
+});
+app.get('/api/admin/me', (req, res) => {
+  const obj = adminVerify(getAdminToken(req));
+  res.json({ authenticated: !!obj, user: obj ? obj.user : null });
+});
+app.get('/api/admin/rekonsiliasi', requireAdmin, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM entries');
+    const map = {}; rows.forEach(r => { map[r.opd_code] = r; });
+    const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+    const out = opds.map(o => {
+      const r = map[o.PBSubk];
+      const saldo_awal = r ? Number(r.saldo_awal) || 0 : 0;
+      const total_in = r ? MONTHS.reduce((s, m) => s + (Number(r[m]) || 0), 0) : 0;
+      const total_out = r ? (Number(r.sem1) || 0) + (Number(r.sem2) || 0) : 0;
+      const stock_year = round2(saldo_awal + total_in - total_out);
+      const opname = r ? round2(Number(r.opname_simaset) || 0) : 0;
+      return { code: o.PBSubk, name: o.KetPBSubk, stock_year, opname_simaset: opname, selisih: round2(opname - stock_year) };
+    });
+    res.json(out);
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Gagal memuat' }); }
+});
+app.put('/api/admin/opname/:code', requireAdmin, async (req, res) => {
+  const code = req.params.code;
+  if (!opds.some(o => o.PBSubk === code)) return res.status(400).json({ error: 'OPD tidak dikenal' });
+  const num = v => { const n = Math.round((Number(v) + Number.EPSILON) * 100) / 100; return isFinite(n) ? Math.max(0, n) : 0; };
+  const val = num(req.body && req.body.opname_simaset);
+  try {
+    await pool.query(
+      `INSERT INTO entries (opd_code, opname_simaset, updated_at)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (opd_code) DO UPDATE SET opname_simaset = EXCLUDED.opname_simaset, updated_at = EXCLUDED.updated_at`,
+      [code, val, new Date().toISOString()]
+    );
+    res.json({ ok: true, opname_simaset: val });
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Gagal menyimpan' }); }
 });
 
 // Fallback ke index.html (SPA hash routing)
