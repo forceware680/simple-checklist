@@ -203,12 +203,12 @@ function buildForm(entry) {
             value="${entry.saldo_awal || 0}" aria-label="Saldo Awal 2026">
         </div>
         <div class="frow">
-          <span class="frow-label">Saldo Awal Juli</span>
-          <input type="number" min="0" inputmode="numeric" class="num big" data-field="saldo_awal_juli"
-            value="${entry.saldo_awal_juli || 0}" aria-label="Saldo Awal Juli">
+          <span class="frow-label">Saldo Awal Juli <span class="auto-tag">otomatis</span></span>
+          <input type="number" min="0" inputmode="numeric" class="num big auto" data-field="saldo_awal_juli"
+            value="${entry.saldo_awal_juli || 0}" aria-label="Saldo Awal Juli (otomatis)" readonly>
         </div>
       </div>
-      <p class="cl-awal-note">Saldo Awal 2026 = stok di awal tahun (dasar Stock Opname S1). Saldo Awal Juli = stok di awal semester 2 (dasar Stock Opname S2).</p>
+      <p class="cl-awal-note">Saldo Awal 2026 = stok di awal tahun (dasar Stock Opname S1). <b>Saldo Awal Juli terisi otomatis</b> = (Total S1 + Awal) &minus; (Pengeluaran S1).</p>
     </section>
 
     <div class="cl-grid">
@@ -239,19 +239,22 @@ function buildForm(entry) {
 }
 
 function paintTotals() {
-  let inT = 0, outT = 0, inS1 = 0, outS1 = 0, outS2 = 0, saldoAwal = 0, saldoJuli = 0;
+  let inT = 0, outT = 0, inS1 = 0, outS1 = 0, outS2 = 0, saldoAwal = 0;
   document.querySelectorAll('#cl-body input[data-field]').forEach(inp => {
     const v = parseInt(inp.value, 10) || 0;
     const f = inp.dataset.field;
+    if (f === 'saldo_awal_juli') return;      // terhitung otomatis, tidak dibaca dari input
     if (f === 'saldo_awal') { saldoAwal = v; return; }
-    if (f === 'saldo_awal_juli') { saldoJuli = v; return; }
     if (MONTH_SET.has(f)) { inT += v; if (S1_MONTHS.has(f)) inS1 += v; }
     else { outT += v; if (f === 'sem1') outS1 = v; else if (f === 'sem2') outS2 = v; }
   });
   const inS2 = inT - inS1;                    // Jul-Des
   const stock1 = saldoAwal + inS1 - outS1;    // saldo awal + Jan-Jun - pengeluaran S1
+  const saldoJuli = stock1;                   // Saldo Awal Juli = (Total S1+Awal) - Pengeluaran S1
   const stock2 = saldoJuli + inS2 - outS2;    // saldo awal Juli + Jul-Des - pengeluaran S2
   const stockYear = saldoAwal + inT - outT;   // saldo awal + Jan-Des - pengeluaran tahunan
+  const salJuliEl = document.querySelector('#cl-body input[data-field="saldo_awal_juli"]');
+  if (salJuliEl) salJuliEl.value = saldoJuli; // isi otomatis
   const set = (cls, val) => { const el = document.querySelector('.' + cls); if (el) el.textContent = val; };
   set('tot-in', inT); set('tot-out', outT);
   set('rk-in', inT); set('rk-out', outT);

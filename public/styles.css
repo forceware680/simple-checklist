@@ -125,6 +125,9 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .frow-label{ font-weight:700; font-size:15px; }
 .num.big{ width:120px; text-align:center; padding:11px 10px; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); font-family:var(--font-body); font-weight:800; font-size:16px; font-variant-numeric:tabular-nums; background:#fff; }
 .num.big:focus{ outline:none; box-shadow:0 0 0 3px var(--blue); border-color:var(--ink); }
+.num.big.auto{ background:#f4efe1; cursor:default; }
+.num.big.auto:focus{ outline:none; box-shadow:none; }
+.auto-tag{ display:inline-block; margin-left:6px; padding:1px 7px; font-family:var(--font-body); font-weight:700; font-size:10px; letter-spacing:.04em; text-transform:uppercase; background:var(--yellow); border:1.5px solid var(--ink); border-radius:5px; vertical-align:middle; }
 .subline{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:12px; border-top:var(--border) solid var(--ink); font-weight:700; }
 .subline b{ font-family:var(--font-display); font-size:18px; }
 
