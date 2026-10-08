@@ -225,6 +225,10 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .admin-inp{ width:150px; text-align:right; padding:9px 10px; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); font-family:var(--font-body); font-weight:800; font-size:15px; font-variant-numeric:tabular-nums; background:#fff; }
 .admin-inp:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
 .admin-actions{ display:flex; align-items:center; gap:16px; margin-top:16px; }
+.admin-tools{ display:flex; align-items:center; gap:12px; }
+.admin .search{ font-family:var(--font-body); font-size:14px; font-weight:600; padding:9px 12px; border:2px solid var(--ink); border-radius:7px; background:var(--paper); color:var(--ink); min-width:200px; }
+.admin .search:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
+.admin .loading-row td{ text-align:center; padding:28px; color:var(--muted); }
 .admin .selisih.zero{ color:var(--green); font-weight:800; }
 .admin .selisih.neg{ color:var(--red); font-weight:800; }
 .sum-table .opd-name{ display:block; font-weight:700; font-size:13px; line-height:1.25; }

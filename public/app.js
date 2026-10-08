@@ -496,7 +496,10 @@ async function renderAdminPanel() {
           <h1 class="page-title">Rekonsiliasi <span>SIMASET</span></h1>
           <p class="page-sub">Isi <b>Opname Simaset 2026</b> per OPD. Kolom <b>Selisih</b> terhitung otomatis terhadap Stock Opname Tahunan.</p>
         </div>
-        <button class="btn ghost" id="admin-logout" type="button">Keluar</button>
+        <div class="admin-tools">
+          <input id="opd-search-admin" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari nama atau kode OPD">
+          <button class="btn ghost" id="admin-logout" type="button">Keluar</button>
+        </div>
       </div>
       <div class="card admin-card">
         <div class="admin-table">
@@ -507,7 +510,7 @@ async function renderAdminPanel() {
               <th class="n">Opname Simaset 2026</th>
               <th class="n">Selisih</th>
             </tr></thead>
-            <tbody id="admin-tbody">${loadingBlock('Memuat…')}</tbody>
+            <tbody id="admin-tbody"><tr class="loading-row"><td colspan="4"><span class="spinner"></span>Memuat…</td></tr></tbody>
           </table>
         </div>
         <div class="admin-actions">
@@ -521,12 +524,19 @@ async function renderAdminPanel() {
     renderAdminLogin();
   });
   document.getElementById('admin-save').addEventListener('click', saveAdmin);
+  const searchEl = document.getElementById('opd-search-admin');
+  searchEl.addEventListener('input', () => {
+    const q = searchEl.value.trim().toLowerCase();
+    document.querySelectorAll('#admin-tbody tr[data-code]').forEach(tr => {
+      tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
+    });
+  });
   try {
     const data = await api('/api/admin/rekonsiliasi');
     adminStock = {};
     data.forEach(r => { adminStock[r.code] = r.stock_year; });
     document.getElementById('admin-tbody').innerHTML = data.map(r => `
-      <tr data-code="${esc(r.code)}">
+      <tr data-code="${esc(r.code)}" data-search="${esc((r.name + ' ' + r.code).toLowerCase())}">
         <td class="opd-col"><span class="opd-name">${esc(r.name)}</span><span class="sum-code">${esc(r.code)}</span></td>
         <td class="n">${fmtID(r.stock_year)}</td>
         <td class="n"><input type="text" inputmode="decimal" class="num admin-inp" data-code="${esc(r.code)}" value="${fmtID(r.opname_simaset)}" aria-label="Opname Simaset 2026 ${esc(r.name)}"></td>
@@ -536,8 +546,10 @@ async function renderAdminPanel() {
       inp.addEventListener('input', () => { inp.value = liveFormat(inp.value); updateAdminSelisih(inp.dataset.code); });
       inp.addEventListener('blur', () => { inp.value = fmtID(parseMoney(inp.value)); updateAdminSelisih(inp.dataset.code); });
     });
+    app.setAttribute('aria-busy', 'false');
   } catch (err) {
     document.getElementById('admin-tbody').innerHTML = `<tr><td colspan="4" class="error-state">Gagal memuat: ${esc(err.message)}</td></tr>`;
+    app.setAttribute('aria-busy', 'false');
   }
 }
 function updateAdminSelisih(code) {
