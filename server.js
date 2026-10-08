@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 3000;
 
 // --- Data OPD (static, dari OPDHerman.json) ---
 const opds = JSON.parse(fs.readFileSync(path.join(__dirname, 'OPDHerman.json'), 'utf8'));
+// salin terurut berdasarkan kode OPD (dipakai untuk tabel statistik + rekonsiliasi + autocomplete)
+const opdsByCode = [...opds].sort((a, b) => a.PBSubk.localeCompare(b.PBSubk));
 
 // --- PostgreSQL (koneksi dari .env) ---
 if (!process.env.DATABASE_URL) {
@@ -79,7 +81,7 @@ async function ensureSchema() {
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/api/opds', (req, res) => res.json(opds));
+app.get('/api/opds', (req, res) => res.json(opdsByCode));
 
 // Isian satu OPD (total penerimaan per bulan + total pengeluaran per semester)
 app.get('/api/opds/:code', async (req, res) => {
@@ -122,7 +124,7 @@ app.get('/api/statistik', async (req, res) => {
     const map = {};
     rows.forEach(r => { map[r.opd_code] = r; });
     const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
-    const out = opds.map(o => {
+    const out = opdsByCode.map(o => {
       const r = map[o.PBSubk];
       const saldo_awal = round2((r ? Number(r.saldo_awal) : 0) || 0);
       const saldo_juli = round2((r ? Number(r.saldo_awal_juli) : 0) || 0);
@@ -194,7 +196,7 @@ app.get('/api/admin/rekonsiliasi', requireAdmin, async (req, res) => {
     const { rows } = await pool.query('SELECT * FROM entries');
     const map = {}; rows.forEach(r => { map[r.opd_code] = r; });
     const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
-    const out = opds.map(o => {
+    const out = opdsByCode.map(o => {
       const r = map[o.PBSubk];
       const saldo_awal = r ? Number(r.saldo_awal) || 0 : 0;
       const total_in = r ? MONTHS.reduce((s, m) => s + (Number(r[m]) || 0), 0) : 0;
