@@ -590,7 +590,7 @@ async function renderRekapOpd(code) {
   app.innerHTML = header('rekap') + `
     <main class="wrap">
       <h1 class="page-title" id="rekapopd-title">${esc(code)}</h1>
-      <p class="page-sub"><a href="#/rekap" class="back-link">&larr; Kembali ke SIMASET</a></p>
+      <p class="page-sub"><a href="#/rekap" class="back-link"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Kembali ke SIMASET</a></p>
       <div id="rekapopd-body">${loadingBlock('Memuat…')}</div>
     </main>
     ${footer()}`;
@@ -709,7 +709,7 @@ function renderRekonsiliasiRows(r) {
       ? (isCocok(d) ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
       : '<span class="rek-st none">Kosong</span>';
     const chev = isBeda
-      ? `<a class="rek-exp" href="#/rekonsiliasi/${encodeURIComponent(d.code)}" aria-label="Lihat rincian ${esc(d.name)}"><span class="rek-exp-chev" aria-hidden="true"></span></a>`
+      ? `<a class="rek-exp" href="#/rekonsiliasi/${encodeURIComponent(d.code)}" aria-label="Lihat rincian ${esc(d.name)}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`
       : '';
     return `<tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
       <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}${chev}</span></td>
@@ -768,7 +768,7 @@ async function renderRekonsiliasiOpd(code) {
   app.innerHTML = header('rekonsiliasi') + `
     <main class="wrap">
       <h1 class="page-title" id="rekopd-title">${esc(code)}</h1>
-      <p class="page-sub"><a href="#/rekonsiliasi" class="back-link">&larr; Kembali ke Rekonsiliasi</a></p>
+      <p class="page-sub"><a href="#/rekonsiliasi" class="back-link"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Kembali ke Rekonsiliasi</a></p>
       <div id="rekopd-body">${loadingBlock('Memuat…')}</div>
     </main>
     ${footer()}`;
