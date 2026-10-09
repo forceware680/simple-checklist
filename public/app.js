@@ -113,7 +113,7 @@ async function renderLanding() {
           <li>Jika menemukan <b>selisih</b>, segera <b>tindak lanjuti</b>.</li>
         </ol>
         <span class="note-chip">Total per OPD (bukan per barang) &nbsp;·&nbsp; Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Saldo Akhir: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
-        <p class="howto-note">Tugas kamu sampai di <b>Simpan</b>. Angka <b>saldo akhir</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b>. Kamu tidak perlu mengisi bagian SIMASET.</p>
+        <p class="howto-note">Setelah kamu isi, <b>rekonsiliasi</b> akan berjalan secara <b>otomatis</b>. Kamu bisa cek menu <b>Rekonsiliasi</b> di menu navigasi.</p>
       </section>
     </main>
     ${footer()}`;
