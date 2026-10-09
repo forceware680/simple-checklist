@@ -183,7 +183,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 /* ---------- Statistik ---------- */
 .summary-stat{ font-family:var(--font-body); font-weight:600; margin-bottom:14px; }
 .sum-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
-.sum-head h2{ margin:0; }
+.sum-head h2{ font-size:18px; margin:0; }
 .card > h2{ font-size:18px; margin:0 0 12px; }
 .sum-head .btn{ padding:9px 14px; font-size:13px; box-shadow:var(--shadow-sm); }
 .sum-head .btn:hover{ box-shadow:4px 4px 0 var(--ink); }
