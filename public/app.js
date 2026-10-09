@@ -56,7 +56,7 @@ function header(active) {
     <nav class="topnav">
       <a href="#/" class="nav-link ${active === 'home' ? 'on' : ''}">Beranda</a>
       <a href="#/pp-pakai-habis" class="nav-link ${active === 'pp' ? 'on' : ''}">Laporan Manual</a>
-      <a href="#/rekap" class="nav-link ${active === 'rekap' ? 'on' : ''}">Rekap</a>
+      <a href="#/rekap" class="nav-link ${active === 'rekap' ? 'on' : ''}">SIMASET</a>
       <a href="#/rekonsiliasi" class="nav-link ${active === 'rekonsiliasi' ? 'on' : ''}">Rekonsiliasi</a>
     </nav>
   </header>`;
@@ -494,21 +494,17 @@ function renderSummary(sum) {
 async function renderRekap() {
   app.innerHTML = header('rekap') + `
     <main class="wrap" id="rekap-wrap">
-      <h1 class="page-title">Rekap Bulanan</h1>
+      <h1 class="page-title">SIMASET</h1>
       <p class="page-sub">Total <b>nilai (TotalHarga)</b> penerimaan dari SIMASET, per OPD per bulan (TA 2026). <b>Saldo Awal</b> = saldo awal th; jika 0 → otomatis <b>saldo th lalu</b>. Kolom bulan dari tanggal <b>BAST</b> saldo berjalan.</p>
       <div id="rekap-body">${loadingBlock('Memuat rekap…')}</div>
     </main>
     ${footer()}`;
+  // Halaman publik; tombol "Tarik Semua" cuma muncul buat admin
   const me = await api('/api/admin/me').catch(() => ({ authenticated: false }));
-  if (!me.authenticated) {
-    document.getElementById('rekap-body').innerHTML =
-      `<div class="error-state">Halaman ini <b>khusus admin</b>. <a href="#/admin">Login admin</a> untuk lanjut.</div>`;
-    return;
-  }
-  renderRekapTable();
+  renderRekapTable(!!me.authenticated);
 }
 
-function renderRekapTable() {
+function renderRekapTable(isAdmin) {
   const body = document.getElementById('rekap-body');
   const wrap = document.getElementById('rekap-wrap');
   body.innerHTML = `
@@ -517,7 +513,7 @@ function renderRekapTable() {
         <h2>Rekap OPD <span class="rekap-tag">TA 2026</span></h2>
         <div class="sum-actions">
           <input id="rekap-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
-          <button id="rekap-pullall" class="btn ghost" type="button">Tarik Semua ke Temp</button>
+          ${isAdmin ? '<button id="rekap-pullall" class="btn ghost" type="button">Tarik Semua ke Temp</button>' : ''}
           <button id="rekap-fs" class="btn ghost" type="button">Full Screen</button>
         </div>
       </div>
@@ -528,7 +524,8 @@ function renderRekapTable() {
     const on = wrap.classList.toggle('full');
     wrap.querySelector('#rekap-fs').textContent = on ? 'Keluar Full Screen' : 'Full Screen';
   });
-  wrap.querySelector('#rekap-pullall').addEventListener('click', rekapPullAll);
+  const pullAllBtn = wrap.querySelector('#rekap-pullall');
+  if (pullAllBtn) pullAllBtn.addEventListener('click', rekapPullAll);
   wrap.querySelector('#rekap-search').addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase();
     document.querySelectorAll('#rekap-summary tbody tr').forEach(tr => {
@@ -618,15 +615,10 @@ async function renderRekapOpd(code) {
   app.innerHTML = header('rekap') + `
     <main class="wrap">
       <h1 class="page-title" id="rekapopd-title">${esc(code)}</h1>
-      <p class="page-sub"><a href="#/rekap" class="back-link">&larr; Kembali ke Rekap</a></p>
+      <p class="page-sub"><a href="#/rekap" class="back-link">&larr; Kembali ke SIMASET</a></p>
       <div id="rekapopd-body">${loadingBlock('Memuat…')}</div>
     </main>
     ${footer()}`;
-  const me = await api('/api/admin/me').catch(() => ({ authenticated: false }));
-  if (!me.authenticated) {
-    document.getElementById('rekapopd-body').innerHTML = `<div class="error-state">Halaman ini <b>khusus admin</b>. <a href="#/admin">Login admin</a> untuk lanjut.</div>`;
-    return;
-  }
   loadRekapOpd(code);
 }
 

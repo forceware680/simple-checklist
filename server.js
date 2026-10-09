@@ -418,7 +418,7 @@ async function upsertTarikTemp(r) {
   `, vals);
 }
 
-app.get('/api/tarik/rekap-bulanan', requireAdmin, async (req, res) => {
+app.get('/api/tarik/rekap-bulanan', async (req, res) => {
   if (!mssqlGuard(req, res)) return;
   const year = 2026;
   const start = year + '-01-01', end = (year + 1) + '-01-01';
@@ -499,7 +499,7 @@ app.get('/api/tarik/rekap-bulanan', requireAdmin, async (req, res) => {
 });
 
 // Rekap per OPD (drill-down): slice-sum berjalan per bulan + saldo (awal/th_lalu) + rincian item
-app.get('/api/tarik/rekap-opd', requireAdmin, async (req, res) => {
+app.get('/api/tarik/rekap-opd', async (req, res) => {
   if (!mssqlGuard(req, res)) return;
   const code = req.query.opd;
   if (!code || !opds.some(o => o.PBSubk === code)) return res.status(400).json({ error: 'OPD tidak dikenal' });
@@ -588,7 +588,7 @@ app.get('/api/tarik/rekap-opd', requireAdmin, async (req, res) => {
 });
 
 // Tarik 1 OPD dari sumber (MSSQL) → simpan ke tabel temp (tarik_temp). Dipakai tombol "Tarik" di /opd/:code
-app.post('/api/tarik/pull', requireAdmin, async (req, res) => {
+app.post('/api/tarik/pull', async (req, res) => {
   if (!mssqlGuard(req, res)) return;
   const code = req.query.opd;
   if (!code || !opds.some(o => o.PBSubk === code)) return res.status(400).json({ error: 'OPD tidak dikenal' });
