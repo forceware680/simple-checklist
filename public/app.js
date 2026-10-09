@@ -82,6 +82,7 @@ async function renderLanding() {
       <section class="hero">
         <div class="hero-copy">
           <h1>Rekonsiliasi Persediaan<br>Tahun Anggaran <span>2026</span></h1>
+          <p class="hero-sub">Membandingkan data <b>SIMASET</b> dengan <b>Laporan Manual</b> persediaan tiap OPD.</p>
         </div>
         <div class="opd-card card">
           <label class="field-label" for="opd-input">Pilih OPD / Unit kamu</label>
@@ -185,6 +186,7 @@ async function renderChecklist(code) {
           <h1>${esc(opd.KetPBSubk)}</h1>
           <span class="cl-code">${esc(opd.PBSubk)}</span>
         </div>
+        <p class="cl-sub">Isi data persediaan dari <b>Laporan Manual</b> — saldo awal, penerimaan per bulan, dan pengeluaran per semester.</p>
       </div>
       <div id="cl-body" class="cl-body">${loadingBlock('Memuat Laporan Manual…')}</div>
     </main>
@@ -390,7 +392,7 @@ async function renderStatistik() {
   app.innerHTML = header('pp') + `
     <main class="wrap" id="stats-wrap">
       <h1 class="page-title">Laporan Manual</h1>
-      <p class="page-sub">Rekap seluruh OPD: penerimaan per bulan &amp; pengeluaran per semester.</p>
+      <p class="page-sub">Rekap data <b>Laporan Manual</b> seluruh OPD — penerimaan per bulan, pengeluaran per semester, dan stock opname.</p>
       <section class="card admin-summary">
         <div class="sum-head">
           <h2>Rekap PP Pakai Habis Per OPD</h2>
@@ -493,7 +495,7 @@ async function renderRekap() {
   app.innerHTML = header('rekap') + `
     <main class="wrap" id="rekap-wrap">
       <h1 class="page-title">SIMASET</h1>
-      <p class="page-sub">Total <b>nilai (TotalHarga)</b> penerimaan dari SIMASET, per OPD per bulan (TA 2026). <b>Saldo Awal</b> = saldo awal th; jika 0 → otomatis <b>saldo th lalu</b>. Kolom bulan dari tanggal <b>BAST</b> saldo berjalan.</p>
+      <p class="page-sub">Data persediaan dari <b>SIMASET</b> (sumber resmi) per OPD. Total <b>nilai (TotalHarga)</b> penerimaan per bulan (TA 2026). <b>Saldo Awal</b> = saldo awal th; jika 0 → otomatis <b>saldo th lalu</b>. Kolom bulan dari tanggal <b>BAST</b> saldo berjalan.</p>
       <div id="rekap-body">${loadingBlock('Memuat rekap…')}</div>
     </main>
     ${footer()}`;
@@ -685,7 +687,7 @@ async function renderRekonsiliasi() {
   app.innerHTML = header('rekonsiliasi') + `
     <main class="wrap">
       <h1 class="page-title">Rekonsiliasi</h1>
-      <p class="page-sub">Membandingkan <b>SIMASET</b> (data ditarik dari database SIMASET) dengan <b>Laporan Manual</b> (data diisikan pengurus). <b>Selisih</b> = SIMASET − Laporan Manual.</p>
+      <p class="page-sub">Membandingkan <b>SIMASET</b> (sumber resmi) dengan <b>Laporan Manual</b> (isian pengurus) per OPD. <b>Selisih</b> = SIMASET − Laporan Manual.</p>
       <section class="card admin-summary">
         <div class="sum-head">
           <h2>Rekonsiliasi <span class="rekap-tag">SIMASET vs Laporan Manual</span></h2>

@@ -111,6 +111,8 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .cl-kicker{ font-family:var(--font-display); font-size:12px; letter-spacing:.05em; color:var(--muted); }
 .cl-title h1{ font-size:clamp(24px,5vw,38px); margin:4px 0 2px; }
 .cl-code{ font-family:var(--font-body); font-weight:700; font-size:13px; color:var(--muted); background:var(--paper); border:2px solid var(--ink); border-radius:6px; padding:3px 8px; }
+.cl-sub{ margin:10px 0 0; font-size:15px; font-weight:600; color:#433f37; max-width:62ch; }
+.cl-sub b{ font-weight:800; }
 .cl-body{ min-height:120px; }
 
 /* ---------- Form ---------- */
