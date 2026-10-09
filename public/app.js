@@ -765,7 +765,7 @@ function renderRekonsiliasiRows(r) {
         <span class="rek-d-name">${esc(d.name)}</span>
         <span class="sum-code">${esc(d.code)}</span>
         <span class="rek-d-badge">${diffCount} beda</span>
-        <span class="rek-d-sel${d.selisih.total !== 0 ? ' neg' : ''}">Selisih ${fmtID(d.selisih.total)}</span>
+        <span class="rek-d-sel${(d.selisih.saldo_awal + d.selisih.total) !== 0 ? ' neg' : ''}">Selisih ${fmtID(d.selisih.saldo_awal + d.selisih.total)}</span>
         <span class="rek-d-chev" aria-hidden="true"></span>
       </summary>
       <div class="rek-d-body">
