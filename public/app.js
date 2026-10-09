@@ -195,6 +195,10 @@ async function renderChecklist(code) {
     const body = document.getElementById('cl-body');
     body.innerHTML = buildForm(entry);
     attachFormListeners();
+    // tombol "Tarik" hanya untuk admin (endpoint sumber-nya admin-only)
+    const me = await api('/api/admin/me').catch(() => ({ authenticated: false }));
+    const tarik = document.getElementById('tarik-btn');
+    if (tarik) tarik.hidden = !me.authenticated;
   } catch (err) {
     document.getElementById('cl-body').innerHTML =
       `<div class="card error-state">Gagal memuat data: ${esc(err.message)}.
@@ -261,7 +265,10 @@ function buildForm(entry) {
 
     <div class="savebar">
       <div id="save-msg" class="save-msg" role="status" aria-live="polite"></div>
-      <button id="save-btn" class="btn primary">Simpan Checklist</button>
+      <div class="savebar-btns">
+        <button id="tarik-btn" class="btn ghost" type="button" hidden>Tarik dari Sumber</button>
+        <button id="save-btn" class="btn primary">Simpan Checklist</button>
+      </div>
     </div>`;
 }
 
@@ -306,6 +313,30 @@ function attachFormListeners() {
   });
   paintTotals();
   document.getElementById('save-btn').addEventListener('click', () => doSave());
+  const tarik = document.getElementById('tarik-btn');
+  if (tarik) tarik.addEventListener('click', tarikFill);
+}
+
+// Tarik data terbaru dari sumber (MSSQL) → isi saldo awal + penerimaan per bulan.
+// TIDAK auto-save — hanya mengisi form; user tetap klik "Simpan Checklist".
+async function tarikFill() {
+  if (!clCode || clSaving) return;
+  const btn = document.getElementById('tarik-btn');
+  const msg = document.getElementById('save-msg');
+  if (btn) { btn.disabled = true; btn.textContent = 'Menarik…'; }
+  if (msg) { msg.className = 'save-msg'; msg.textContent = 'Menarik data dari sumber…'; }
+  try {
+    const r = await api('/api/tarik/rekap-opd?opd=' + encodeURIComponent(clCode));
+    const setVal = (field, val) => { const inp = document.querySelector('#cl-body input[data-field="' + field + '"]'); if (inp) inp.value = fmtID(val); };
+    setVal('saldo_awal', r.saldo_awal);
+    r.months.forEach((v, i) => setVal(MONTHS[i][0], v));
+    paintTotals();
+    setDirty(true);
+    if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Data ditarik' + (r.saldo_src === 'th_lalu' ? ' (saldo dari th lalu)' : '') + ' — cek lalu Simpan'; }
+  } catch (err) {
+    if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menarik: ' + err.message; }
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Tarik dari Sumber'; }
 }
 
 function clUnload(e) {
