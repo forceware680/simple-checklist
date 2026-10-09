@@ -324,6 +324,64 @@ function buildSqlThLalu(inList) {
     GROUP BY s.opd`;
 }
 
+// Saldo berjalan (DPA) + saldo lain-lain (DPANon non-AWAL), per bulan via TglBast.
+function sqlBerjalanOne() {
+  return `SELECT m, SUM(total) AS total FROM (
+    SELECT MONTH(p.TglBAST) AS m, pd.Jumlah*pd.Harga AS total
+    FROM AsetPersediaan90.dbo.PenerimaanDetDPA pd WITH (NOLOCK)
+    JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON pd.NoTerima = p.NoTerima
+    WHERE LEFT(pd.NoTerima,16) = @opd
+      AND p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
+    UNION ALL
+    SELECT MONTH(h.TglBast) AS m, d.Jumlah*d.Harga AS total
+    FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
+    JOIN AsetPersediaan90.dbo.PenerimaanDPANon h WITH (NOLOCK) ON d.NoTerima = h.NoTerima
+    WHERE h.AsalUsul <> 'AWAL'
+      AND h.TglBast >= CONVERT(DATETIME,@start,120) AND h.TglBast < CONVERT(DATETIME,@end,120)
+      AND LEFT(d.NoTerima,16) = @opd
+  ) t GROUP BY m`;
+}
+
+// Versi batch (semua OPD, GROUP BY opd + bulan).
+function sqlBerjalanBatch(inList) {
+  return `SELECT opd, m, SUM(total) AS total FROM (
+    SELECT LEFT(pd.NoTerima,16) AS opd, MONTH(p.TglBAST) AS m, pd.Jumlah*pd.Harga AS total
+    FROM AsetPersediaan90.dbo.PenerimaanDetDPA pd WITH (NOLOCK)
+    JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON pd.NoTerima = p.NoTerima
+    WHERE p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
+      AND LEFT(pd.NoTerima,16) IN (${inList})
+    UNION ALL
+    SELECT LEFT(d.NoTerima,16) AS opd, MONTH(h.TglBast) AS m, d.Jumlah*d.Harga AS total
+    FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
+    JOIN AsetPersediaan90.dbo.PenerimaanDPANon h WITH (NOLOCK) ON d.NoTerima = h.NoTerima
+    WHERE h.AsalUsul <> 'AWAL'
+      AND h.TglBast >= CONVERT(DATETIME,@start,120) AND h.TglBast < CONVERT(DATETIME,@end,120)
+      AND LEFT(d.NoTerima,16) IN (${inList})
+  ) t GROUP BY opd, m`;
+}
+
+// Rincian item (DPA + DPANon non-AWAL) untuk drill-down per OPD.
+function sqlItemsOne() {
+  return `SELECT * FROM (
+    SELECT d.NoTerima, op.Keterangan AS NamaBarang, d.Satuan, d.MerkType, d.Jumlah, d.Harga,
+           (d.Jumlah*d.Harga) AS TotalHarga, p.TglBAST AS BAST, p.NoBAST
+    FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
+    JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima = p.NoTerima
+    JOIN AsetMaster90.dbo.ObjekpersediaanPLU op WITH (NOLOCK) ON d.ObjekPersediaan = op.IDPLU
+    WHERE LEFT(d.NoTerima,16) = @opd
+      AND p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
+    UNION ALL
+    SELECT d.NoTerima, op.Keterangan AS NamaBarang, d.Satuan, d.MerkType, d.Jumlah, d.Harga,
+           (d.Jumlah*d.Harga) AS TotalHarga, h.TglBast AS BAST, h.NoBAST
+    FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
+    JOIN AsetPersediaan90.dbo.PenerimaanDPANon h WITH (NOLOCK) ON d.NoTerima = h.NoTerima
+    JOIN AsetMaster90.dbo.ObjekpersediaanPLU op WITH (NOLOCK) ON d.ObjekPersediaan = op.IDPLU
+    WHERE h.AsalUsul <> 'AWAL'
+      AND h.TglBast >= CONVERT(DATETIME,@start,120) AND h.TglBast < CONVERT(DATETIME,@end,120)
+      AND LEFT(d.NoTerima,16) = @opd
+  ) t ORDER BY BAST ASC`;
+}
+
 // Tarik rekap SEMUA OPD dari MSSQL (batched, 3 query). Return [{code,name,saldo_awal,saldo_src,months,total}]
 async function pullAllFromMssql() {
   const year = 2026;
@@ -332,13 +390,7 @@ async function pullAllFromMssql() {
   const sqlThLalu = buildSqlThLalu(inList);
   const conn = await getMssqlPool();
   const [berjalan, awal, thLalu] = await Promise.all([
-    conn.request().input('start', start).input('end', end)
-      .query(`SELECT LEFT(pd.NoTerima,16) AS opd, MONTH(p.TglBAST) AS m, SUM(pd.Jumlah*pd.Harga) AS total
-               FROM AsetPersediaan90.dbo.PenerimaanDetDPA pd WITH (NOLOCK)
-               JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON pd.NoTerima = p.NoTerima
-               WHERE p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
-               AND LEFT(pd.NoTerima,16) IN (${inList})
-               GROUP BY LEFT(pd.NoTerima,16), MONTH(p.TglBAST)`),
+    conn.request().input('start', start).input('end', end).query(sqlBerjalanBatch(inList)),
     conn.request().input('start', start).input('end', end)
       .query(`SELECT LEFT(d.NoTerima,16) AS opd, SUM(d.Jumlah*d.Harga) AS total
                FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
@@ -369,13 +421,7 @@ async function pullOpdFromMssql(code) {
   const sqlThLalu = buildSqlThLalu(inList);
   const conn = await getMssqlPool();
   const [berjalan, awal, thLalu, items] = await Promise.all([
-    conn.request().input('opd', key).input('start', start).input('end', end)
-      .query(`SELECT MONTH(p.TglBAST) AS m, SUM(pd.Jumlah*pd.Harga) AS total
-              FROM AsetPersediaan90.dbo.PenerimaanDetDPA pd WITH (NOLOCK)
-              JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON pd.NoTerima = p.NoTerima
-              WHERE LEFT(pd.NoTerima,16) = @opd
-                AND p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
-              GROUP BY MONTH(p.TglBAST)`),
+    conn.request().input('opd', key).input('start', start).input('end', end).query(sqlBerjalanOne()),
     conn.request().input('opd', key).input('start', start).input('end', end)
       .query(`SELECT SUM(d.Jumlah*d.Harga) AS total
               FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
@@ -383,15 +429,7 @@ async function pullOpdFromMssql(code) {
               WHERE h.AsalUsul='AWAL' AND h.TglBast >= CONVERT(DATETIME,@start,120) AND h.TglBast < CONVERT(DATETIME,@end,120)
               AND LEFT(d.NoTerima,16) = @opd`),
     conn.request().input('opd', key).input('start', start).input('end', end).query(sqlThLalu),
-    conn.request().input('opd', key).input('start', start).input('end', end)
-      .query(`SELECT d.NoTerima, op.Keterangan AS NamaBarang, d.Satuan, d.MerkType, d.Jumlah, d.Harga,
-                     (d.Jumlah*d.Harga) AS TotalHarga, p.TglBAST AS BAST, p.NoBAST
-              FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
-              JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima = p.NoTerima
-              JOIN AsetMaster90.dbo.ObjekpersediaanPLU op WITH (NOLOCK) ON d.ObjekPersediaan = op.IDPLU
-              WHERE LEFT(d.NoTerima,16) = @opd
-                AND p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
-              ORDER BY p.TglBAST ASC`)
+    conn.request().input('opd', key).input('start', start).input('end', end).query(sqlItemsOne())
   ]);
   const months = Array(12).fill(0);
   berjalan.recordset.forEach(r => { const i = Number(r.m) - 1; if (i >= 0 && i < 12) months[i] = Number(r.total) || 0; });
@@ -496,13 +534,7 @@ app.get('/api/tarik/rekap-opd', async (req, res) => {
   try {
     const conn = await getMssqlPool();
     const [berjalan, awal, thLalu, items] = await Promise.all([
-      conn.request().input('opd', key).input('start', start).input('end', end)
-        .query(`SELECT MONTH(p.TglBAST) AS m, SUM(pd.Jumlah*pd.Harga) AS total
-                FROM AsetPersediaan90.dbo.PenerimaanDetDPA pd WITH (NOLOCK)
-                JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON pd.NoTerima = p.NoTerima
-                WHERE LEFT(pd.NoTerima,16) = @opd
-                  AND p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
-                GROUP BY MONTH(p.TglBAST)`),
+      conn.request().input('opd', key).input('start', start).input('end', end).query(sqlBerjalanOne()),
       conn.request().input('opd', key).input('start', start).input('end', end)
         .query(`SELECT SUM(d.Jumlah*d.Harga) AS total
                 FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
@@ -510,15 +542,7 @@ app.get('/api/tarik/rekap-opd', async (req, res) => {
                 WHERE h.AsalUsul='AWAL' AND h.TglBast >= CONVERT(DATETIME,@start,120) AND h.TglBast < CONVERT(DATETIME,@end,120)
                 AND LEFT(d.NoTerima,16) = @opd`),
       conn.request().input('opd', key).input('start', start).input('end', end).query(sqlThLalu),
-      conn.request().input('opd', key).input('start', start).input('end', end)
-        .query(`SELECT d.NoTerima, op.Keterangan AS NamaBarang, d.Satuan, d.MerkType, d.Jumlah, d.Harga,
-                       (d.Jumlah*d.Harga) AS TotalHarga, p.TglBAST AS BAST, p.NoBAST
-                FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
-                JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima = p.NoTerima
-                JOIN AsetMaster90.dbo.ObjekpersediaanPLU op WITH (NOLOCK) ON d.ObjekPersediaan = op.IDPLU
-                WHERE LEFT(d.NoTerima,16) = @opd
-                  AND p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
-                ORDER BY p.TglBAST ASC`)
+      conn.request().input('opd', key).input('start', start).input('end', end).query(sqlItemsOne())
     ]);
     const months = Array(12).fill(0);
     berjalan.recordset.forEach(r => { const i = Number(r.m) - 1; if (i >= 0 && i < 12) months[i] = Number(r.total) || 0; });
