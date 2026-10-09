@@ -98,6 +98,7 @@ Admin auth is **stateless**: HMAC-SHA256 signed token in an HttpOnly cookie, sec
 - **Max 2 decimals** everywhere (DB `NUMERIC(12,2)` + client + server).
 - **Neobrutalism design only.** No dark mode, no gradients/glow/glass/emoji/generic icons in the UI.
 - **WCAG AA** for all text/background pairs.
+- **UI/UX edits: load the `antislop` + `impeccable` skills first.** For any UI/UX change, follow the Antislop and Impeccable skills and verify both **mobile and desktop** are responsive.
 - **Desktop width** is 1280px for non-PP pages. The Laporan Manual page is 1280px by default with a **Full Screen toggle**.
 
 ## Design system (CSS tokens in `styles.css`)
