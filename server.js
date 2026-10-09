@@ -348,6 +348,95 @@ app.get('/api/tarik/rekap-bulanan', requireAdmin, async (req, res) => {
   } catch (e) { console.error('Rekap bulanan error:', e); res.status(500).json({ error: 'Gagal menarik rekap dari sumber' }); }
 });
 
+// Rekap per OPD (drill-down): slice-sum berjalan per bulan + saldo (awal/th_lalu) + rincian item
+app.get('/api/tarik/rekap-opd', requireAdmin, async (req, res) => {
+  if (!mssqlGuard(req, res)) return;
+  const code = req.query.opd;
+  if (!code || !opds.some(o => o.PBSubk === code)) return res.status(400).json({ error: 'OPD tidak dikenal' });
+  const year = 2026, start = year + '-01-01', end = (year + 1) + '-01-01';
+  const key = opdToKey(code);
+  const inList = `'${key}'`;
+  const sqlThLalu = `
+    ;WITH SO AS (
+      SELECT LEFT(a.NoTB,16) AS opd, b.FiFo, (b.Jumlah - b.Opname) AS JmlAkhir
+      FROM AsetPersediaan90.dbo.tutupbuku a WITH (NOLOCK)
+      JOIN AsetPersediaan90.dbo.tutupbukudet b WITH (NOLOCK) ON a.NoTB = b.NoTB
+      WHERE a.Awal >= CONVERT(DATETIME,@start,120) AND a.Awal < CONVERT(DATETIME,@end,120)
+        AND LEFT(a.NoTB,16) IN (${inList})
+    ),
+    PDraw AS (
+      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+             RIGHT('0'+CAST(DATEPART(HOUR,p.TglBAST) AS VARCHAR(2)),2) + ':' +
+             RIGHT('0'+CAST(DATEPART(MINUTE,p.TglBast) AS VARCHAR(2)),2) AS FIFO, d.Harga
+      FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
+      JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
+      WHERE LEFT(d.NoTerima,16) IN (${inList})
+      UNION ALL
+      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+             RIGHT('0'+CAST(DATEPART(HOUR,p.TglBAST) AS VARCHAR(2)),2) + ':' +
+             RIGHT('0'+CAST(DATEPART(MINUTE,p.TglBast) AS VARCHAR(2)),2) AS FIFO, d.Harga
+      FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
+      JOIN AsetPersediaan90.dbo.PenerimaanDPANon p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
+      WHERE LEFT(d.NoTerima,16) IN (${inList})
+      UNION ALL
+      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+             RIGHT('0'+CAST(DATEPART(HOUR,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) + ':' +
+             RIGHT('0'+CAST(DATEPART(MINUTE,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) AS FIFO, d.Harga
+      FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
+      JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
+      WHERE LEFT(d.NoTerima,16) IN (${inList})
+      UNION ALL
+      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+             RIGHT('0'+CAST(DATEPART(HOUR,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) + ':' +
+             RIGHT('0'+CAST(DATEPART(MINUTE,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) AS FIFO, d.Harga
+      FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
+      JOIN AsetPersediaan90.dbo.PenerimaanDPANon p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
+      WHERE LEFT(d.NoTerima,16) IN (${inList})
+    ),
+    PD AS (SELECT FIFO, MAX(Harga) AS Harga FROM PDraw GROUP BY FIFO)
+    SELECT s.opd, SUM(s.JmlAkhir * p.Harga) AS total
+    FROM SO s JOIN PD p ON s.FiFo = p.FIFO
+    GROUP BY s.opd`;
+  try {
+    const conn = await getMssqlPool();
+    const [berjalan, awal, thLalu, items] = await Promise.all([
+      conn.request().input('opd', key).input('start', start).input('end', end)
+        .query(`SELECT MONTH(p.TglBAST) AS m, SUM(pd.Jumlah*pd.Harga) AS total
+                FROM AsetPersediaan90.dbo.PenerimaanDetDPA pd WITH (NOLOCK)
+                JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON pd.NoTerima = p.NoTerima
+                WHERE LEFT(pd.NoTerima,16) = @opd
+                  AND p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
+                GROUP BY MONTH(p.TglBAST)`),
+      conn.request().input('opd', key).input('start', start).input('end', end)
+        .query(`SELECT SUM(d.Jumlah*d.Harga) AS total
+                FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
+                JOIN AsetPersediaan90.dbo.PenerimaanDPANon h WITH (NOLOCK) ON d.NoTerima = h.NoTerima
+                WHERE h.AsalUsul='AWAL' AND h.TglBast >= CONVERT(DATETIME,@start,120) AND h.TglBast < CONVERT(DATETIME,@end,120)
+                AND LEFT(d.NoTerima,16) = @opd`),
+      conn.request().input('opd', key).input('start', start).input('end', end).query(sqlThLalu),
+      conn.request().input('opd', key).input('start', start).input('end', end)
+        .query(`SELECT d.NoTerima, op.Keterangan AS NamaBarang, d.Satuan, d.MerkType, d.Jumlah, d.Harga,
+                       (d.Jumlah*d.Harga) AS TotalHarga, p.TglBAST AS BAST, p.NoBAST
+                FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
+                JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima = p.NoTerima
+                JOIN AsetMaster90.dbo.ObjekpersediaanPLU op WITH (NOLOCK) ON d.ObjekPersediaan = op.IDPLU
+                WHERE LEFT(d.NoTerima,16) = @opd
+                  AND p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
+                ORDER BY p.TglBAST ASC`)
+    ]);
+    const months = Array(12).fill(0);
+    berjalan.recordset.forEach(r => { const i = Number(r.m) - 1; if (i >= 0 && i < 12) months[i] = Number(r.total) || 0; });
+    const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+    const awalV = Number(awal.recordset[0] && awal.recordset[0].total) || 0;
+    const thV = Number(thLalu.recordset[0] && thLalu.recordset[0].total) || 0;
+    let saldo_awal = 0, saldo_src = null;
+    if (awalV > 0) { saldo_awal = awalV; saldo_src = 'awal'; }
+    else if (thV > 0) { saldo_awal = thV; saldo_src = 'th_lalu'; }
+    const o = opds.find(x => x.PBSubk === code);
+    res.json({ code, name: o ? o.KetPBSubk : code, saldo_awal: round2(saldo_awal), saldo_src, months: months.map(round2), total: round2(months.reduce((s, v) => s + v, 0)), items: items.recordset });
+  } catch (e) { console.error('Rekap OPD error:', e); res.status(500).json({ error: 'Gagal menarik rekap OPD' }); }
+});
+
 // Fallback ke index.html (SPA hash routing)
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });

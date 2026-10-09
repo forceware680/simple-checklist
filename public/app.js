@@ -67,6 +67,7 @@ function render() {
   app.setAttribute('aria-busy', 'true');
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
   else if (hash === '#/statistik') renderStatistik();
+  else if (hash.startsWith('#/rekap/')) renderRekapOpd(decodeURIComponent(hash.slice(8)));
   else if (hash === '#/rekap') renderRekap();
   else if (hash.startsWith('#/admin')) renderAdmin();
   else renderLanding();
@@ -532,7 +533,7 @@ function renderRekapRows(r) {
         </thead>
         <tbody>${r.data.map(d => `
           <tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
-            <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}</span></td>
+            <td class="stick"><a class="opd-link" href="#/rekap/${encodeURIComponent(d.code)}"><span class="opd-name">${esc(d.name)}</span></a><span class="sum-code">${esc(d.code)}</span></td>
             <td class="n saldo">${fmtID(d.saldo_awal)}${d.saldo_src === 'th_lalu' ? '<span class="saldo-tag" title="Saldo th lalu (fallback)">th</span>' : ''}</td>
             ${d.months.slice(0,6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
             ${d.months.slice(6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
@@ -540,6 +541,83 @@ function renderRekapRows(r) {
           </tr>`).join('')}</tbody>
       </table>
     </div>`;
+}
+
+/* ---------- REKAP PER OPD (drill-down, #/rekap/:code) ---------- */
+async function renderRekapOpd(code) {
+  app.innerHTML = header('rekap') + `
+    <main class="wrap">
+      <h1 class="page-title" id="rekapopd-title">${esc(code)}</h1>
+      <p class="page-sub"><a href="#/rekap" class="back-link">&larr; Kembali ke Rekap</a></p>
+      <div id="rekapopd-body">${loadingBlock('Memuat…')}</div>
+    </main>
+    ${footer()}`;
+  const me = await api('/api/admin/me').catch(() => ({ authenticated: false }));
+  if (!me.authenticated) {
+    document.getElementById('rekapopd-body').innerHTML = `<div class="error-state">Halaman ini <b>khusus admin</b>. <a href="#/admin">Login admin</a> untuk lanjut.</div>`;
+    return;
+  }
+  loadRekapOpd(code);
+}
+
+async function loadRekapOpd(code) {
+  const el = document.getElementById('rekapopd-body');
+  try {
+    const r = await api('/api/tarik/rekap-opd?opd=' + encodeURIComponent(code));
+    renderRekapOpdRows(r);
+  } catch (err) {
+    el.innerHTML = `<div class="error-state">Gagal memuat: ${esc(err.message)}</div>`;
+  }
+}
+
+function renderRekapOpdRows(r) {
+  const el = document.getElementById('rekapopd-body');
+  const t = document.getElementById('rekapopd-title'); if (t) t.textContent = r.name;
+  const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const byMonth = Array.from({ length: 12 }, () => []);
+  r.items.forEach(it => { const i = new Date(it.BAST).getMonth(); if (i >= 0 && i < 12) byMonth[i].push(it); });
+  const sections = byMonth.map((list, i) => {
+    if (!list.length) return '';
+    const rows = list.map(it => `<tr>
+        <td>${esc(it.NamaBarang || '-')}</td>
+        <td class="n">${esc(it.Satuan || '')}</td>
+        <td class="n">${fmtID(Number(it.Jumlah) || 0)}</td>
+        <td class="n">${fmtID(Number(it.Harga) || 0)}</td>
+        <td class="n strong">${fmtID(Number(it.TotalHarga) || 0)}</td>
+        <td class="n">${new Date(it.BAST).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}</td>
+      </tr>`).join('');
+    return `<div class="rekap-month">
+      <div class="rekap-month-head"><h3>${MONTHS[i]}</h3><span class="rekap-month-total">${fmtID(r.months[i])}</span></div>
+      <table class="rekap-items"><thead><tr><th>Barang</th><th class="n">Satuan</th><th class="n">Jml</th><th class="n">Harga</th><th class="n">Total</th><th class="n">Tgl BAST</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+  }).join('');
+  el.innerHTML = `
+    <section class="card">
+      <h2>Ringkasan per Bulan <span class="rekap-tag">TA 2026</span></h2>
+      <div class="sum-table rekap">
+        <table>
+          <thead>
+            <tr>
+              <th class="saldo">Saldo Awal${r.saldo_src === 'th_lalu' ? ' <span class="saldo-tag">th</span>' : ''}</th>
+              ${MLBL.map(m => `<th class="n m">${m}</th>`).join('')}
+              <th class="n tin strong">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="n saldo">${fmtID(r.saldo_awal)}</td>
+              ${r.months.map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
+              <td class="n strong tot-in">${fmtID(r.total)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Rincian Saldo Berjalan <span class="rekap-count">${r.items.length} item</span></h2>
+      ${sections || '<p class="page-sub">Tidak ada item saldo berjalan untuk TA 2026.</p>'}
+    </section>`;
 }
 
 /* ---------- ADMIN (tersembunyi, #/admin) ---------- */
