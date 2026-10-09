@@ -576,18 +576,16 @@ function renderRekapRows(r) {
             <th colspan="6" class="grp-in">Penerimaan S1 (Jan–Jun)</th>
             <th colspan="6" class="grp-in">Penerimaan S2 (Jul–Des)</th>
             <th rowspan="2" class="tin strong">Total</th>
-            <th rowspan="2" class="aksi">Tarik</th>
           </tr>
           <tr>${mS1}${mS2}</tr>
         </thead>
         <tbody>${r.data.map(d => `
           <tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
-            <td class="stick"><a class="opd-link" href="#/rekap/${encodeURIComponent(d.code)}"><span class="opd-name">${esc(d.name)}</span></a><span class="sum-code">${esc(d.code)}</span></td>
+            <td class="stick"><a class="opd-link" href="#/rekap/${encodeURIComponent(d.code)}"><span class="opd-name">${esc(d.name)}</span></a><span class="sum-code">${esc(d.code)}</span><button class="btn ghost rekap-pull-btn" data-code="${d.code}" type="button">Tarik</button></td>
             <td class="n saldo">${fmtID(d.saldo_awal)}${d.saldo_src === 'th_lalu' ? '<span class="saldo-tag" title="Saldo th lalu (fallback)">th</span>' : ''}</td>
             ${d.months.slice(0,6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
             ${d.months.slice(6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
             <td class="n strong tot-in">${fmtID(d.total)}</td>
-            <td class="aksi"><button class="btn ghost rekap-pull-btn" data-code="${d.code}" type="button">Tarik</button></td>
           </tr>`).join('')}</tbody>
       </table>
     </div>`;
