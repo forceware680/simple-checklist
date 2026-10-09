@@ -510,7 +510,7 @@ function renderRekapTable(isAdmin) {
   body.innerHTML = `
     <section class="card admin-summary">
       <div class="sum-head">
-        <h2>Rekap OPD <span class="rekap-tag">TA 2026</span></h2>
+        <h2>Rekap Penginputan SIMASET <span class="rekap-tag">TA 2026</span></h2>
         <div class="sum-actions">
           <input id="rekap-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
           ${isAdmin ? '<button id="rekap-pullall" class="btn ghost" type="button">Tarik Semua ke Temp</button>' : ''}
