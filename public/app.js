@@ -628,8 +628,8 @@ function renderRekapOpdRows(r) {
       </tr>`).join('');
     return `<div class="rekap-month">
       <div class="rekap-month-head"><h3>${MONTHS[i]}</h3><span class="rekap-month-total">${fmtID(r.months[i])}</span></div>
-      <table class="rekap-items"><thead><tr><th>Barang</th><th class="n">Satuan</th><th class="n">Jml</th><th class="n">Harga</th><th class="n">Total</th><th class="n">Tgl BAST</th></tr></thead>
-      <tbody>${rows}</tbody></table>
+      <div class="rekap-items-wrap"><table class="rekap-items"><thead><tr><th>Barang</th><th class="n">Satuan</th><th class="n">Jml</th><th class="n">Harga</th><th class="n">Total</th><th class="n">Tgl BAST</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
     </div>`;
   }).join('');
   el.innerHTML = `

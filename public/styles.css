@@ -272,7 +272,8 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .rekap-month-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
 .rekap-month-head h3{ margin:0; font-family:var(--font-display); font-size:15px; }
 .rekap-month-total{ font-family:var(--font-display); font-size:15px; color:var(--pink-deep); }
-.rekap-items{ width:100%; border-collapse:collapse; font-size:13px; }
+.rekap-items-wrap{ overflow-x:auto; }
+.rekap-items{ width:100%; border-collapse:collapse; font-size:13px; min-width:480px; }
 .rekap-items th{ text-align:left; font-family:var(--font-display); font-size:10px; background:var(--ink); color:#fff; padding:6px 8px; }
 .rekap-items th.n, .rekap-items td.n{ text-align:right; font-variant-numeric:tabular-nums; }
 .rekap-items td{ padding:6px 8px; border-bottom:1px solid rgba(23,21,18,.12); }
