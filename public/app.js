@@ -103,7 +103,7 @@ async function renderLanding() {
           <li>Isi <b>total pengeluaran</b> tiap semester (S1 &amp; S2), juga <b>total</b>, bukan per barang.</li>
           <li><b>Saldo Awal Juli</b>, total, dan <b>Stock Opname</b> terhitung otomatis, nggak perlu diketik.</li>
           <li>Klik <b>Simpan</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
-          <li>Untuk melihat <b>rekap data SIMASET per bulan</b>, buka menu <b>SIMASET</b> di atas.</li>
+          <li>Untuk melihat <b>rekap data SIMASET persediaan per bulan</b>, buka/klik <b>SIMASET</b> di menu navigasi.</li>
           <li>Untuk melihat <b>rekonsiliasi data Laporan Manual vs SIMASET</b>, buka menu <b>Rekonsiliasi</b> di atas.</li>
           <li>Jika menemukan <b>selisih</b>, segera <b>tindak lanjuti</b>.</li>
         </ol>
