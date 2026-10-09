@@ -730,11 +730,16 @@ async function loadRekonsiliasi() {
   }
 }
 
+function isCocok(d) {
+  return d.sumber.saldo_awal === d.checklist.saldo_awal &&
+    d.sumber.months.every((v, i) => v === d.checklist.months[i]);
+}
+
 function renderRekonsiliasiRows(r) {
   const el = document.getElementById('rek-summary');
   const sumRows = r.data.map(d => {
     const status = (d.has_sumber || d.has_checklist)
-      ? (d.cokok ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
+      ? (isCocok(d) ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
       : '<span class="rek-st none">Kosong</span>';
     return `<tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
       <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}</span></td>
@@ -747,7 +752,7 @@ function renderRekonsiliasiRows(r) {
     </tr>`;
   }).join('');
 
-  const beda = r.data.filter(d => !d.cokok);
+  const beda = r.data.filter(d => !isCocok(d));
   const detail = beda.map(d => {
     const rows = [
       { label: 'Saldo Awal', s: d.sumber.saldo_awal, c: d.checklist.saldo_awal, sel: d.selisih.saldo_awal },
