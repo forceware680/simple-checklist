@@ -81,9 +81,8 @@ async function renderLanding() {
     <main class="wrap">
       <section class="hero">
         <div class="hero-copy">
-          <span class="hero-kicker">SIMASET vs LAPORAN MANUAL</span>
-          <h1>Rekonsiliasi<br>Persediaan <span>2026</span></h1>
-          <p class="hero-sub">Isi <b>Laporan Manual</b> persediaan OPD kamu — total <b>penerimaan per bulan</b> (Jan–Des) dan total <b>pengeluaran per semester</b> (S1–S2).</p>
+          <h1>Rekonsiliasi Persediaan<br>Tahun Anggaran <span>2026</span></h1>
+          <p class="hero-sub">Pilih OPD kamu di bawah, lalu isi <b>Laporan Manual</b> persediaannya.</p>
         </div>
         <div class="opd-card card">
           <label class="field-label" for="opd-input">Pilih OPD / Unit kamu</label>
