@@ -102,12 +102,12 @@ async function renderLanding() {
           <li>Isi <b>total penerimaan</b> tiap bulan (Jan–Des), satu angka <b>total</b> per bulan, <b>bukan per barang</b>.</li>
           <li>Isi <b>total pengeluaran</b> tiap semester (S1 &amp; S2), juga <b>total</b>, bukan per barang.</li>
           <li><b>Saldo Awal Juli</b>, total, dan <b>Stock Opname</b> terhitung otomatis, nggak perlu diketik.</li>
-          <li>Klik <b>Simpan Laporan Manual</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
+          <li>Klik <b>Simpan</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
           <li>Untuk melihat <b>rekap data SIMASET per bulan</b>, buka menu <b>SIMASET</b> di atas.</li>
           <li>Untuk melihat <b>rekonsiliasi data Laporan Manual vs SIMASET</b>, buka menu <b>Rekonsiliasi</b> di atas.</li>
         </ol>
         <span class="note-chip">Total per OPD (bukan per barang) &nbsp;·&nbsp; Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Stock: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
-        <p class="howto-note">Tugas kamu sampai di <b>Simpan Laporan Manual</b>. Angka <b>stock opname</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b>. Kamu tidak perlu mengisi bagian SIMASET.</p>
+        <p class="howto-note">Tugas kamu sampai di <b>Simpan</b>. Angka <b>stock opname</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b>. Kamu tidak perlu mengisi bagian SIMASET.</p>
       </section>
     </main>
     ${footer()}`;
@@ -266,7 +266,7 @@ function buildForm(entry) {
     <div class="savebar">
       <div id="save-msg" class="save-msg" role="status" aria-live="polite"></div>
       <div class="savebar-btns">
-        <button id="save-btn" class="btn primary">Simpan Laporan Manual</button>
+        <button id="save-btn" class="btn primary">Simpan</button>
       </div>
     </div>`;
 }
@@ -349,7 +349,7 @@ async function doSave() {
     await api('/api/opds/' + encodeURIComponent(clCode), { method: 'PUT', body: JSON.stringify(data) });
     const t = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Tersimpan ' + t + ' ✓'; }
-    if (btn) { btn.textContent = 'Tersimpan ✓'; setTimeout(() => { btn.textContent = 'Simpan Laporan Manual'; }, 2000); }
+    if (btn) { btn.textContent = 'Tersimpan ✓'; setTimeout(() => { btn.textContent = 'Simpan'; }, 2000); }
     setDirty(false);
   } catch (err) {
     if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menyimpan: ' + err.message; }
