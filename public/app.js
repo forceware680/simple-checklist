@@ -637,7 +637,8 @@ function renderRekapOpdRows(r) {
             <tr>
               <th class="saldo">Saldo Awal${r.saldo_src === 'th_lalu' ? ' <span class="saldo-tag">th</span>' : ''}</th>
               ${MLBL.map(m => `<th class="n m">${m}</th>`).join('')}
-              <th class="n tin strong">Total</th>
+              <th class="n tin strong">Total Belanja</th>
+              <th class="n tba strong">Total Belanja+Awal</th>
             </tr>
           </thead>
           <tbody>
@@ -645,14 +646,15 @@ function renderRekapOpdRows(r) {
               <td class="n saldo">${fmtID(r.saldo_awal)}</td>
               ${r.months.map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
               <td class="n strong tot-in">${fmtID(r.total)}</td>
+              <td class="n strong tba">${fmtID(r.total + r.saldo_awal)}</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
     <section class="card">
-      <h2>Rincian Saldo Berjalan <span class="rekap-count">${r.items.length} item</span></h2>
-      ${sections || '<p class="page-sub">Tidak ada item saldo berjalan untuk TA 2026.</p>'}
+      <h2>Rincian Belanja <span class="rekap-count">${r.items.length} item</span></h2>
+      ${sections || '<p class="page-sub">Tidak ada item belanja untuk TA 2026.</p>'}
     </section>`;
 }
 

@@ -193,6 +193,8 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .sum-table thead th.n, .sum-table td.n{ min-width:50px; }
 .sum-table .strong{ font-weight:800; }
 .sum-table td.tot-in{ background:var(--yellow-soft); }
+.sum-table thead th.tba{ background:var(--green); color:#fff; }
+.sum-table td.tba{ background:#e7f2ea; }
 .sum-table td.tot-out{ background:var(--pink-soft); }
 .sum-table thead .grp-stock{ background:var(--blue-deep); color:#fff; text-align:center; }
 .sum-table thead th.stok{ background:var(--blue-deep); color:#fff; }
@@ -308,6 +310,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .sum-table .opd-name{ display:block; font-weight:700; font-size:13px; line-height:1.25; }
 .sum-table tbody tr:hover td{ background:#fbf7ec; }
 .sum-table tbody tr:hover td.tot-in{ background:#fff3c4; }
+.sum-table tbody tr:hover td.tba{ background:#d9eadd; }
 .sum-table tbody tr:hover td.tot-out{ background:#ffd9ea; }
 
 .sum-code{ display:flex; align-items:center; gap:8px; margin-top:4px; font-size:11px; color:var(--muted); font-weight:600; }
