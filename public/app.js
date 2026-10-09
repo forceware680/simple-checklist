@@ -45,7 +45,7 @@ function loadingBlock(text) {
   return `<div class="loading-block"><span class="spinner"></span>${esc(text)}</div>`;
 }
 function footer() {
-  return `<footer class="foot">© 2026 Bidang Aset · Penerimaan 12 bulan · Pengeluaran 2 semester</footer>`;
+  return `<footer class="foot">© 2026 Bidang Aset</footer>`;
 }
 function header(active) {
   return `<header class="topbar">
