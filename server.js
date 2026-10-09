@@ -418,84 +418,30 @@ async function upsertTarikTemp(r) {
   `, vals);
 }
 
+// Rekap bulanan: BACA dari tabel temp (tarik_temp), bukan langsung ke MSSQL.
+// Data diisi oleh tombol "Update Data" (per-OPD) / "Tarik Semua ke Temp" (admin).
 app.get('/api/tarik/rekap-bulanan', async (req, res) => {
-  if (!mssqlGuard(req, res)) return;
   const year = 2026;
-  const start = year + '-01-01', end = (year + 1) + '-01-01';
-  const inList = opdsByCode.map(o => `'${opdToKey(o.PBSubk)}'`).join(',');
-  const sqlThLalu = `
-    ;WITH SO AS (
-      SELECT LEFT(a.NoTB,16) AS opd, b.FiFo, (b.Jumlah - b.Opname) AS JmlAkhir
-      FROM AsetPersediaan90.dbo.tutupbuku a WITH (NOLOCK)
-      JOIN AsetPersediaan90.dbo.tutupbukudet b WITH (NOLOCK) ON a.NoTB = b.NoTB
-      WHERE a.Awal >= CONVERT(DATETIME,@start,120) AND a.Awal < CONVERT(DATETIME,@end,120)
-        AND LEFT(a.NoTB,16) IN (${inList})
-    ),
-    PDraw AS (
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
-             RIGHT('0'+CAST(DATEPART(HOUR,p.TglBAST) AS VARCHAR(2)),2) + ':' +
-             RIGHT('0'+CAST(DATEPART(MINUTE,p.TglBast) AS VARCHAR(2)),2) AS FIFO, d.Harga
-      FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
-      JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
-      WHERE LEFT(d.NoTerima,16) IN (${inList})
-      UNION ALL
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
-             RIGHT('0'+CAST(DATEPART(HOUR,p.TglBAST) AS VARCHAR(2)),2) + ':' +
-             RIGHT('0'+CAST(DATEPART(MINUTE,p.TglBast) AS VARCHAR(2)),2) AS FIFO, d.Harga
-      FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
-      JOIN AsetPersediaan90.dbo.PenerimaanDPANon p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
-      WHERE LEFT(d.NoTerima,16) IN (${inList})
-      UNION ALL
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
-             RIGHT('0'+CAST(DATEPART(HOUR,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) + ':' +
-             RIGHT('0'+CAST(DATEPART(MINUTE,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) AS FIFO, d.Harga
-      FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
-      JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
-      WHERE LEFT(d.NoTerima,16) IN (${inList})
-      UNION ALL
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
-             RIGHT('0'+CAST(DATEPART(HOUR,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) + ':' +
-             RIGHT('0'+CAST(DATEPART(MINUTE,COALESCE(p.TglInput,p.TglBast)) AS VARCHAR(2)),2) AS FIFO, d.Harga
-      FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
-      JOIN AsetPersediaan90.dbo.PenerimaanDPANon p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
-      WHERE LEFT(d.NoTerima,16) IN (${inList})
-    ),
-    PD AS (SELECT FIFO, MAX(Harga) AS Harga FROM PDraw GROUP BY FIFO)
-    SELECT s.opd, SUM(s.JmlAkhir * p.Harga) AS total
-    FROM SO s JOIN PD p ON s.FiFo = p.FIFO
-    GROUP BY s.opd`;
   try {
-    const conn = await getMssqlPool();
-    const [berjalan, awal, thLalu] = await Promise.all([
-      conn.request().input('start', start).input('end', end)
-        .query(`SELECT LEFT(pd.NoTerima,16) AS opd, MONTH(p.TglBAST) AS m, SUM(pd.Jumlah*pd.Harga) AS total
-                 FROM AsetPersediaan90.dbo.PenerimaanDetDPA pd WITH (NOLOCK)
-                 JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON pd.NoTerima = p.NoTerima
-                 WHERE p.TglBAST >= CONVERT(DATETIME,@start,120) AND p.TglBAST < CONVERT(DATETIME,@end,120)
-                 AND LEFT(pd.NoTerima,16) IN (${inList})
-                 GROUP BY LEFT(pd.NoTerima,16), MONTH(p.TglBAST)`),
-      conn.request().input('start', start).input('end', end)
-        .query(`SELECT LEFT(d.NoTerima,16) AS opd, SUM(d.Jumlah*d.Harga) AS total
-                 FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
-                 JOIN AsetPersediaan90.dbo.PenerimaanDPANon h WITH (NOLOCK) ON d.NoTerima = h.NoTerima
-                 WHERE h.AsalUsul='AWAL' AND h.TglBast >= CONVERT(DATETIME,@start,120) AND h.TglBast < CONVERT(DATETIME,@end,120)
-                 AND LEFT(d.NoTerima,16) IN (${inList})
-                 GROUP BY LEFT(d.NoTerima,16)`),
-      conn.request().input('start', start).input('end', end).query(sqlThLalu)
-    ]);
+    const cols = ['opd_code', 'saldo_awal', 'saldo_src', ...MONTHS, 'total', 'pulled_at'].join(', ');
+    const { rows } = await pool.query(`SELECT ${cols} FROM tarik_temp`);
     const map = {};
-    const ensure = k => (map[k] = map[k] || { saldo_awal: 0, saldo_src: null, months: Array(12).fill(0) });
-    awal.recordset.forEach(r => { const e = ensure(r.opd); const v = Number(r.total) || 0; if (v > 0) { e.saldo_awal = v; e.saldo_src = 'awal'; } });
-    thLalu.recordset.forEach(r => { const e = ensure(r.opd); const v = Number(r.total) || 0; if (v > 0 && e.saldo_awal <= 0) { e.saldo_awal = v; e.saldo_src = 'th_lalu'; } });
-    berjalan.recordset.forEach(r => { const i = Number(r.m) - 1; if (i >= 0 && i < 12) ensure(r.opd).months[i] += Number(r.total) || 0; });
-    const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+    rows.forEach(r => { map[r.opd_code] = r; });
     const data = opdsByCode.map(o => {
-      const e = map[opdToKey(o.PBSubk)] || { saldo_awal: 0, saldo_src: null, months: Array(12).fill(0) };
-      const months = e.months.map(round2);
-      return { code: o.PBSubk, name: o.KetPBSubk, saldo_awal: round2(e.saldo_awal), saldo_src: e.saldo_src, months, total: round2(months.reduce((s, v) => s + v, 0)) };
+      const r = map[o.PBSubk];
+      const months = MONTHS.map(m => r ? Number(r[m]) || 0 : 0);
+      return {
+        code: o.PBSubk,
+        name: o.KetPBSubk,
+        saldo_awal: r ? Number(r.saldo_awal) || 0 : 0,
+        saldo_src: r ? r.saldo_src : null,
+        months,
+        total: r ? Number(r.total) || 0 : 0,
+        pulled_at: r ? r.pulled_at : null
+      };
     });
     res.json({ year, count: data.length, data });
-  } catch (e) { console.error('Rekap bulanan error:', e); res.status(500).json({ error: 'Gagal menarik rekap dari sumber' }); }
+  } catch (e) { console.error('Rekap bulanan error:', e); res.status(500).json({ error: 'Gagal membaca rekap dari temp' }); }
 });
 
 // Rekap per OPD (drill-down): slice-sum berjalan per bulan + saldo (awal/th_lalu) + rincian item
