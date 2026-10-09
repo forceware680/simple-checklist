@@ -247,6 +247,9 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .rek-exp:hover{ background:var(--yellow-soft); }
 .rek-exp:active{ transform:translate(1px,1px); }
 .rek-exp:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
+.rek-exp-static{ cursor:default; vertical-align:middle; }
+.rek-exp-static:hover{ background:var(--paper); }
+.rek-exp-static:active{ transform:none; }
 .rek-d-status{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
 .rek-d-h{ font-family:var(--font-display); font-size:20px; margin:0 0 2px; }
 .rek-d-status-right{ display:flex; align-items:center; gap:10px; }
