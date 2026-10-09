@@ -187,8 +187,8 @@ async function renderChecklist(code) {
           <span class="cl-kicker">OPD / UNIT</span>
           <h1>${esc(opd.KetPBSubk)}</h1>
           <span class="cl-code">${esc(opd.PBSubk)}</span>
+          <p class="cl-sub">Isi data persediaan dari <b>Laporan Manual</b>: saldo awal, penerimaan per bulan, dan pengeluaran per semester.</p>
         </div>
-        <p class="cl-sub">Isi data persediaan dari <b>Laporan Manual</b>: saldo awal, penerimaan per bulan, dan pengeluaran per semester.</p>
       </div>
       <div id="cl-body" class="cl-body">${loadingBlock('Memuat Laporan Manual…')}</div>
     </main>

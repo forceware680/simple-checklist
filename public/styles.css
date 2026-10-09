@@ -106,7 +106,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .howto-lead .src{ font-family:var(--font-display); font-weight:800; background:var(--yellow); padding:2px 8px; border-radius:5px; box-shadow:2px 2px 0 var(--ink); white-space:nowrap; }
 
 /* ---------- Checklist head ---------- */
-.cl-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
+.cl-head{ display:flex; flex-direction:column; align-items:flex-start; gap:14px; margin-bottom:18px; }
 .cl-title{ min-width:0; }
 .cl-kicker{ font-family:var(--font-display); font-size:12px; letter-spacing:.05em; color:var(--muted); }
 .cl-title h1{ font-size:clamp(24px,5vw,38px); margin:4px 0 2px; }
@@ -331,7 +331,6 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
   .page-title{ font-size:clamp(26px,7vw,38px); }
   .frows{ grid-template-columns:1fr; }
   .ringkasan{ grid-template-columns:1fr; }
-  .cl-head{ flex-direction:column; }
   .savebar{ flex-direction:column; align-items:stretch; }
   .savebar .btn{ width:100%; }
   .sum-head{ flex-direction:column; align-items:stretch; }
