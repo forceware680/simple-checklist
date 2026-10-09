@@ -395,7 +395,7 @@ async function renderStatistik() {
       <p class="page-sub">Rekap seluruh OPD: penerimaan per bulan &amp; pengeluaran per semester.</p>
       <section class="card admin-summary">
         <div class="sum-head">
-          <h2>Rekap OPD</h2>
+          <h2>Rekap PP Pakai Habis Per OPD</h2>
           <div class="sum-actions">
             <input id="opd-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari nama atau kode OPD">
             <button id="fs-btn" class="btn ghost" type="button">Full Screen</button>
