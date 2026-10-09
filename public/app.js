@@ -461,7 +461,7 @@ async function renderRekap() {
   app.innerHTML = header('rekap') + `
     <main class="wrap" id="rekap-wrap">
       <h1 class="page-title">Rekap Bulanan</h1>
-      <p class="page-sub">Total <b>nilai (TotalHarga)</b> penerimaan dari sumber, per OPD per bulan. <b>Saldo Awal</b> = saldo awal th; kolom bulan dari tanggal <b>BAST</b> saldo berjalan.</p>
+      <p class="page-sub">Total <b>nilai (TotalHarga)</b> penerimaan dari sumber, per OPD per bulan (TA 2026). <b>Saldo Awal</b> = saldo awal th; jika 0 → otomatis <b>saldo th lalu</b>. Kolom bulan dari tanggal <b>BAST</b> saldo berjalan.</p>
       <div id="rekap-body">${loadingBlock('Memuat rekap…')}</div>
     </main>
     ${footer()}`;
@@ -480,19 +480,13 @@ function renderRekapTable() {
   body.innerHTML = `
     <section class="card admin-summary">
       <div class="sum-head">
-        <h2>Rekap OPD</h2>
+        <h2>Rekap OPD <span class="rekap-tag">TA 2026</span></h2>
         <div class="sum-actions">
-          <label class="rekap-year">Tahun
-            <select id="rekap-year" class="rekap-select" aria-label="Tahun">
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
-              <option value="2026" selected>2026</option>
-            </select>
-          </label>
           <input id="rekap-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
           <button id="rekap-fs" class="btn ghost" type="button">Full Screen</button>
         </div>
       </div>
+      <p class="rekap-note">Kolom <b>Saldo Awal</b> = saldo awal th; jika 0, otomatis pakai <b>saldo th lalu</b> (penanda <span class="saldo-tag">th</span>).</p>
       <div id="rekap-summary">${loadingBlock('Memuat…')}</div>
     </section>`;
   wrap.querySelector('#rekap-fs').addEventListener('click', () => {
@@ -505,9 +499,7 @@ function renderRekapTable() {
       tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
     });
   });
-  const yearSel = wrap.querySelector('#rekap-year');
-  yearSel.addEventListener('change', () => loadRekap(yearSel.value));
-  loadRekap(yearSel.value);
+  loadRekap(2026);
 }
 
 async function loadRekap(year) {
@@ -541,7 +533,7 @@ function renderRekapRows(r) {
         <tbody>${r.data.map(d => `
           <tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
             <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}</span></td>
-            <td class="n saldo">${fmtID(d.saldo_awal)}</td>
+            <td class="n saldo">${fmtID(d.saldo_awal)}${d.saldo_src === 'th_lalu' ? '<span class="saldo-tag" title="Saldo th lalu (fallback)">th</span>' : ''}</td>
             ${d.months.slice(0,6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
             ${d.months.slice(6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
             <td class="n strong tot-in">${fmtID(d.total)}</td>
