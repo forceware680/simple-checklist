@@ -753,18 +753,18 @@ function renderRekonsiliasiRows(r) {
       ...MLBL.map((m, i) => ({ label: m, s: d.sumber.months[i], c: d.checklist.months[i], sel: d.selisih.months[i] })),
       { label: 'Total', s: d.sumber.total, c: d.checklist.total, sel: d.selisih.total }
     ];
-    const diffRows = all.filter(row => row.sel !== 0);
-    const rows = diffRows.map(row => `<tr>
+    const diffCount = all.filter(row => row.sel !== 0).length;
+    const rows = all.map(row => `<tr class="${row.sel !== 0 ? 'diff' : ''}">
       <td class="lbl">${row.label}</td>
       <td class="n">${fmtID(row.s)}</td>
       <td class="n">${fmtID(row.c)}</td>
-      <td class="n neg">${fmtID(row.sel)}</td>
+      <td class="n ${row.sel !== 0 ? 'neg' : ''}">${fmtID(row.sel)}</td>
     </tr>`).join('');
     return `<details class="rek-detail"${idx < 3 ? ' open' : ''}>
       <summary>
         <span class="rek-d-name">${esc(d.name)}</span>
         <span class="sum-code">${esc(d.code)}</span>
-        <span class="rek-d-badge">${diffRows.length} beda</span>
+        <span class="rek-d-badge">${diffCount} beda</span>
         <span class="rek-d-sel${d.selisih.total !== 0 ? ' neg' : ''}">Selisih ${fmtID(d.selisih.total)}</span>
         <span class="rek-d-chev" aria-hidden="true"></span>
       </summary>
