@@ -677,7 +677,12 @@ async function renderRekonsiliasi() {
     ${footer()}`;
   document.getElementById('rek-search').addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase();
-    document.querySelectorAll('#rek-tbody tr').forEach(tr => { tr.style.display = tr.dataset.search.includes(q) ? '' : 'none'; });
+    document.querySelectorAll('#rek-tbody tr[data-search]').forEach(tr => {
+      const show = tr.dataset.search.includes(q);
+      tr.style.display = show ? '' : 'none';
+      const exp = tr.nextElementSibling;
+      if (exp && exp.classList.contains('rek-exp-row')) exp.style.display = show ? '' : 'none';
+    });
   });
   loadRekonsiliasi();
 }
@@ -700,11 +705,16 @@ function isCocok(d) {
 function renderRekonsiliasiRows(r) {
   const el = document.getElementById('rek-summary');
   const sumRows = r.data.map(d => {
-    const status = (d.has_sumber || d.has_checklist)
+    const hasData = d.has_sumber || d.has_checklist;
+    const isBeda = hasData && !isCocok(d);
+    const status = hasData
       ? (isCocok(d) ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
       : '<span class="rek-st none">Kosong</span>';
+    const chev = isBeda
+      ? `<button type="button" class="rek-exp" data-code="${esc(d.code)}" aria-expanded="false" aria-label="Lihat rincian ${esc(d.name)}"><span class="rek-exp-chev" aria-hidden="true"></span></button>`
+      : '';
     return `<tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
-      <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}</span></td>
+      <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}${chev}</span></td>
       <td class="n">${fmtID(d.sumber.saldo_awal)}</td>
       <td class="n">${fmtID(d.checklist.saldo_awal)}</td>
       <td class="n">${fmtID(d.sumber.total)}</td>
@@ -714,38 +724,7 @@ function renderRekonsiliasiRows(r) {
     </tr>`;
   }).join('');
 
-  const beda = r.data
-    .filter(d => !isCocok(d))
-    .sort((a, b) => Math.abs(b.selisih.total) - Math.abs(a.selisih.total));
-  const detail = beda.map((d, idx) => {
-    const all = [
-      { label: 'Saldo Awal', s: d.sumber.saldo_awal, c: d.checklist.saldo_awal, sel: d.selisih.saldo_awal },
-      ...MLBL.map((m, i) => ({ label: m, s: d.sumber.months[i], c: d.checklist.months[i], sel: d.selisih.months[i] })),
-      { label: 'Total', s: d.sumber.saldo_awal + d.sumber.total, c: d.checklist.saldo_awal + d.checklist.total, sel: d.selisih.saldo_awal + d.selisih.total }
-    ];
-    const diffCount = all.filter(row => row.label !== 'Total' && row.sel !== 0).length;
-    const rows = all.map(row => `<tr class="${row.sel !== 0 ? 'diff' : ''}">
-      <td class="lbl">${row.label}</td>
-      <td class="n">${fmtID(row.s)}</td>
-      <td class="n">${fmtID(row.c)}</td>
-      <td class="n ${row.sel !== 0 ? 'neg' : ''}">${fmtID(row.sel)}</td>
-    </tr>`).join('');
-    return `<details class="rek-detail"${idx < 3 ? ' open' : ''}>
-      <summary>
-        <span class="rek-d-name">${esc(d.name)}</span>
-        <span class="sum-code">${esc(d.code)}</span>
-        <span class="rek-d-badge">${diffCount} beda</span>
-        <span class="rek-d-sel${(d.selisih.saldo_awal + d.selisih.total) !== 0 ? ' neg' : ''}">Selisih ${fmtID(d.selisih.saldo_awal + d.selisih.total)}</span>
-        <span class="rek-d-chev" aria-hidden="true"></span>
-      </summary>
-      <div class="rek-d-body">
-        <table class="rek-table">
-          <thead><tr><th>Komponen</th><th class="n">SIMASET</th><th class="n">Laporan Manual</th><th class="n">Selisih</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    </details>`;
-  }).join('');
+  const beda = r.data.filter(d => (d.has_sumber || d.has_checklist) && !isCocok(d));
 
   el.innerHTML = `
     <div class="summary-stat"><b>${beda.length}</b> dari ${r.data.length} OPD belum cocok dengan SIMASET</div>
@@ -763,13 +742,47 @@ function renderRekonsiliasiRows(r) {
         <tbody id="rek-tbody">${sumRows}</tbody>
       </table>
     </div>
-    ${beda.length
-      ? `<div class="rek-detail-h">Rincian yang Belum Cocok <span class="rek-count">${beda.length} OPD</span><span class="rek-toggles"><button type="button" id="rek-openall">Buka semua</button><button type="button" id="rek-closeall">Tutup semua</button></span></div>` + detail
-      : '<p class="rekap-note">Semua OPD sudah cocok dengan SIMASET.</p>'}`;
-  const openAll = el.querySelector('#rek-openall');
-  const closeAll = el.querySelector('#rek-closeall');
-  if (openAll) openAll.addEventListener('click', () => el.querySelectorAll('.rek-detail').forEach(d => { d.open = true; }));
-  if (closeAll) closeAll.addEventListener('click', () => el.querySelectorAll('.rek-detail').forEach(d => { d.open = false; }));
+    ${beda.length ? '' : '<p class="rekap-note">Semua OPD sudah cocok dengan SIMASET.</p>'}`;
+
+  // Klik panah di baris → rincian muncul tepat di bawah baris itu (bukan daftar panjang di bawah).
+  el.querySelectorAll('.rek-exp').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const code = btn.dataset.code;
+      const tr = btn.closest('tr');
+      const next = tr.nextElementSibling;
+      if (next && next.classList.contains('rek-exp-row')) {
+        next.remove();
+        btn.setAttribute('aria-expanded', 'false');
+        return;
+      }
+      const d = r.data.find(x => x.code === code);
+      const expRow = document.createElement('tr');
+      expRow.className = 'rek-exp-row';
+      expRow.innerHTML = `<td colspan="7">${buildRekDetail(d)}</td>`;
+      tr.after(expRow);
+      btn.setAttribute('aria-expanded', 'true');
+    });
+  });
+}
+
+function buildRekDetail(d) {
+  const all = [
+    { label: 'Saldo Awal', s: d.sumber.saldo_awal, c: d.checklist.saldo_awal, sel: d.selisih.saldo_awal },
+    ...MLBL.map((m, i) => ({ label: m, s: d.sumber.months[i], c: d.checklist.months[i], sel: d.selisih.months[i] })),
+    { label: 'Total', s: d.sumber.saldo_awal + d.sumber.total, c: d.checklist.saldo_awal + d.checklist.total, sel: d.selisih.saldo_awal + d.selisih.total }
+  ];
+  const rows = all.map(row => `<tr class="${row.sel !== 0 ? 'diff' : ''}">
+    <td class="lbl">${row.label}</td>
+    <td class="n">${fmtID(row.s)}</td>
+    <td class="n">${fmtID(row.c)}</td>
+    <td class="n ${row.sel !== 0 ? 'neg' : ''}">${fmtID(row.sel)}</td>
+  </tr>`).join('');
+  return `<div class="rek-d-body">
+    <table class="rek-table">
+      <thead><tr><th>Komponen</th><th class="n">SIMASET</th><th class="n">Laporan Manual</th><th class="n">Selisih</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
 }
 
 /* ---------- ADMIN (tersembunyi, #/admin) ---------- */
