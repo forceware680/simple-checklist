@@ -98,17 +98,17 @@ async function renderLanding() {
         <p class="howto-lead">Angka yang kamu isi berdasarkan <span class="src">Laporan Manual</span> OPD kamu.</p>
         <ol class="steps">
           <li>Ketik <b>nama / kode OPD</b> kamu, lalu pilih dari daftar.</li>
-          <li>Isi <b>Saldo Awal 2026</b>, stok di awal tahun (dasar Stock Opname Semester 1).</li>
+          <li>Isi <b>Saldo Awal 2026</b>, stok di awal tahun (dasar Saldo Akhir Semester 1).</li>
           <li>Isi <b>total penerimaan</b> tiap bulan (Jan–Des), satu angka <b>total</b> per bulan, <b>bukan per barang</b>.</li>
           <li>Isi <b>total pengeluaran</b> tiap semester (S1 &amp; S2), juga <b>total</b>, bukan per barang.</li>
-          <li><b>Saldo Awal Juli</b>, total, dan <b>Stock Opname</b> terhitung otomatis, nggak perlu diketik.</li>
+          <li><b>Saldo Awal Juli</b>, total, dan <b>Saldo Akhir</b> terhitung otomatis, nggak perlu diketik.</li>
           <li>Klik <b>Simpan</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
           <li>Untuk melihat <b>rekap data SIMASET persediaan per bulan</b>, buka/klik <b>SIMASET</b> di menu navigasi.</li>
           <li>Untuk melihat <b>rekonsiliasi data Laporan Manual vs SIMASET</b>, buka/klik <b>Rekonsiliasi</b> di menu navigasi.</li>
           <li>Jika menemukan <b>selisih</b>, segera <b>tindak lanjuti</b>.</li>
         </ol>
-        <span class="note-chip">Total per OPD (bukan per barang) &nbsp;·&nbsp; Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Stock: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
-        <p class="howto-note">Tugas kamu sampai di <b>Simpan</b>. Angka <b>stock opname</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b>. Kamu tidak perlu mengisi bagian SIMASET.</p>
+        <span class="note-chip">Total per OPD (bukan per barang) &nbsp;·&nbsp; Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Saldo Akhir: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
+        <p class="howto-note">Tugas kamu sampai di <b>Simpan</b>. Angka <b>saldo akhir</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b>. Kamu tidak perlu mengisi bagian SIMASET.</p>
       </section>
     </main>
     ${footer()}`;
@@ -240,7 +240,7 @@ function buildForm(entry) {
           </div>
         </div>
       </div>
-      <p class="cl-awal-note">Saldo Awal 2026 = stok di awal tahun (dasar Stock Opname S1). <b>Saldo Awal Juli terisi otomatis</b> = (Total S1 + Awal) &minus; (Pengeluaran S1).</p>
+      <p class="cl-awal-note">Saldo Awal 2026 = stok di awal tahun (dasar Saldo Akhir S1). <b>Saldo Awal Juli terisi otomatis</b> = (Total S1 + Awal) &minus; (Pengeluaran S1).</p>
     </section>
 
     <div class="cl-grid">
@@ -259,9 +259,9 @@ function buildForm(entry) {
     <div class="ringkasan">
       <div class="rk in"><span>Total Penerimaan</span><b class="rk-in">0</b></div>
       <div class="rk out"><span>Total Pengeluaran</span><b class="rk-out">0</b></div>
-      <div class="rk stock"><span>Stock Opname S1</span><b class="rk-stock1">0</b></div>
-      <div class="rk stock"><span>Stock Opname S2</span><b class="rk-stock2">0</b></div>
-      <div class="rk stock"><span>Stock Opname Tahunan</span><b class="rk-stocky">0</b></div>
+      <div class="rk stock"><span>Saldo Akhir S1</span><b class="rk-stock1">0</b></div>
+      <div class="rk stock"><span>Saldo Akhir S2</span><b class="rk-stock2">0</b></div>
+      <div class="rk stock"><span>Saldo Akhir Tahunan</span><b class="rk-stocky">0</b></div>
     </div>
 
     <div class="savebar">
@@ -366,7 +366,7 @@ async function renderStatistik() {
   app.innerHTML = header('pp') + `
     <main class="wrap" id="stats-wrap">
       <h1 class="page-title">Laporan Manual</h1>
-      <p class="page-sub">Rekap data <b>Laporan Manual</b> seluruh OPD: penerimaan per bulan, pengeluaran per semester, dan stock opname.</p>
+      <p class="page-sub">Rekap data <b>Laporan Manual</b> seluruh OPD: penerimaan per bulan, pengeluaran per semester, dan saldo akhir.</p>
       <section class="card admin-summary">
         <div class="sum-head">
           <h2>Rekap PP Pakai Habis Per OPD</h2>
@@ -420,7 +420,7 @@ function renderSummary(sum) {
             <th rowspan="2" class="tin">Total S2 + Awal</th>
             <th colspan="2" class="grp-in">Penerimaan Tahunan</th>
             <th colspan="3" class="grp-out">Pengeluaran</th>
-            <th colspan="3" class="grp-stock">Stock Opname</th>
+            <th colspan="3" class="grp-stock">Saldo Akhir</th>
             <th colspan="2" class="grp-rec">Rekonsiliasi SIMASET</th>
           </tr>
           <tr>
@@ -434,7 +434,7 @@ function renderSummary(sum) {
             <th class="n m">S1</th>
             <th class="n m">S2</th>
             <th class="n strong stok">Tahunan</th>
-            <th class="n rec">Opname Simaset 2026</th>
+            <th class="n rec">Saldo Akhir SIMASET 2026</th>
             <th class="n rec">Selisih</th>
           </tr>
         </thead>
@@ -786,7 +786,7 @@ function renderAdminLogin() {
         <div class="login-head">
           <span class="login-badge">ADMIN</span>
           <h1 class="login-title">Rekonsiliasi <span>SIMASET</span></h1>
-          <p class="login-sub">Area khusus admin. Isi <b>Opname Simaset 2026</b> per OPD, lalu cocokkan dengan stock opname dari Laporan Manual.</p>
+          <p class="login-sub">Area khusus admin. Isi <b>Saldo Akhir SIMASET 2026</b> per OPD, lalu cocokkan dengan saldo akhir dari Laporan Manual.</p>
         </div>
         <form id="admin-login-form" class="login-form">
           <div class="login-field">
@@ -820,7 +820,7 @@ async function renderAdminPanel() {
       <div class="admin-head">
         <div>
           <h1 class="page-title">Rekonsiliasi <span>SIMASET</span></h1>
-          <p class="page-sub">Isi <b>Opname Simaset 2026</b> per OPD. Kolom <b>Selisih</b> terhitung otomatis terhadap Stock Opname Tahunan. Simpan per OPD atau semua sekaligus.</p>
+          <p class="page-sub">Isi <b>Saldo Akhir SIMASET 2026</b> per OPD. Kolom <b>Selisih</b> terhitung otomatis terhadap Saldo Akhir Tahunan. Simpan per OPD atau semua sekaligus.</p>
         </div>
         <div class="admin-tools">
           <input id="opd-search-admin" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari nama atau kode OPD">
@@ -832,8 +832,8 @@ async function renderAdminPanel() {
           <table>
             <thead><tr>
               <th class="opd-col">OPD</th>
-              <th class="n">Stock Opname Tahunan</th>
-              <th class="n">Opname Simaset 2026</th>
+              <th class="n">Saldo Akhir Tahunan</th>
+              <th class="n">Saldo Akhir SIMASET 2026</th>
               <th class="n">Selisih</th>
               <th class="n">Aksi</th>
             </tr></thead>
@@ -866,7 +866,7 @@ async function renderAdminPanel() {
       <tr data-code="${esc(r.code)}" data-search="${esc((r.name + ' ' + r.code).toLowerCase())}">
         <td class="opd-col"><span class="opd-name">${esc(r.name)}</span><span class="sum-code">${esc(r.code)}</span></td>
         <td class="n">${fmtID(r.stock_year)}</td>
-        <td class="n"><input type="text" inputmode="decimal" class="num admin-inp" data-code="${esc(r.code)}" value="${fmtID(r.opname_simaset)}" aria-label="Opname Simaset 2026 ${esc(r.name)}"></td>
+        <td class="n"><input type="text" inputmode="decimal" class="num admin-inp" data-code="${esc(r.code)}" value="${fmtID(r.opname_simaset)}" aria-label="Saldo Akhir SIMASET 2026 ${esc(r.name)}"></td>
         <td class="n selisih" data-selisih="${esc(r.code)}">${fmtID(r.selisih)}</td>
         <td class="n"><button type="button" class="btn ghost admin-save-btn" data-code="${esc(r.code)}">Simpan</button></td>
       </tr>`).join('');
