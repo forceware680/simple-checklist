@@ -283,35 +283,35 @@ app.get('/api/tarik/saldo-berjalan', requireAdmin, (req, res) => {
 function buildSqlThLalu(inList) {
   return `
     ;WITH SO AS (
-      SELECT LEFT(a.NoTB,16) AS opd, b.FiFo, (b.Jumlah - b.Opname) AS JmlAkhir
+      SELECT LEFT(a.NoTB,16) AS opd, LEFT(a.NoTB,16) + '_' + b.FiFo AS FiFo, (b.Jumlah - b.Opname) AS JmlAkhir
       FROM AsetPersediaan90.dbo.tutupbuku a WITH (NOLOCK)
       JOIN AsetPersediaan90.dbo.tutupbukudet b WITH (NOLOCK) ON a.NoTB = b.NoTB
       WHERE a.Awal >= CONVERT(DATETIME,@start,120) AND a.Awal < CONVERT(DATETIME,@end,120)
         AND LEFT(a.NoTB,16) IN (${inList})
     ),
     PDraw AS (
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+      SELECT LEFT(d.NoTerima,16) + '_' + d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
              RIGHT('0'+CAST(DATEPART(HOUR,p.TglBAST) AS VARCHAR(2)),2) + ':' +
              RIGHT('0'+CAST(DATEPART(MINUTE,p.TglBast) AS VARCHAR(2)),2) AS FIFO, d.Harga
       FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
       JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
       WHERE LEFT(d.NoTerima,16) IN (${inList})
       UNION ALL
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+      SELECT LEFT(d.NoTerima,16) + '_' + d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
              RIGHT('0'+CAST(DATEPART(HOUR,p.TglBAST) AS VARCHAR(2)),2) + ':' +
              RIGHT('0'+CAST(DATEPART(MINUTE,p.TglBast) AS VARCHAR(2)),2) AS FIFO, d.Harga
       FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
       JOIN AsetPersediaan90.dbo.PenerimaanDPANon p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
       WHERE LEFT(d.NoTerima,16) IN (${inList})
       UNION ALL
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+      SELECT LEFT(d.NoTerima,16) + '_' + d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
              RIGHT('0'+CAST(DATEPART(HOUR,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) + ':' +
              RIGHT('0'+CAST(DATEPART(MINUTE,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) AS FIFO, d.Harga
       FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
       JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
       WHERE LEFT(d.NoTerima,16) IN (${inList})
       UNION ALL
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+      SELECT LEFT(d.NoTerima,16) + '_' + d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
              RIGHT('0'+CAST(DATEPART(HOUR,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) + ':' +
              RIGHT('0'+CAST(DATEPART(MINUTE,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) AS FIFO, d.Harga
       FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
@@ -454,35 +454,35 @@ app.get('/api/tarik/rekap-opd', async (req, res) => {
   const inList = `'${key}'`;
   const sqlThLalu = `
     ;WITH SO AS (
-      SELECT LEFT(a.NoTB,16) AS opd, b.FiFo, (b.Jumlah - b.Opname) AS JmlAkhir
+      SELECT LEFT(a.NoTB,16) AS opd, LEFT(a.NoTB,16) + '_' + b.FiFo AS FiFo, (b.Jumlah - b.Opname) AS JmlAkhir
       FROM AsetPersediaan90.dbo.tutupbuku a WITH (NOLOCK)
       JOIN AsetPersediaan90.dbo.tutupbukudet b WITH (NOLOCK) ON a.NoTB = b.NoTB
       WHERE a.Awal >= CONVERT(DATETIME,@start,120) AND a.Awal < CONVERT(DATETIME,@end,120)
         AND LEFT(a.NoTB,16) IN (${inList})
     ),
     PDraw AS (
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+      SELECT LEFT(d.NoTerima,16) + '_' + d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
              RIGHT('0'+CAST(DATEPART(HOUR,p.TglBAST) AS VARCHAR(2)),2) + ':' +
              RIGHT('0'+CAST(DATEPART(MINUTE,p.TglBast) AS VARCHAR(2)),2) AS FIFO, d.Harga
       FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
       JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
       WHERE LEFT(d.NoTerima,16) IN (${inList})
       UNION ALL
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+      SELECT LEFT(d.NoTerima,16) + '_' + d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
              RIGHT('0'+CAST(DATEPART(HOUR,p.TglBAST) AS VARCHAR(2)),2) + ':' +
              RIGHT('0'+CAST(DATEPART(MINUTE,p.TglBast) AS VARCHAR(2)),2) AS FIFO, d.Harga
       FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
       JOIN AsetPersediaan90.dbo.PenerimaanDPANon p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
       WHERE LEFT(d.NoTerima,16) IN (${inList})
       UNION ALL
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+      SELECT LEFT(d.NoTerima,16) + '_' + d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
              RIGHT('0'+CAST(DATEPART(HOUR,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) + ':' +
              RIGHT('0'+CAST(DATEPART(MINUTE,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) AS FIFO, d.Harga
       FROM AsetPersediaan90.dbo.PenerimaanDetDPA d WITH (NOLOCK)
       JOIN AsetPersediaan90.dbo.PenerimaanDPA p WITH (NOLOCK) ON d.NoTerima=p.NoTerima
       WHERE LEFT(d.NoTerima,16) IN (${inList})
       UNION ALL
-      SELECT d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
+      SELECT LEFT(d.NoTerima,16) + '_' + d.ObjekPersediaan + '_' + CONVERT(VARCHAR(8), p.TglBast,112) + '_' +
              RIGHT('0'+CAST(DATEPART(HOUR,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) + ':' +
              RIGHT('0'+CAST(DATEPART(MINUTE,COALESCE(p.TglInput,p.TglBAST)) AS VARCHAR(2)),2) AS FIFO, d.Harga
       FROM AsetPersediaan90.dbo.PenerimaanDetDPANon d WITH (NOLOCK)
