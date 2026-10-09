@@ -412,12 +412,12 @@ function renderSummary(sum) {
             <th class="stick" rowspan="2">OPD</th>
             <th rowspan="2" class="saldo">Saldo Awal</th>
             <th colspan="6" class="grp-in">Penerimaan S1 (Jan–Jun)</th>
-            <th rowspan="2" class="tin">Total S1</th>
-            <th rowspan="2" class="tin">Total S1 + Awal</th>
+            <th rowspan="2" class="tin">Total Belanja S1</th>
+            <th rowspan="2" class="tin">Total Belanja S1 + Awal</th>
             <th rowspan="2" class="saldo">Saldo Awal Juli</th>
             <th colspan="6" class="grp-in">Penerimaan S2 (Jul–Des)</th>
-            <th rowspan="2" class="tin">Total S2</th>
-            <th rowspan="2" class="tin">Total S2 + Awal</th>
+            <th rowspan="2" class="tin">Total Belanja S2</th>
+            <th rowspan="2" class="tin">Total Belanja S2 + Awal</th>
             <th colspan="2" class="grp-in">Penerimaan Tahunan</th>
             <th colspan="3" class="grp-out">Pengeluaran</th>
             <th colspan="3" class="grp-stock">Saldo Akhir</th>
