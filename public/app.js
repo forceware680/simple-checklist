@@ -745,7 +745,7 @@ function renderRekonsiliasiRows(r) {
     const all = [
       { label: 'Saldo Awal', s: d.sumber.saldo_awal, c: d.checklist.saldo_awal, sel: d.selisih.saldo_awal },
       ...MLBL.map((m, i) => ({ label: m, s: d.sumber.months[i], c: d.checklist.months[i], sel: d.selisih.months[i] })),
-      { label: 'Total', s: d.sumber.total, c: d.checklist.total, sel: d.selisih.total }
+      { label: 'Total', s: d.sumber.saldo_awal + d.sumber.total, c: d.checklist.saldo_awal + d.checklist.total, sel: d.selisih.saldo_awal + d.selisih.total }
     ];
     const diffCount = all.filter(row => row.sel !== 0).length;
     const rows = all.map(row => `<tr class="${row.sel !== 0 ? 'diff' : ''}">
