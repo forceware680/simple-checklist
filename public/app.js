@@ -766,7 +766,7 @@ function renderRekonsiliasiRows(r) {
   }).join('');
 
   el.innerHTML = `
-    <div class="summary-stat"><b>${r.beda}</b> dari ${r.count} OPD belum cocok dengan SIMASET</div>
+    <div class="summary-stat"><b>${beda.length}</b> dari ${r.rows.length} OPD belum cocok dengan SIMASET</div>
     <div class="sum-table rek">
       <table>
         <thead><tr>
