@@ -10,12 +10,12 @@ Aplikasi web sederhana untuk checklist persediaan barang OPD tahun 2026.
 - **Saldo Awal Juli**: stok di awal semester 2, diisi oleh pengurus.
 - **Total penerimaan** per semester: S1 = Jan–Jun, S2 = Jul–Des (otomatis).
 - **Pengeluaran tahunan** = S1 + S2 (otomatis).
-- **Stock opname** dihitung otomatis (di menu Statistik):
+- **Stock opname** dihitung otomatis (di menu PP Pakai Habis):
   - Stock Sem 1 = saldo awal + penerimaan Jan–Jun − pengeluaran S1
   - Stock Sem 2 = saldo awal Juli + penerimaan Jul–Des − pengeluaran S2
   - Stock Tahunan = saldo awal + penerimaan Jan–Des − pengeluaran tahunan (S1+S2)
 - **Rekonsiliasi SIMASET**: admin mengisi **Opname Simaset 2026** per OPD (di halaman admin tersembunyi), lalu **Selisih** dihitung otomatis = Opname Simaset − Stock Opname Tahunan (jika sama = 0).
-- Setiap **pengurus barang** membuka satu link, memilih **OPD-nya**, lalu mengisi total penerimaan per bulan dan total pengeluaran per semester. Rekap seluruh OPD ada di menu **Statistik**.
+- Setiap **pengurus barang** membuka satu link, memilih **OPD-nya**, lalu mengisi total penerimaan per bulan dan total pengeluaran per semester. Rekap seluruh OPD ada di menu **PP Pakai Habis**.
 
 > Catatan: isian **tidak per barang**. Tiap OPD hanya mengisi **total** per bulan / per semester.
 
@@ -23,7 +23,7 @@ Aplikasi web sederhana untuk checklist persediaan barang OPD tahun 2026.
 
 1. Publikasikan link domain kamu (mis. `https://domainkamu.com`).
 2. Pengurus barang membuka link → memilih OPD-nya → mengisi 12 total penerimaan (per bulan) + 2 total pengeluaran (per semester) → **Simpan Checklist**.
-3. Buka menu **Statistik** → rekap seluruh OPD: penerimaan per bulan, pengeluaran per semester, stock opname, dan rekonsiliasi SIMASET.
+3. Buka menu **PP Pakai Habis** → rekap seluruh OPD: penerimaan per bulan, pengeluaran per semester, stock opname, dan rekonsiliasi SIMASET.
 
 ## Admin — Rekonsiliasi SIMASET
 
@@ -32,7 +32,7 @@ Halaman admin **tersembunyi** — tidak ada link di menu. Akses dengan mengetik 
 - **Login** dengan username & password dari `.env` (`ADMIN_USER`, `ADMIN_PASS`).
 - Setelah masuk, admin mengisi **Opname Simaset 2026** per OPD (hasil opname di SIMASET).
 - **Selisih** terhitung otomatis = Opname Simaset 2026 − Stock Opname Tahunan. Jika sama, selisih = 0.
-- Hasilnya juga tampil di menu **Statistik** (2 kolom baru: Opname Simaset 2026 & Selisih).
+- Hasilnya juga tampil di menu **PP Pakai Habis** (2 kolom baru: Opname Simaset 2026 & Selisih).
 
 > Sesi admin = cookie token (HttpOnly) berumur 12 jam, ditandatangani dengan `ADMIN_SECRET`. Ganti `ADMIN_PASS` & `ADMIN_SECRET` dengan nilai kuat sebelum deploy.
 
@@ -56,7 +56,7 @@ Aplikasi Node.js standar (Express + PostgreSQL). Deploy ke hosting apa pun yang 
 4. Jalankan dengan `npm start` (atau proses manager seperti PM2). Server membaca `PORT` dari environment.
 5. Arahkan domain ke server tersebut.
 
-> Catatan: menu publik (Beranda, Checklist, Statistik) tidak butuh login. Halaman **admin** (`#/admin`) terlindungi login. Ganti `ADMIN_PASS` & `ADMIN_SECRET` dengan nilai kuat sebelum dipublikasikan.
+> Catatan: menu publik (Beranda, Checklist, PP Pakai Habis) tidak butuh login. Halaman **admin** (`#/admin`) terlindungi login. Ganti `ADMIN_PASS` & `ADMIN_SECRET` dengan nilai kuat sebelum dipublikasikan.
 
 ## Struktur
 

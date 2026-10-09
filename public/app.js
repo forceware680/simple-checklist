@@ -55,7 +55,7 @@ function header(active) {
     </a>
     <nav class="topnav">
       <a href="#/" class="nav-link ${active === 'home' ? 'on' : ''}">Beranda</a>
-      <a href="#/statistik" class="nav-link ${active === 'statistik' ? 'on' : ''}">Statistik</a>
+      <a href="#/pp-pakai-habis" class="nav-link ${active === 'pp' ? 'on' : ''}">PP Pakai Habis</a>
       <a href="#/rekap" class="nav-link ${active === 'rekap' ? 'on' : ''}">Rekap</a>
       <a href="#/rekonsiliasi" class="nav-link ${active === 'rekonsiliasi' ? 'on' : ''}">Rekonsiliasi</a>
     </nav>
@@ -67,7 +67,7 @@ function render() {
   const hash = location.hash || '#/';
   app.setAttribute('aria-busy', 'true');
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
-  else if (hash === '#/statistik') renderStatistik();
+  else if (hash === '#/pp-pakai-habis') renderStatistik();
   else if (hash.startsWith('#/rekap/')) renderRekapOpd(decodeURIComponent(hash.slice(8)));
   else if (hash === '#/rekap') renderRekap();
   else if (hash === '#/rekonsiliasi') renderRekonsiliasi();
@@ -268,7 +268,7 @@ function buildForm(entry) {
     <div class="savebar">
       <div id="save-msg" class="save-msg" role="status" aria-live="polite"></div>
       <div class="savebar-btns">
-        <button id="tarik-btn" class="btn ghost" type="button" hidden>Tarik dari Sumber</button>
+        <button id="tarik-btn" class="btn ghost" type="button" hidden>Tarik dari SIMASET</button>
         <button id="save-btn" class="btn primary">Simpan Checklist</button>
       </div>
     </div>`;
@@ -326,7 +326,7 @@ async function tarikFill() {
   const btn = document.getElementById('tarik-btn');
   const msg = document.getElementById('save-msg');
   if (btn) { btn.disabled = true; btn.textContent = 'Menarik…'; }
-  if (msg) { msg.className = 'save-msg'; msg.textContent = 'Menarik data dari sumber…'; }
+  if (msg) { msg.className = 'save-msg'; msg.textContent = 'Menarik data dari SIMASET…'; }
   try {
     const r = await api('/api/tarik/pull?opd=' + encodeURIComponent(clCode), { method: 'POST' });
     const setVal = (field, val) => { const inp = document.querySelector('#cl-body input[data-field="' + field + '"]'); if (inp) inp.value = fmtID(val); };
@@ -338,7 +338,7 @@ async function tarikFill() {
   } catch (err) {
     if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menarik: ' + err.message; }
   }
-  if (btn) { btn.disabled = false; btn.textContent = 'Tarik dari Sumber'; }
+  if (btn) { btn.disabled = false; btn.textContent = 'Tarik dari SIMASET'; }
 }
 
 function clUnload(e) {
@@ -389,9 +389,9 @@ async function doSave() {
 const MLBL = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
 async function renderStatistik() {
-  app.innerHTML = header('statistik') + `
+  app.innerHTML = header('pp') + `
     <main class="wrap" id="stats-wrap">
-      <h1 class="page-title">Statistik</h1>
+      <h1 class="page-title">PP Pakai Habis</h1>
       <p class="page-sub">Rekap seluruh OPD: penerimaan per bulan &amp; pengeluaran per semester.</p>
       <section class="card admin-summary">
         <div class="sum-head">
@@ -495,7 +495,7 @@ async function renderRekap() {
   app.innerHTML = header('rekap') + `
     <main class="wrap" id="rekap-wrap">
       <h1 class="page-title">Rekap Bulanan</h1>
-      <p class="page-sub">Total <b>nilai (TotalHarga)</b> penerimaan dari sumber, per OPD per bulan (TA 2026). <b>Saldo Awal</b> = saldo awal th; jika 0 → otomatis <b>saldo th lalu</b>. Kolom bulan dari tanggal <b>BAST</b> saldo berjalan.</p>
+      <p class="page-sub">Total <b>nilai (TotalHarga)</b> penerimaan dari SIMASET, per OPD per bulan (TA 2026). <b>Saldo Awal</b> = saldo awal th; jika 0 → otomatis <b>saldo th lalu</b>. Kolom bulan dari tanggal <b>BAST</b> saldo berjalan.</p>
       <div id="rekap-body">${loadingBlock('Memuat rekap…')}</div>
     </main>
     ${footer()}`;
@@ -695,10 +695,10 @@ async function renderRekonsiliasi() {
   app.innerHTML = header('rekonsiliasi') + `
     <main class="wrap">
       <h1 class="page-title">Rekonsiliasi</h1>
-      <p class="page-sub">Membandingkan <b>sumber</b> (data ditarik dari MSSQL) dengan <b>checklist</b> (data diisikan pengurus). <b>Selisih</b> = sumber − checklist.</p>
+      <p class="page-sub">Membandingkan <b>SIMASET</b> (data ditarik dari database SIMASET) dengan <b>checklist</b> (data diisikan pengurus). <b>Selisih</b> = SIMASET − checklist.</p>
       <section class="card admin-summary">
         <div class="sum-head">
-          <h2>Rekonsiliasi <span class="rekap-tag">sumber vs checklist</span></h2>
+          <h2>Rekonsiliasi <span class="rekap-tag">SIMASET vs checklist</span></h2>
           <div class="sum-actions">
             <input id="rek-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
           </div>
@@ -762,21 +762,21 @@ function renderRekonsiliasiRows(r) {
     return `<div class="rek-detail">
       <h3>${esc(d.name)} <span class="sum-code">${esc(d.code)}</span></h3>
       <table class="rek-table">
-        <thead><tr><th>Komponen</th><th class="n">Sumber</th><th class="n">Checklist</th><th class="n">Selisih</th></tr></thead>
+        <thead><tr><th>Komponen</th><th class="n">SIMASET</th><th class="n">Checklist</th><th class="n">Selisih</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>`;
   }).join('');
 
   el.innerHTML = `
-    <div class="summary-stat"><b>${r.beda}</b> dari ${r.count} OPD belum cocok dengan sumber</div>
+    <div class="summary-stat"><b>${r.beda}</b> dari ${r.count} OPD belum cocok dengan SIMASET</div>
     <div class="sum-table rek">
       <table>
         <thead><tr>
           <th class="stick">OPD</th>
-          <th class="n">Saldo <span class="th-sub">sumber</span></th>
+          <th class="n">Saldo <span class="th-sub">SIMASET</span></th>
           <th class="n">Saldo <span class="th-sub">checklist</span></th>
-          <th class="n">Penerimaan <span class="th-sub">sumber</span></th>
+          <th class="n">Penerimaan <span class="th-sub">SIMASET</span></th>
           <th class="n">Penerimaan <span class="th-sub">checklist</span></th>
           <th class="n strong">Selisih</th>
           <th>Status</th>
@@ -786,7 +786,7 @@ function renderRekonsiliasiRows(r) {
     </div>
     ${beda.length
       ? '<h2 class="rek-detail-h">Rincian yang Belum Cocok</h2>' + detail
-      : '<p class="rekap-note">Semua OPD sudah cocok dengan sumber.</p>'}`;
+      : '<p class="rekap-note">Semua OPD sudah cocok dengan SIMASET.</p>'}`;
 }
 
 /* ---------- ADMIN (tersembunyi, #/admin) ---------- */
