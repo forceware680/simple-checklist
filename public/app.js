@@ -69,6 +69,7 @@ function header(active) {
 function render() {
   const hash = location.hash || '#/';
   app.setAttribute('aria-busy', 'true');
+  app.classList.remove('full');
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
   else if (hash === '#/pp-pakai-habis') renderStatistik();
   else if (hash.startsWith('#/rekap/')) renderRekapOpd(decodeURIComponent(hash.slice(8)));
@@ -385,7 +386,7 @@ async function renderStatistik() {
     ${footer()}`;
   const wrap = document.getElementById('stats-wrap');
   document.getElementById('fs-btn').addEventListener('click', () => {
-    const on = wrap.classList.toggle('full');
+    const on = app.classList.toggle('full');
     document.getElementById('fs-btn').textContent = on ? 'Keluar Full Screen' : 'Full Screen';
   });
   const searchInput = document.getElementById('opd-search');
@@ -499,7 +500,7 @@ function renderRekapTable(isAdmin) {
       <div id="rekap-summary">${loadingBlock('Memuat…')}</div>
     </section>`;
   wrap.querySelector('#rekap-fs').addEventListener('click', () => {
-    const on = wrap.classList.toggle('full');
+    const on = app.classList.toggle('full');
     wrap.querySelector('#rekap-fs').textContent = on ? 'Keluar Full Screen' : 'Full Screen';
   });
   const pullAllBtn = wrap.querySelector('#rekap-pullall');

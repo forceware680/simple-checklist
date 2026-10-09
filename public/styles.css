@@ -69,7 +69,13 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 
 /* ---------- Layout ---------- */
 .wrap{ max-width:1280px; margin:0 auto; padding:14px 16px 64px; }
-.wrap.full{ max-width:none; }
+#app.full .topbar{ display:none; }
+#app.full .footer{ display:none; }
+#app.full main.wrap{ max-width:none; height:100vh; box-sizing:border-box; padding:12px 12px 0; display:flex; flex-direction:column; }
+#app.full main.wrap > .page-title, #app.full main.wrap > .page-sub{ display:none; }
+#app.full main.wrap .card, #app.full main.wrap #rekap-body{ flex:1; min-height:0; display:flex; flex-direction:column; }
+#app.full main.wrap #summary, #app.full main.wrap #rekap-summary{ flex:1; min-height:0; display:flex; flex-direction:column; }
+#app.full main.wrap .sum-table{ flex:1; min-height:0; max-height:none; }
 .page-title{ font-size:clamp(30px,6vw,46px); margin-bottom:6px; }
 .page-sub{ margin:0 0 22px; color:var(--muted); font-weight:500; }
 .card{ background:var(--paper); border:var(--border) solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; }
