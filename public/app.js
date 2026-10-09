@@ -586,7 +586,7 @@ function renderRekapRows(r) {
             <td class="n saldo">${fmtID(d.saldo_awal)}${d.saldo_src === 'th_lalu' ? '<span class="saldo-tag" title="Saldo th lalu (fallback)">th</span>' : ''}</td>
             ${d.months.slice(0,6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
             ${d.months.slice(6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
-            <td class="n strong tot-in">${fmtID(d.total)}</td>
+            <td class="n strong tot-in">${fmtID(d.saldo_awal + d.total)}</td>
           </tr>`).join('')}</tbody>
       </table>
     </div>`;
