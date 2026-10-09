@@ -675,6 +675,7 @@ async function renderRekonsiliasi() {
             <input id="rek-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
           </div>
         </div>
+        <p class="rekap-note">Klik ikon chevron (→) untuk melihat rincian rekonsiliasi perbulan.</p>
         <div id="rek-summary">${loadingBlock('Memuat…')}</div>
       </section>
     </main>
