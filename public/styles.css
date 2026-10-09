@@ -249,7 +249,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .rek-table td.lbl{ font-weight:700; }
 .rek-table tr.diff td{ background:var(--yellow-soft); }
 .rek-table td.neg{ color:var(--red); font-weight:700; }
-.rek-table .strong{ font-weight:800; }
+.rek-table tr.total td{ font-weight:800; }
 .back-link{ display:inline-flex; align-items:center; gap:7px; padding:7px 13px; font-size:13px; font-weight:800; color:var(--ink); background:var(--paper); border:2px solid var(--ink); border-radius:8px; box-shadow:3px 3px 0 var(--ink); text-decoration:none; }
 .back-link:hover{ background:var(--yellow-soft); }
 .back-link:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
