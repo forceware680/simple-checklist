@@ -326,13 +326,13 @@ async function tarikFill() {
   if (btn) { btn.disabled = true; btn.textContent = 'Menarik…'; }
   if (msg) { msg.className = 'save-msg'; msg.textContent = 'Menarik data dari sumber…'; }
   try {
-    const r = await api('/api/tarik/rekap-opd?opd=' + encodeURIComponent(clCode));
+    const r = await api('/api/tarik/pull?opd=' + encodeURIComponent(clCode), { method: 'POST' });
     const setVal = (field, val) => { const inp = document.querySelector('#cl-body input[data-field="' + field + '"]'); if (inp) inp.value = fmtID(val); };
     setVal('saldo_awal', r.saldo_awal);
     r.months.forEach((v, i) => setVal(MONTHS[i][0], v));
     paintTotals();
     setDirty(true);
-    if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Data ditarik' + (r.saldo_src === 'th_lalu' ? ' (saldo dari th lalu)' : '') + ' — cek lalu Simpan'; }
+    if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Tersimpan ke tabel temp — form terisi, klik Simpan Checklist'; }
   } catch (err) {
     if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menarik: ' + err.message; }
   }
@@ -515,6 +515,7 @@ function renderRekapTable() {
         <h2>Rekap OPD <span class="rekap-tag">TA 2026</span></h2>
         <div class="sum-actions">
           <input id="rekap-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
+          <button id="rekap-pullall" class="btn ghost" type="button">Tarik Semua ke Temp</button>
           <button id="rekap-fs" class="btn ghost" type="button">Full Screen</button>
         </div>
       </div>
@@ -525,6 +526,7 @@ function renderRekapTable() {
     const on = wrap.classList.toggle('full');
     wrap.querySelector('#rekap-fs').textContent = on ? 'Keluar Full Screen' : 'Full Screen';
   });
+  wrap.querySelector('#rekap-pullall').addEventListener('click', rekapPullAll);
   wrap.querySelector('#rekap-search').addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase();
     document.querySelectorAll('#rekap-summary tbody tr').forEach(tr => {
@@ -532,6 +534,21 @@ function renderRekapTable() {
     });
   });
   loadRekap(2026);
+}
+
+// Tarik SEMUA OPD dari sumber → simpan ke tabel temp (tarik_temp)
+async function rekapPullAll() {
+  const btn = document.getElementById('rekap-pullall');
+  if (!btn) return;
+  btn.disabled = true; btn.textContent = 'Menarik semua…';
+  try {
+    const r = await api('/api/tarik/pull-all', { method: 'POST' });
+    btn.textContent = r.count + ' OPD tersimpan ✓';
+  } catch (err) {
+    btn.textContent = 'Gagal menarik';
+  }
+  btn.disabled = false;
+  setTimeout(() => { btn.textContent = 'Tarik Semua ke Temp'; }, 3000);
 }
 
 async function loadRekap(year) {
