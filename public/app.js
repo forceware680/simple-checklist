@@ -473,6 +473,7 @@ async function renderRekap() {
   app.innerHTML = header('rekap') + `
     <main class="wrap" id="rekap-wrap">
       <h1 class="page-title">SIMASET</h1>
+      <p class="page-sub">Data diambil langsung dari Database SIMASET</p>
       <div id="rekap-body">${loadingBlock('Memuat rekap…')}</div>
     </main>
     ${footer()}`;
