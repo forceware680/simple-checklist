@@ -51,7 +51,7 @@ function header(active) {
   return `<header class="topbar">
     <a class="brand" href="#/">
       <span class="brand-mark">P26</span>
-      <span class="brand-name">Laporan Manual Persediaan <b>2026</b></span>
+      <span class="brand-name">Rekonsiliasi Persediaan <b>2026</b></span>
     </a>
     <nav class="topnav">
       <a href="#/" class="nav-link ${active === 'home' ? 'on' : ''}">Beranda</a>
@@ -103,6 +103,8 @@ async function renderLanding() {
           <li>Isi <b>total pengeluaran</b> tiap semester (S1 &amp; S2) — juga <b>total</b>, bukan per barang.</li>
           <li><b>Saldo Awal Juli</b>, total, dan <b>Stock Opname</b> terhitung otomatis — nggak perlu diketik.</li>
           <li>Klik <b>Simpan Laporan Manual</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
+          <li>Untuk melihat <b>rekap data SIMASET per bulan</b>, buka menu <b>SIMASET</b> di atas.</li>
+          <li>Untuk melihat <b>rekonsiliasi data Laporan Manual vs SIMASET</b>, buka menu <b>Rekonsiliasi</b> di atas.</li>
         </ol>
         <span class="note-chip">Total per OPD (bukan per barang) &nbsp;·&nbsp; Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Stock: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
         <p class="howto-note">Tugas kamu sampai di <b>Simpan Laporan Manual</b>. Angka <b>stock opname</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b> — kamu tidak perlu mengisi bagian SIMASET.</p>
