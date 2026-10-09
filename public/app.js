@@ -744,25 +744,37 @@ function renderRekonsiliasiRows(r) {
     </tr>`;
   }).join('');
 
-  const beda = r.data.filter(d => !isCocok(d));
-  const detail = beda.map(d => {
-    const rows = [
+  const beda = r.data
+    .filter(d => !isCocok(d))
+    .sort((a, b) => Math.abs(b.selisih.total) - Math.abs(a.selisih.total));
+  const detail = beda.map((d, idx) => {
+    const all = [
       { label: 'Saldo Awal', s: d.sumber.saldo_awal, c: d.checklist.saldo_awal, sel: d.selisih.saldo_awal },
       ...MLBL.map((m, i) => ({ label: m, s: d.sumber.months[i], c: d.checklist.months[i], sel: d.selisih.months[i] })),
       { label: 'Total', s: d.sumber.total, c: d.checklist.total, sel: d.selisih.total }
-    ].map(row => `<tr class="${row.sel !== 0 ? 'diff' : ''}">
+    ];
+    const diffRows = all.filter(row => row.sel !== 0);
+    const rows = diffRows.map(row => `<tr>
       <td class="lbl">${row.label}</td>
       <td class="n">${fmtID(row.s)}</td>
       <td class="n">${fmtID(row.c)}</td>
-      <td class="n ${row.sel !== 0 ? 'neg' : ''}">${fmtID(row.sel)}</td>
+      <td class="n neg">${fmtID(row.sel)}</td>
     </tr>`).join('');
-    return `<div class="rek-detail">
-      <h3>${esc(d.name)} <span class="sum-code">${esc(d.code)}</span></h3>
-      <table class="rek-table">
-        <thead><tr><th>Komponen</th><th class="n">SIMASET</th><th class="n">Laporan Manual</th><th class="n">Selisih</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
+    return `<details class="rek-detail"${idx < 3 ? ' open' : ''}>
+      <summary>
+        <span class="rek-d-name">${esc(d.name)}</span>
+        <span class="sum-code">${esc(d.code)}</span>
+        <span class="rek-d-badge">${diffRows.length} beda</span>
+        <span class="rek-d-sel${d.selisih.total !== 0 ? ' neg' : ''}">Selisih ${fmtID(d.selisih.total)}</span>
+        <span class="rek-d-chev" aria-hidden="true"></span>
+      </summary>
+      <div class="rek-d-body">
+        <table class="rek-table">
+          <thead><tr><th>Komponen</th><th class="n">SIMASET</th><th class="n">Laporan Manual</th><th class="n">Selisih</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </details>`;
   }).join('');
 
   el.innerHTML = `
@@ -782,8 +794,12 @@ function renderRekonsiliasiRows(r) {
       </table>
     </div>
     ${beda.length
-      ? '<h2 class="rek-detail-h">Rincian yang Belum Cocok</h2>' + detail
+      ? `<div class="rek-detail-h">Rincian yang Belum Cocok <span class="rek-count">${beda.length} OPD</span><span class="rek-toggles"><button type="button" id="rek-openall">Buka semua</button><button type="button" id="rek-closeall">Tutup semua</button></span></div>` + detail
       : '<p class="rekap-note">Semua OPD sudah cocok dengan SIMASET.</p>'}`;
+  const openAll = el.querySelector('#rek-openall');
+  const closeAll = el.querySelector('#rek-closeall');
+  if (openAll) openAll.addEventListener('click', () => el.querySelectorAll('.rek-detail').forEach(d => { d.open = true; }));
+  if (closeAll) closeAll.addEventListener('click', () => el.querySelectorAll('.rek-detail').forEach(d => { d.open = false; }));
 }
 
 /* ---------- ADMIN (tersembunyi, #/admin) ---------- */
