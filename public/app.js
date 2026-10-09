@@ -663,7 +663,7 @@ async function renderRekonsiliasi() {
   app.innerHTML = header('rekonsiliasi') + `
     <main class="wrap">
       <h1 class="page-title">Rekonsiliasi</h1>
-      <p class="page-sub">Membandingkan <b>SIMASET</b> (sumber resmi) dengan <b>Laporan Manual</b> (isian pengurus) per OPD. <b>Selisih</b> = SIMASET − Laporan Manual.</p>
+      <p class="page-sub">Perbandingan Data antara yang di input di <b>SIMASET</b> dengan <b>Laporan Manual</b> (PP Pakai Habis) Pengurus Barang.</p>
       <section class="card admin-summary">
         <div class="sum-head">
           <h2>Rekonsiliasi <span class="rekap-tag">SIMASET vs Laporan Manual</span></h2>
