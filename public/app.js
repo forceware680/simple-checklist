@@ -699,12 +699,6 @@ async function renderRekonsiliasi() {
       </section>
     </main>
     ${footer()}`;
-  const me = await api('/api/admin/me').catch(() => ({ authenticated: false }));
-  if (!me.authenticated) {
-    document.getElementById('rek-summary').innerHTML =
-      `<div class="error-state">Halaman ini <b>khusus admin</b>. <a href="#/admin">Login admin</a> untuk lanjut.</div>`;
-    return;
-  }
   document.getElementById('rek-search').addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase();
     document.querySelectorAll('#rek-tbody tr').forEach(tr => { tr.style.display = tr.dataset.search.includes(q) ? '' : 'none'; });

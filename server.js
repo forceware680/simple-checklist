@@ -610,7 +610,7 @@ app.post('/api/tarik/pull-all', requireAdmin, async (req, res) => {
 });
 
 // Rekonsiliasi: bandingkan sumber (tarik_temp) vs checklist (entries) per OPD
-app.get('/api/rekonsiliasi', requireAdmin, async (req, res) => {
+app.get('/api/rekonsiliasi', async (req, res) => {
   try {
     const [tt, ent] = await Promise.all([
       pool.query('SELECT * FROM tarik_temp'),
