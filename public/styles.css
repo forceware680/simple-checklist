@@ -217,6 +217,25 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .saldo-tag{ font-family:var(--font-display); font-size:9px; background:var(--pink); color:var(--ink); padding:1px 4px; border-radius:4px; margin-left:5px; vertical-align:middle; }
 /* Rekap: tombol Tarik per OPD (di kolom OPD sticky, selalu terlihat) */
 .rekap-pull-btn{ margin-top:6px; padding:3px 12px; font-size:12px; }
+
+/* Rekonsiliasi: tabel sumber vs checklist */
+.sum-table.rek table{ min-width:880px; }
+.sum-table.rek .th-sub{ display:block; font-size:10px; font-weight:600; color:var(--muted); }
+.sum-table.rek td.st{ white-space:nowrap; }
+.rek-st{ display:inline-block; padding:2px 9px; font-size:12px; font-weight:800; border:2px solid var(--ink); border-radius:6px; }
+.rek-st.ok{ background:var(--green); color:#fff; }
+.rek-st.bad{ background:var(--red); color:#fff; }
+.rek-st.none{ background:var(--paper); color:var(--muted); }
+.rek-detail{ margin-top:18px; }
+.rek-detail h3{ font-family:var(--font-display); font-size:15px; margin:0 0 8px; }
+.rek-table{ width:100%; border-collapse:separate; border-spacing:0; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); overflow:hidden; }
+.rek-table th, .rek-table td{ padding:8px 12px; border-bottom:1.5px solid rgba(23,21,18,.12); text-align:left; font-size:13.5px; }
+.rek-table thead th{ background:var(--paper); font-family:var(--font-display); font-size:12px; }
+.rek-table td.n, .rek-table th.n{ text-align:right; font-variant-numeric:tabular-nums; }
+.rek-table td.lbl{ font-weight:700; }
+.rek-table tr.diff td{ background:var(--yellow-soft); }
+.rek-table td.neg{ color:var(--red); font-weight:700; }
+.rek-detail-h{ font-family:var(--font-display); font-size:18px; margin:28px 0 6px; }
 .back-link{ font-weight:700; color:var(--blue-deep); text-decoration:none; }
 .back-link:hover{ text-decoration:underline; }
 .opd-link{ color:inherit; text-decoration:none; }

@@ -57,6 +57,7 @@ function header(active) {
       <a href="#/" class="nav-link ${active === 'home' ? 'on' : ''}">Beranda</a>
       <a href="#/statistik" class="nav-link ${active === 'statistik' ? 'on' : ''}">Statistik</a>
       <a href="#/rekap" class="nav-link ${active === 'rekap' ? 'on' : ''}">Rekap</a>
+      <a href="#/rekonsiliasi" class="nav-link ${active === 'rekonsiliasi' ? 'on' : ''}">Rekonsiliasi</a>
     </nav>
   </header>`;
 }
@@ -69,6 +70,7 @@ function render() {
   else if (hash === '#/statistik') renderStatistik();
   else if (hash.startsWith('#/rekap/')) renderRekapOpd(decodeURIComponent(hash.slice(8)));
   else if (hash === '#/rekap') renderRekap();
+  else if (hash === '#/rekonsiliasi') renderRekonsiliasi();
   else if (hash.startsWith('#/admin')) renderAdmin();
   else renderLanding();
 }
@@ -686,6 +688,105 @@ function renderRekapOpdRows(r) {
       <h2>Rincian Saldo Berjalan <span class="rekap-count">${r.items.length} item</span></h2>
       ${sections || '<p class="page-sub">Tidak ada item saldo berjalan untuk TA 2026.</p>'}
     </section>`;
+}
+
+/* ---------- REKONSILIASI (sumber vs checklist, #/rekonsiliasi) ---------- */
+async function renderRekonsiliasi() {
+  app.innerHTML = header('rekonsiliasi') + `
+    <main class="wrap">
+      <h1 class="page-title">Rekonsiliasi</h1>
+      <p class="page-sub">Membandingkan <b>sumber</b> (data ditarik dari MSSQL) dengan <b>checklist</b> (data diisikan pengurus). <b>Selisih</b> = sumber − checklist.</p>
+      <section class="card admin-summary">
+        <div class="sum-head">
+          <h2>Rekonsiliasi <span class="rekap-tag">sumber vs checklist</span></h2>
+          <div class="sum-actions">
+            <input id="rek-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
+          </div>
+        </div>
+        <div id="rek-summary">${loadingBlock('Memuat…')}</div>
+      </section>
+    </main>
+    ${footer()}`;
+  const me = await api('/api/admin/me').catch(() => ({ authenticated: false }));
+  if (!me.authenticated) {
+    document.getElementById('rek-summary').innerHTML =
+      `<div class="error-state">Halaman ini <b>khusus admin</b>. <a href="#/admin">Login admin</a> untuk lanjut.</div>`;
+    return;
+  }
+  document.getElementById('rek-search').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('#rek-tbody tr').forEach(tr => { tr.style.display = tr.dataset.search.includes(q) ? '' : 'none'; });
+  });
+  loadRekonsiliasi();
+}
+
+async function loadRekonsiliasi() {
+  const el = document.getElementById('rek-summary');
+  try {
+    const r = await api('/api/rekonsiliasi');
+    renderRekonsiliasiRows(r);
+  } catch (err) {
+    el.innerHTML = `<div class="error-state">Gagal memuat: ${esc(err.message)}</div>`;
+  }
+}
+
+function renderRekonsiliasiRows(r) {
+  const el = document.getElementById('rek-summary');
+  const sumRows = r.data.map(d => {
+    const status = (d.has_sumber || d.has_checklist)
+      ? (d.cokok ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
+      : '<span class="rek-st none">Kosong</span>';
+    return `<tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
+      <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}</span></td>
+      <td class="n">${fmtID(d.sumber.saldo_awal)}</td>
+      <td class="n">${fmtID(d.checklist.saldo_awal)}</td>
+      <td class="n">${fmtID(d.sumber.total)}</td>
+      <td class="n">${fmtID(d.checklist.total)}</td>
+      <td class="n strong ${d.selisih.total !== 0 ? 'neg' : ''}">${fmtID(d.selisih.total)}</td>
+      <td class="st">${status}</td>
+    </tr>`;
+  }).join('');
+
+  const beda = r.data.filter(d => !d.cokok);
+  const detail = beda.map(d => {
+    const rows = [
+      { label: 'Saldo Awal', s: d.sumber.saldo_awal, c: d.checklist.saldo_awal, sel: d.selisih.saldo_awal },
+      ...MLBL.map((m, i) => ({ label: m, s: d.sumber.months[i], c: d.checklist.months[i], sel: d.selisih.months[i] })),
+      { label: 'Total', s: d.sumber.total, c: d.checklist.total, sel: d.selisih.total }
+    ].map(row => `<tr class="${row.sel !== 0 ? 'diff' : ''}">
+      <td class="lbl">${row.label}</td>
+      <td class="n">${fmtID(row.s)}</td>
+      <td class="n">${fmtID(row.c)}</td>
+      <td class="n ${row.sel !== 0 ? 'neg' : ''}">${fmtID(row.sel)}</td>
+    </tr>`).join('');
+    return `<div class="rek-detail">
+      <h3>${esc(d.name)} <span class="sum-code">${esc(d.code)}</span></h3>
+      <table class="rek-table">
+        <thead><tr><th>Komponen</th><th class="n">Sumber</th><th class="n">Checklist</th><th class="n">Selisih</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="summary-stat"><b>${r.beda}</b> dari ${r.count} OPD belum cocok dengan sumber</div>
+    <div class="sum-table rek">
+      <table>
+        <thead><tr>
+          <th class="stick">OPD</th>
+          <th class="n">Saldo <span class="th-sub">sumber</span></th>
+          <th class="n">Saldo <span class="th-sub">checklist</span></th>
+          <th class="n">Penerimaan <span class="th-sub">sumber</span></th>
+          <th class="n">Penerimaan <span class="th-sub">checklist</span></th>
+          <th class="n strong">Selisih</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody id="rek-tbody">${sumRows}</tbody>
+      </table>
+    </div>
+    ${beda.length
+      ? '<h2 class="rek-detail-h">Rincian yang Belum Cocok</h2>' + detail
+      : '<p class="rekap-note">Semua OPD sudah cocok dengan sumber.</p>'}`;
 }
 
 /* ---------- ADMIN (tersembunyi, #/admin) ---------- */

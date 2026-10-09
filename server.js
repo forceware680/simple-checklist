@@ -609,6 +609,42 @@ app.post('/api/tarik/pull-all', requireAdmin, async (req, res) => {
   } catch (e) { console.error('Pull all error:', e); res.status(500).json({ error: 'Gagal menarik/menyimpan data' }); }
 });
 
+// Rekonsiliasi: bandingkan sumber (tarik_temp) vs checklist (entries) per OPD
+app.get('/api/rekonsiliasi', requireAdmin, async (req, res) => {
+  try {
+    const [tt, ent] = await Promise.all([
+      pool.query('SELECT * FROM tarik_temp'),
+      pool.query('SELECT * FROM entries')
+    ]);
+    const ttMap = {}; tt.rows.forEach(r => { ttMap[r.opd_code] = r; });
+    const entMap = {}; ent.rows.forEach(r => { entMap[r.opd_code] = r; });
+    const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+    const data = opdsByCode.map(o => {
+      const t = ttMap[o.PBSubk], e = entMap[o.PBSubk];
+      const sMonths = MONTHS.map(m => t ? Number(t[m]) : 0);
+      const cMonths = MONTHS.map(m => e ? Number(e[m]) : 0);
+      const sSaldo = t ? Number(t.saldo_awal) : 0;
+      const cSaldo = e ? Number(e.saldo_awal) : 0;
+      const sTotal = t ? Number(t.total) : 0;
+      const cTotal = cMonths.reduce((a, b) => a + b, 0);
+      const selisih = {
+        saldo_awal: round2(sSaldo - cSaldo),
+        months: MONTHS.map((_, i) => round2(sMonths[i] - cMonths[i])),
+        total: round2(sTotal - cTotal)
+      };
+      const cocok = selisih.saldo_awal === 0 && selisih.months.every(v => v === 0);
+      return {
+        code: o.PBSubk, name: o.KetPBSubk,
+        has_sumber: !!t, has_checklist: !!e,
+        sumber: { saldo_awal: sSaldo, months: sMonths, total: sTotal },
+        checklist: { saldo_awal: cSaldo, months: cMonths, total: round2(cTotal) },
+        selisih, cocok
+      };
+    });
+    res.json({ count: data.length, beda: data.filter(d => !d.cokok).length, data });
+  } catch (e) { console.error('Rekonsiliasi error:', e); res.status(500).json({ error: 'Gagal memuat rekonsiliasi' }); }
+});
+
 // Fallback ke index.html (SPA hash routing)
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'Not found' });
