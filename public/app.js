@@ -739,7 +739,7 @@ function renderRekonsiliasiRows(r) {
       <td class="n">${fmtID(d.checklist.saldo_awal)}</td>
       <td class="n">${fmtID(d.sumber.total)}</td>
       <td class="n">${fmtID(d.checklist.total)}</td>
-      <td class="n strong ${d.selisih.total !== 0 ? 'neg' : ''}">${fmtID(d.selisih.total)}</td>
+      <td class="n strong ${(d.selisih.saldo_awal + d.selisih.total) !== 0 ? 'neg' : ''}">${fmtID(d.selisih.saldo_awal + d.selisih.total)}</td>
       <td class="st">${status}</td>
     </tr>`;
   }).join('');
