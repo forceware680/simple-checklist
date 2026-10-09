@@ -469,7 +469,7 @@ async function renderRekap() {
   app.innerHTML = header('rekap') + `
     <main class="wrap" id="rekap-wrap">
       <h1 class="page-title">SIMASET</h1>
-      <p class="page-sub">Data persediaan dari <b>SIMASET</b> (sumber resmi) per OPD. Total <b>nilai (TotalHarga)</b> penerimaan per bulan (TA 2026). <b>Saldo Awal</b> = saldo awal th; jika 0 → otomatis <b>saldo th lalu</b>. Kolom bulan dari tanggal <b>BAST</b> saldo berjalan.</p>
+      <p class="page-sub">Data persediaan dari <b>SIMASET</b> (sumber resmi) per OPD. Total <b>nilai (TotalHarga)</b> penerimaan per bulan (TA 2026). Kolom bulan dari tanggal <b>BAST</b> saldo berjalan.</p>
       <div id="rekap-body">${loadingBlock('Memuat rekap…')}</div>
     </main>
     ${footer()}`;
