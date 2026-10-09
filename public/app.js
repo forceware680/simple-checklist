@@ -783,8 +783,8 @@ function renderRekonsiliasiRows(r) {
       <table>
         <thead><tr>
           <th class="stick">OPD</th>
-          <th class="n">Saldo <span class="th-sub">SIMASET</span></th>
-          <th class="n">Saldo <span class="th-sub">Laporan Manual</span></th>
+          <th class="n">Saldo Awal 2026 <span class="th-sub">SIMASET</span></th>
+          <th class="n">Saldo Awal 2026 <span class="th-sub">Laporan Manual</span></th>
           <th class="n">Penerimaan <span class="th-sub">SIMASET</span></th>
           <th class="n">Penerimaan <span class="th-sub">Laporan Manual</span></th>
           <th class="n strong">Selisih</th>
