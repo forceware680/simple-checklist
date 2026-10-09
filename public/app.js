@@ -98,16 +98,16 @@ async function renderLanding() {
         <p class="howto-lead">Angka yang kamu isi berdasarkan <span class="src">Laporan Manual</span> OPD kamu.</p>
         <ol class="steps">
           <li>Ketik <b>nama / kode OPD</b> kamu, lalu pilih dari daftar.</li>
-          <li>Isi <b>Saldo Awal 2026</b> — stok di awal tahun (dasar Stock Opname Semester 1).</li>
-          <li>Isi <b>total penerimaan</b> tiap bulan (Jan–Des) — satu angka <b>total</b> per bulan, <b>bukan per barang</b>.</li>
-          <li>Isi <b>total pengeluaran</b> tiap semester (S1 &amp; S2) — juga <b>total</b>, bukan per barang.</li>
-          <li><b>Saldo Awal Juli</b>, total, dan <b>Stock Opname</b> terhitung otomatis — nggak perlu diketik.</li>
+          <li>Isi <b>Saldo Awal 2026</b>, stok di awal tahun (dasar Stock Opname Semester 1).</li>
+          <li>Isi <b>total penerimaan</b> tiap bulan (Jan–Des), satu angka <b>total</b> per bulan, <b>bukan per barang</b>.</li>
+          <li>Isi <b>total pengeluaran</b> tiap semester (S1 &amp; S2), juga <b>total</b>, bukan per barang.</li>
+          <li><b>Saldo Awal Juli</b>, total, dan <b>Stock Opname</b> terhitung otomatis, nggak perlu diketik.</li>
           <li>Klik <b>Simpan Laporan Manual</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
           <li>Untuk melihat <b>rekap data SIMASET per bulan</b>, buka menu <b>SIMASET</b> di atas.</li>
           <li>Untuk melihat <b>rekonsiliasi data Laporan Manual vs SIMASET</b>, buka menu <b>Rekonsiliasi</b> di atas.</li>
         </ol>
         <span class="note-chip">Total per OPD (bukan per barang) &nbsp;·&nbsp; Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Stock: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
-        <p class="howto-note">Tugas kamu sampai di <b>Simpan Laporan Manual</b>. Angka <b>stock opname</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b> — kamu tidak perlu mengisi bagian SIMASET.</p>
+        <p class="howto-note">Tugas kamu sampai di <b>Simpan Laporan Manual</b>. Angka <b>stock opname</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b>. Kamu tidak perlu mengisi bagian SIMASET.</p>
       </section>
     </main>
     ${footer()}`;
@@ -188,7 +188,7 @@ async function renderChecklist(code) {
           <h1>${esc(opd.KetPBSubk)}</h1>
           <span class="cl-code">${esc(opd.PBSubk)}</span>
         </div>
-        <p class="cl-sub">Isi data persediaan dari <b>Laporan Manual</b> — saldo awal, penerimaan per bulan, dan pengeluaran per semester.</p>
+        <p class="cl-sub">Isi data persediaan dari <b>Laporan Manual</b>: saldo awal, penerimaan per bulan, dan pengeluaran per semester.</p>
       </div>
       <div id="cl-body" class="cl-body">${loadingBlock('Memuat Laporan Manual…')}</div>
     </main>
@@ -336,7 +336,7 @@ async function tarikFill() {
     r.months.forEach((v, i) => setVal(MONTHS[i][0], v));
     paintTotals();
     setDirty(true);
-    if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Tersimpan ke tabel temp — form terisi, klik Simpan Laporan Manual'; }
+    if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Tersimpan ke tabel temp, form terisi, klik Simpan Laporan Manual'; }
   } catch (err) {
     if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menarik: ' + err.message; }
   }
@@ -394,7 +394,7 @@ async function renderStatistik() {
   app.innerHTML = header('pp') + `
     <main class="wrap" id="stats-wrap">
       <h1 class="page-title">Laporan Manual</h1>
-      <p class="page-sub">Rekap data <b>Laporan Manual</b> seluruh OPD — penerimaan per bulan, pengeluaran per semester, dan stock opname.</p>
+      <p class="page-sub">Rekap data <b>Laporan Manual</b> seluruh OPD: penerimaan per bulan, pengeluaran per semester, dan stock opname.</p>
       <section class="card admin-summary">
         <div class="sum-head">
           <h2>Rekap PP Pakai Habis Per OPD</h2>
