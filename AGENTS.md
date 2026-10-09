@@ -40,8 +40,8 @@ Routing (hash-based, client-side):
 | Route | Page |
 |---|---|
 | `#/` | Landing: autocomplete OPD picker + "Cara pakai" |
-| `#/opd/:code` | Checklist form for one OPD |
-| `#/statistik` | Full recap table (all OPDs) + search + Full Screen toggle |
+| `#/opd/:code` | Laporan Manual form for one OPD |
+| `#/pp-pakai-habis` | Full recap table (all OPDs) + search + Full Screen toggle |
 | `#/admin` | **Hidden** admin login + SIMASET reconciliation (no nav link) |
 
 ## Data model
@@ -98,7 +98,7 @@ Admin auth is **stateless**: HMAC-SHA256 signed token in an HttpOnly cookie, sec
 - **Max 2 decimals** everywhere (DB `NUMERIC(12,2)` + client + server).
 - **Neobrutalism design only.** No dark mode, no gradients/glow/glass/emoji/generic icons in the UI.
 - **WCAG AA** for all text/background pairs.
-- **Desktop width** is 1280px for non-statistik pages. The Statistik page is 1280px by default with a **Full Screen toggle**.
+- **Desktop width** is 1280px for non-PP pages. The Laporan Manual page is 1280px by default with a **Full Screen toggle**.
 
 ## Design system (CSS tokens in `styles.css`)
 

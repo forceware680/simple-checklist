@@ -45,17 +45,19 @@ function loadingBlock(text) {
   return `<div class="loading-block"><span class="spinner"></span>${esc(text)}</div>`;
 }
 function footer() {
-  return `<footer class="foot">Checklist Persediaan 2026 · Penerimaan 12 bulan · Pengeluaran 2 semester</footer>`;
+  return `<footer class="foot">© 2026 Bidang Aset</footer>`;
 }
 function header(active) {
   return `<header class="topbar">
     <a class="brand" href="#/">
       <span class="brand-mark">P26</span>
-      <span class="brand-name">Checklist Persediaan <b>2026</b></span>
+      <span class="brand-name">Rekonsiliasi Persediaan <b>2026</b></span>
     </a>
     <nav class="topnav">
       <a href="#/" class="nav-link ${active === 'home' ? 'on' : ''}">Beranda</a>
-      <a href="#/statistik" class="nav-link ${active === 'statistik' ? 'on' : ''}">Statistik</a>
+      <a href="#/pp-pakai-habis" class="nav-link ${active === 'pp' ? 'on' : ''}">Laporan Manual</a>
+      <a href="#/rekap" class="nav-link ${active === 'rekap' ? 'on' : ''}">SIMASET</a>
+      <a href="#/rekonsiliasi" class="nav-link ${active === 'rekonsiliasi' ? 'on' : ''}">Rekonsiliasi</a>
     </nav>
   </header>`;
 }
@@ -65,7 +67,10 @@ function render() {
   const hash = location.hash || '#/';
   app.setAttribute('aria-busy', 'true');
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
-  else if (hash === '#/statistik') renderStatistik();
+  else if (hash === '#/pp-pakai-habis') renderStatistik();
+  else if (hash.startsWith('#/rekap/')) renderRekapOpd(decodeURIComponent(hash.slice(8)));
+  else if (hash === '#/rekap') renderRekap();
+  else if (hash === '#/rekonsiliasi') renderRekonsiliasi();
   else if (hash.startsWith('#/admin')) renderAdmin();
   else renderLanding();
 }
@@ -76,9 +81,8 @@ async function renderLanding() {
     <main class="wrap">
       <section class="hero">
         <div class="hero-copy">
-          <span class="hero-kicker">PERSEDIAAN BARANG OPD</span>
-          <h1>Checklist<br>Persediaan <span>2026</span></h1>
-          <p class="hero-sub">Checklist untuk membantu <b>penyandingan data persediaan</b> OPD dengan aplikasi <b>SIMASET</b>. Catat <b>total penerimaan per bulan</b> (Jan–Des) dan <b>total pengeluaran per semester</b> (2 semester), lalu cocokkan dengan data SIMASET.</p>
+          <h1>Rekonsiliasi Persediaan<br>Tahun Anggaran <span>2026</span></h1>
+          <p class="hero-sub">Membandingkan data <b>SIMASET</b> dengan <b>Laporan Manual</b> persediaan tiap OPD.</p>
         </div>
         <div class="opd-card card">
           <label class="field-label" for="opd-input">Pilih OPD / Unit kamu</label>
@@ -91,17 +95,19 @@ async function renderLanding() {
 
       <section class="howto card">
         <h2>Cara pakai</h2>
-        <p class="howto-lead">Angka yang kamu isi berdasarkan <span class="src">Laporan PP Pakai Habis</span> OPD kamu.</p>
+        <p class="howto-lead">Angka yang kamu isi berdasarkan <span class="src">Laporan Manual</span> OPD kamu.</p>
         <ol class="steps">
           <li>Ketik <b>nama / kode OPD</b> kamu, lalu pilih dari daftar.</li>
           <li>Isi <b>Saldo Awal 2026</b> — stok di awal tahun (dasar Stock Opname Semester 1).</li>
           <li>Isi <b>total penerimaan</b> tiap bulan (Jan–Des) — satu angka <b>total</b> per bulan, <b>bukan per barang</b>.</li>
           <li>Isi <b>total pengeluaran</b> tiap semester (S1 &amp; S2) — juga <b>total</b>, bukan per barang.</li>
           <li><b>Saldo Awal Juli</b>, total, dan <b>Stock Opname</b> terhitung otomatis — nggak perlu diketik.</li>
-          <li>Klik <b>Simpan Checklist</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
+          <li>Klik <b>Simpan Laporan Manual</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
+          <li>Untuk melihat <b>rekap data SIMASET per bulan</b>, buka menu <b>SIMASET</b> di atas.</li>
+          <li>Untuk melihat <b>rekonsiliasi data Laporan Manual vs SIMASET</b>, buka menu <b>Rekonsiliasi</b> di atas.</li>
         </ol>
         <span class="note-chip">Total per OPD (bukan per barang) &nbsp;·&nbsp; Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Stock: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
-        <p class="howto-note">Tugas kamu sampai di <b>Simpan Checklist</b>. Angka <b>stock opname</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b> — kamu tidak perlu mengisi bagian SIMASET.</p>
+        <p class="howto-note">Tugas kamu sampai di <b>Simpan Laporan Manual</b>. Angka <b>stock opname</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b> — kamu tidak perlu mengisi bagian SIMASET.</p>
       </section>
     </main>
     ${footer()}`;
@@ -182,8 +188,9 @@ async function renderChecklist(code) {
           <h1>${esc(opd.KetPBSubk)}</h1>
           <span class="cl-code">${esc(opd.PBSubk)}</span>
         </div>
+        <p class="cl-sub">Isi data persediaan dari <b>Laporan Manual</b> — saldo awal, penerimaan per bulan, dan pengeluaran per semester.</p>
       </div>
-      <div id="cl-body" class="cl-body">${loadingBlock('Memuat checklist…')}</div>
+      <div id="cl-body" class="cl-body">${loadingBlock('Memuat Laporan Manual…')}</div>
     </main>
     ${footer()}`;
 
@@ -192,6 +199,10 @@ async function renderChecklist(code) {
     const body = document.getElementById('cl-body');
     body.innerHTML = buildForm(entry);
     attachFormListeners();
+    // tombol "Tarik" hanya untuk admin (endpoint sumber-nya admin-only)
+    const me = await api('/api/admin/me').catch(() => ({ authenticated: false }));
+    const tarik = document.getElementById('tarik-btn');
+    if (tarik) tarik.hidden = !me.authenticated;
   } catch (err) {
     document.getElementById('cl-body').innerHTML =
       `<div class="card error-state">Gagal memuat data: ${esc(err.message)}.
@@ -258,7 +269,10 @@ function buildForm(entry) {
 
     <div class="savebar">
       <div id="save-msg" class="save-msg" role="status" aria-live="polite"></div>
-      <button id="save-btn" class="btn primary">Simpan Checklist</button>
+      <div class="savebar-btns">
+        <button id="tarik-btn" class="btn ghost" type="button" hidden>Tarik dari SIMASET</button>
+        <button id="save-btn" class="btn primary">Simpan Laporan Manual</button>
+      </div>
     </div>`;
 }
 
@@ -303,6 +317,30 @@ function attachFormListeners() {
   });
   paintTotals();
   document.getElementById('save-btn').addEventListener('click', () => doSave());
+  const tarik = document.getElementById('tarik-btn');
+  if (tarik) tarik.addEventListener('click', tarikFill);
+}
+
+// Tarik data terbaru dari sumber (MSSQL) → isi saldo awal + penerimaan per bulan.
+// TIDAK auto-save — hanya mengisi form; user tetap klik "Simpan Checklist".
+async function tarikFill() {
+  if (!clCode || clSaving) return;
+  const btn = document.getElementById('tarik-btn');
+  const msg = document.getElementById('save-msg');
+  if (btn) { btn.disabled = true; btn.textContent = 'Menarik…'; }
+  if (msg) { msg.className = 'save-msg'; msg.textContent = 'Menarik data dari SIMASET…'; }
+  try {
+    const r = await api('/api/tarik/pull?opd=' + encodeURIComponent(clCode), { method: 'POST' });
+    const setVal = (field, val) => { const inp = document.querySelector('#cl-body input[data-field="' + field + '"]'); if (inp) inp.value = fmtID(val); };
+    setVal('saldo_awal', r.saldo_awal);
+    r.months.forEach((v, i) => setVal(MONTHS[i][0], v));
+    paintTotals();
+    setDirty(true);
+    if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Tersimpan ke tabel temp — form terisi, klik Simpan Laporan Manual'; }
+  } catch (err) {
+    if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menarik: ' + err.message; }
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Tarik dari SIMASET'; }
 }
 
 function clUnload(e) {
@@ -340,7 +378,7 @@ async function doSave() {
     await api('/api/opds/' + encodeURIComponent(clCode), { method: 'PUT', body: JSON.stringify(data) });
     const t = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Tersimpan ' + t + ' ✓'; }
-    if (btn) { btn.textContent = 'Tersimpan ✓'; setTimeout(() => { btn.textContent = 'Simpan Checklist'; }, 2000); }
+    if (btn) { btn.textContent = 'Tersimpan ✓'; setTimeout(() => { btn.textContent = 'Simpan Laporan Manual'; }, 2000); }
     setDirty(false);
   } catch (err) {
     if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menyimpan: ' + err.message; }
@@ -353,13 +391,13 @@ async function doSave() {
 const MLBL = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
 async function renderStatistik() {
-  app.innerHTML = header('statistik') + `
+  app.innerHTML = header('pp') + `
     <main class="wrap" id="stats-wrap">
-      <h1 class="page-title">Statistik</h1>
-      <p class="page-sub">Rekap seluruh OPD: penerimaan per bulan &amp; pengeluaran per semester.</p>
+      <h1 class="page-title">Laporan Manual</h1>
+      <p class="page-sub">Rekap data <b>Laporan Manual</b> seluruh OPD — penerimaan per bulan, pengeluaran per semester, dan stock opname.</p>
       <section class="card admin-summary">
         <div class="sum-head">
-          <h2>Rekap OPD</h2>
+          <h2>Rekap PP Pakai Habis Per OPD</h2>
           <div class="sum-actions">
             <input id="opd-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari nama atau kode OPD">
             <button id="fs-btn" class="btn ghost" type="button">Full Screen</button>
@@ -454,6 +492,312 @@ function renderSummary(sum) {
     </div>`;
 }
 
+/* ---------- REKAP BULANAN (sheet read-only, #/rekap) ---------- */
+async function renderRekap() {
+  app.innerHTML = header('rekap') + `
+    <main class="wrap" id="rekap-wrap">
+      <h1 class="page-title">SIMASET</h1>
+      <p class="page-sub">Data persediaan dari <b>SIMASET</b> (sumber resmi) per OPD. Total <b>nilai (TotalHarga)</b> penerimaan per bulan (TA 2026). <b>Saldo Awal</b> = saldo awal th; jika 0 → otomatis <b>saldo th lalu</b>. Kolom bulan dari tanggal <b>BAST</b> saldo berjalan.</p>
+      <div id="rekap-body">${loadingBlock('Memuat rekap…')}</div>
+    </main>
+    ${footer()}`;
+  // Halaman publik; tombol "Tarik Semua" cuma muncul buat admin
+  const me = await api('/api/admin/me').catch(() => ({ authenticated: false }));
+  renderRekapTable(!!me.authenticated);
+}
+
+function renderRekapTable(isAdmin) {
+  const body = document.getElementById('rekap-body');
+  const wrap = document.getElementById('rekap-wrap');
+  body.innerHTML = `
+    <section class="card admin-summary">
+      <div class="sum-head">
+        <h2>Rekap Penginputan SIMASET <span class="rekap-tag">TA 2026</span></h2>
+        <div class="sum-actions">
+          <input id="rekap-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
+          ${isAdmin ? '<button id="rekap-pullall" class="btn ghost" type="button">Tarik Semua ke Temp</button>' : ''}
+          <button id="rekap-fs" class="btn ghost" type="button">Full Screen</button>
+        </div>
+      </div>
+      <p class="rekap-note">Kolom <b>Saldo Awal</b> = saldo awal th; jika 0, otomatis pakai <b>saldo th lalu</b> (penanda <span class="saldo-tag">th</span>).</p>
+      <div id="rekap-summary">${loadingBlock('Memuat…')}</div>
+    </section>`;
+  wrap.querySelector('#rekap-fs').addEventListener('click', () => {
+    const on = wrap.classList.toggle('full');
+    wrap.querySelector('#rekap-fs').textContent = on ? 'Keluar Full Screen' : 'Full Screen';
+  });
+  const pullAllBtn = wrap.querySelector('#rekap-pullall');
+  if (pullAllBtn) pullAllBtn.addEventListener('click', rekapPullAll);
+  wrap.querySelector('#rekap-search').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('#rekap-summary tbody tr').forEach(tr => {
+      tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
+    });
+  });
+  loadRekap(2026);
+}
+
+// Tarik SEMUA OPD dari sumber → simpan ke tabel temp (tarik_temp)
+async function rekapPullAll() {
+  const btn = document.getElementById('rekap-pullall');
+  if (!btn) return;
+  btn.disabled = true; btn.textContent = 'Menarik semua…';
+  try {
+    const r = await api('/api/tarik/pull-all', { method: 'POST' });
+    btn.textContent = r.count + ' OPD tersimpan ✓';
+  } catch (err) {
+    btn.textContent = 'Gagal menarik';
+  }
+  btn.disabled = false;
+  setTimeout(() => { btn.textContent = 'Tarik Semua ke Temp'; }, 3000);
+}
+
+async function loadRekap(year) {
+  const el = document.getElementById('rekap-summary');
+  try {
+    const r = await api('/api/tarik/rekap-bulanan?year=' + year);
+    renderRekapRows(r);
+  } catch (err) {
+    el.innerHTML = `<div class="error-state">Gagal memuat: ${esc(err.message)}</div>`;
+  }
+}
+
+function renderRekapRows(r) {
+  const el = document.getElementById('rekap-summary');
+  const done = r.data.filter(d => d.total > 0 || d.saldo_awal > 0).length;
+  const mS1 = MLBL.slice(0, 6).map(m => `<th class="n m">${m}</th>`).join('');
+  const mS2 = MLBL.slice(6).map(m => `<th class="n m">${m}</th>`).join('');
+  el.innerHTML = `<div class="summary-stat"><b>${done}</b> dari ${r.data.length} OPD punya data tahun ${r.year}</div>
+    <div class="sum-table rekap">
+      <table>
+        <thead>
+          <tr class="grp">
+            <th class="stick" rowspan="2">OPD</th>
+            <th rowspan="2" class="saldo">Saldo Awal</th>
+            <th colspan="6" class="grp-in">Penerimaan S1 (Jan–Jun)</th>
+            <th colspan="6" class="grp-in">Penerimaan S2 (Jul–Des)</th>
+            <th rowspan="2" class="tin strong">Total</th>
+          </tr>
+          <tr>${mS1}${mS2}</tr>
+        </thead>
+        <tbody>${r.data.map(d => `
+          <tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
+            <td class="stick"><a class="opd-link" href="#/rekap/${encodeURIComponent(d.code)}"><span class="opd-name">${esc(d.name)}</span></a><span class="sum-code">${esc(d.code)}</span><button class="btn ghost rekap-pull-btn" data-code="${d.code}" type="button">Update Data</button></td>
+            <td class="n saldo">${fmtID(d.saldo_awal)}${d.saldo_src === 'th_lalu' ? '<span class="saldo-tag" title="Saldo th lalu (fallback)">th</span>' : ''}</td>
+            ${d.months.slice(0,6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
+            ${d.months.slice(6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
+            <td class="n strong tot-in">${fmtID(d.total)}</td>
+          </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+  el.querySelectorAll('.rekap-pull-btn').forEach(btn => btn.addEventListener('click', () => rekapPullOne(btn)));
+}
+
+// Tarik 1 OPD dari sumber → upsert ke tarik_temp (cuma OPD itu yang ter-update)
+async function rekapPullOne(btn) {
+  const code = btn.dataset.code;
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    const r = await api('/api/tarik/pull?opd=' + encodeURIComponent(code), { method: 'POST' });
+    btn.textContent = '✓';
+    const tr = btn.closest('tr');
+    const tds = tr.querySelectorAll('td');
+    tds[1].innerHTML = fmtID(r.saldo_awal) + (r.saldo_src === 'th_lalu' ? '<span class="saldo-tag" title="Saldo th lalu (fallback)">th</span>' : '');
+    r.months.forEach((v, i) => { tds[2 + i].textContent = fmtID(v); });
+    tds[14].textContent = fmtID(r.total);
+  } catch (err) {
+    btn.textContent = '✕';
+  }
+  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
+}
+
+/* ---------- REKAP PER OPD (drill-down, #/rekap/:code) ---------- */
+async function renderRekapOpd(code) {
+  app.innerHTML = header('rekap') + `
+    <main class="wrap">
+      <h1 class="page-title" id="rekapopd-title">${esc(code)}</h1>
+      <p class="page-sub"><a href="#/rekap" class="back-link">&larr; Kembali ke SIMASET</a></p>
+      <div id="rekapopd-body">${loadingBlock('Memuat…')}</div>
+    </main>
+    ${footer()}`;
+  loadRekapOpd(code);
+}
+
+async function loadRekapOpd(code) {
+  const el = document.getElementById('rekapopd-body');
+  try {
+    const r = await api('/api/tarik/rekap-opd?opd=' + encodeURIComponent(code));
+    renderRekapOpdRows(r);
+  } catch (err) {
+    el.innerHTML = `<div class="error-state">Gagal memuat: ${esc(err.message)}</div>`;
+  }
+}
+
+function renderRekapOpdRows(r) {
+  const el = document.getElementById('rekapopd-body');
+  const t = document.getElementById('rekapopd-title'); if (t) t.textContent = r.name;
+  const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const byMonth = Array.from({ length: 12 }, () => []);
+  r.items.forEach(it => { const i = new Date(it.BAST).getMonth(); if (i >= 0 && i < 12) byMonth[i].push(it); });
+  const sections = byMonth.map((list, i) => {
+    if (!list.length) return '';
+    const rows = list.map(it => `<tr>
+        <td>${esc(it.NamaBarang || '-')}</td>
+        <td class="n">${esc(it.Satuan || '')}</td>
+        <td class="n">${fmtID(Number(it.Jumlah) || 0)}</td>
+        <td class="n">${fmtID(Number(it.Harga) || 0)}</td>
+        <td class="n strong">${fmtID(Number(it.TotalHarga) || 0)}</td>
+        <td class="n">${new Date(it.BAST).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}</td>
+      </tr>`).join('');
+    return `<div class="rekap-month">
+      <div class="rekap-month-head"><h3>${MONTHS[i]}</h3><span class="rekap-month-total">${fmtID(r.months[i])}</span></div>
+      <table class="rekap-items"><thead><tr><th>Barang</th><th class="n">Satuan</th><th class="n">Jml</th><th class="n">Harga</th><th class="n">Total</th><th class="n">Tgl BAST</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+  }).join('');
+  el.innerHTML = `
+    <section class="card">
+      <h2>Ringkasan per Bulan <span class="rekap-tag">TA 2026</span></h2>
+      <div class="sum-table rekap">
+        <table>
+          <thead>
+            <tr>
+              <th class="saldo">Saldo Awal${r.saldo_src === 'th_lalu' ? ' <span class="saldo-tag">th</span>' : ''}</th>
+              ${MLBL.map(m => `<th class="n m">${m}</th>`).join('')}
+              <th class="n tin strong">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="n saldo">${fmtID(r.saldo_awal)}</td>
+              ${r.months.map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
+              <td class="n strong tot-in">${fmtID(r.total)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Rincian Saldo Berjalan <span class="rekap-count">${r.items.length} item</span></h2>
+      ${sections || '<p class="page-sub">Tidak ada item saldo berjalan untuk TA 2026.</p>'}
+    </section>`;
+}
+
+/* ---------- REKONSILIASI (sumber vs checklist, #/rekonsiliasi) ---------- */
+async function renderRekonsiliasi() {
+  app.innerHTML = header('rekonsiliasi') + `
+    <main class="wrap">
+      <h1 class="page-title">Rekonsiliasi</h1>
+      <p class="page-sub">Membandingkan <b>SIMASET</b> (sumber resmi) dengan <b>Laporan Manual</b> (isian pengurus) per OPD. <b>Selisih</b> = SIMASET − Laporan Manual.</p>
+      <section class="card admin-summary">
+        <div class="sum-head">
+          <h2>Rekonsiliasi <span class="rekap-tag">SIMASET vs Laporan Manual</span></h2>
+          <div class="sum-actions">
+            <input id="rek-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
+          </div>
+        </div>
+        <div id="rek-summary">${loadingBlock('Memuat…')}</div>
+      </section>
+    </main>
+    ${footer()}`;
+  document.getElementById('rek-search').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('#rek-tbody tr').forEach(tr => { tr.style.display = tr.dataset.search.includes(q) ? '' : 'none'; });
+  });
+  loadRekonsiliasi();
+}
+
+async function loadRekonsiliasi() {
+  const el = document.getElementById('rek-summary');
+  try {
+    const r = await api('/api/rekonsiliasi');
+    renderRekonsiliasiRows(r);
+  } catch (err) {
+    el.innerHTML = `<div class="error-state">Gagal memuat: ${esc(err.message)}</div>`;
+  }
+}
+
+function isCocok(d) {
+  return d.sumber.saldo_awal === d.checklist.saldo_awal &&
+    d.sumber.months.every((v, i) => v === d.checklist.months[i]);
+}
+
+function renderRekonsiliasiRows(r) {
+  const el = document.getElementById('rek-summary');
+  const sumRows = r.data.map(d => {
+    const status = (d.has_sumber || d.has_checklist)
+      ? (isCocok(d) ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
+      : '<span class="rek-st none">Kosong</span>';
+    return `<tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
+      <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}</span></td>
+      <td class="n">${fmtID(d.sumber.saldo_awal)}</td>
+      <td class="n">${fmtID(d.checklist.saldo_awal)}</td>
+      <td class="n">${fmtID(d.sumber.total)}</td>
+      <td class="n">${fmtID(d.checklist.total)}</td>
+      <td class="n strong ${(d.selisih.saldo_awal + d.selisih.total) !== 0 ? 'neg' : ''}">${fmtID(d.selisih.saldo_awal + d.selisih.total)}</td>
+      <td class="st">${status}</td>
+    </tr>`;
+  }).join('');
+
+  const beda = r.data
+    .filter(d => !isCocok(d))
+    .sort((a, b) => Math.abs(b.selisih.total) - Math.abs(a.selisih.total));
+  const detail = beda.map((d, idx) => {
+    const all = [
+      { label: 'Saldo Awal', s: d.sumber.saldo_awal, c: d.checklist.saldo_awal, sel: d.selisih.saldo_awal },
+      ...MLBL.map((m, i) => ({ label: m, s: d.sumber.months[i], c: d.checklist.months[i], sel: d.selisih.months[i] })),
+      { label: 'Total', s: d.sumber.saldo_awal + d.sumber.total, c: d.checklist.saldo_awal + d.checklist.total, sel: d.selisih.saldo_awal + d.selisih.total }
+    ];
+    const diffCount = all.filter(row => row.label !== 'Total' && row.sel !== 0).length;
+    const rows = all.map(row => `<tr class="${row.sel !== 0 ? 'diff' : ''}">
+      <td class="lbl">${row.label}</td>
+      <td class="n">${fmtID(row.s)}</td>
+      <td class="n">${fmtID(row.c)}</td>
+      <td class="n ${row.sel !== 0 ? 'neg' : ''}">${fmtID(row.sel)}</td>
+    </tr>`).join('');
+    return `<details class="rek-detail"${idx < 3 ? ' open' : ''}>
+      <summary>
+        <span class="rek-d-name">${esc(d.name)}</span>
+        <span class="sum-code">${esc(d.code)}</span>
+        <span class="rek-d-badge">${diffCount} beda</span>
+        <span class="rek-d-sel${(d.selisih.saldo_awal + d.selisih.total) !== 0 ? ' neg' : ''}">Selisih ${fmtID(d.selisih.saldo_awal + d.selisih.total)}</span>
+        <span class="rek-d-chev" aria-hidden="true"></span>
+      </summary>
+      <div class="rek-d-body">
+        <table class="rek-table">
+          <thead><tr><th>Komponen</th><th class="n">SIMASET</th><th class="n">Laporan Manual</th><th class="n">Selisih</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </details>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="summary-stat"><b>${beda.length}</b> dari ${r.data.length} OPD belum cocok dengan SIMASET</div>
+    <div class="sum-table rek">
+      <table>
+        <thead><tr>
+          <th class="stick">OPD</th>
+          <th class="n">Saldo Awal 2026 <span class="th-sub">SIMASET</span></th>
+          <th class="n">Saldo Awal 2026 <span class="th-sub">Laporan Manual</span></th>
+          <th class="n">Penerimaan <span class="th-sub">SIMASET</span></th>
+          <th class="n">Penerimaan <span class="th-sub">Laporan Manual</span></th>
+          <th class="n strong">Selisih</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody id="rek-tbody">${sumRows}</tbody>
+      </table>
+    </div>
+    ${beda.length
+      ? `<div class="rek-detail-h">Rincian yang Belum Cocok <span class="rek-count">${beda.length} OPD</span><span class="rek-toggles"><button type="button" id="rek-openall">Buka semua</button><button type="button" id="rek-closeall">Tutup semua</button></span></div>` + detail
+      : '<p class="rekap-note">Semua OPD sudah cocok dengan SIMASET.</p>'}`;
+  const openAll = el.querySelector('#rek-openall');
+  const closeAll = el.querySelector('#rek-closeall');
+  if (openAll) openAll.addEventListener('click', () => el.querySelectorAll('.rek-detail').forEach(d => { d.open = true; }));
+  if (closeAll) closeAll.addEventListener('click', () => el.querySelectorAll('.rek-detail').forEach(d => { d.open = false; }));
+}
+
 /* ---------- ADMIN (tersembunyi, #/admin) ---------- */
 let adminStock = {};
 async function renderAdmin() {
@@ -470,7 +814,7 @@ function renderAdminLogin() {
         <div class="login-head">
           <span class="login-badge">ADMIN</span>
           <h1 class="login-title">Rekonsiliasi <span>SIMASET</span></h1>
-          <p class="login-sub">Area khusus admin. Isi <b>Opname Simaset 2026</b> per OPD, lalu cocokkan dengan stock opname dari checklist.</p>
+          <p class="login-sub">Area khusus admin. Isi <b>Opname Simaset 2026</b> per OPD, lalu cocokkan dengan stock opname dari Laporan Manual.</p>
         </div>
         <form id="admin-login-form" class="login-form">
           <div class="login-field">
