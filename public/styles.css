@@ -340,4 +340,6 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
   .tip-bubble{ width:200px; right:0; }
   .rek-d-body{ overflow-x:auto; }
   .rek-table{ min-width:440px; }
+  .rek-detail summary{ flex-wrap:wrap; }
+  .rek-d-name{ flex:1 1 100%; min-width:0; }
 }
