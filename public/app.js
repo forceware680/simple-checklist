@@ -491,7 +491,6 @@ function renderRekapTable(isAdmin) {
           <button id="rekap-fs" class="btn ghost" type="button">Full Screen</button>
         </div>
       </div>
-      <p class="rekap-note">Kolom <b>Saldo Awal</b> = saldo awal th; jika 0, otomatis pakai <b>saldo th lalu</b> (penanda <span class="saldo-tag">th</span>).</p>
       <div id="rekap-summary">${loadingBlock('Memuat…')}</div>
     </section>`;
   wrap.querySelector('#rekap-fs').addEventListener('click', () => {
