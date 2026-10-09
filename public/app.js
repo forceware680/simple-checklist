@@ -105,6 +105,7 @@ async function renderLanding() {
           <li>Klik <b>Simpan</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
           <li>Untuk melihat <b>rekap data SIMASET per bulan</b>, buka menu <b>SIMASET</b> di atas.</li>
           <li>Untuk melihat <b>rekonsiliasi data Laporan Manual vs SIMASET</b>, buka menu <b>Rekonsiliasi</b> di atas.</li>
+          <li>Jika menemukan <b>selisih</b>, segera <b>tindak lanjuti</b>.</li>
         </ol>
         <span class="note-chip">Total per OPD (bukan per barang) &nbsp;·&nbsp; Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Stock: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
         <p class="howto-note">Tugas kamu sampai di <b>Simpan</b>. Angka <b>stock opname</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b>. Kamu tidak perlu mengisi bagian SIMASET.</p>
