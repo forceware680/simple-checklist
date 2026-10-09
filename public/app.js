@@ -53,7 +53,10 @@ function header(active) {
       <span class="brand-mark">P26</span>
       <span class="brand-name">Rekonsiliasi Persediaan <b>2026</b></span>
     </a>
-    <nav class="topnav">
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="topnav" aria-label="Buka menu navigasi">
+      <span class="nav-toggle-ico" aria-hidden="true"></span>
+    </button>
+    <nav class="topnav" id="topnav">
       <a href="#/" class="nav-link ${active === 'home' ? 'on' : ''}">Beranda</a>
       <a href="#/pp-pakai-habis" class="nav-link ${active === 'pp' ? 'on' : ''}">Laporan Manual</a>
       <a href="#/rekap" class="nav-link ${active === 'rekap' ? 'on' : ''}">SIMASET</a>
@@ -965,6 +968,30 @@ async function saveOne(code) {
 (async function init() {
   window.addEventListener('hashchange', render);
   document.addEventListener('click', guardHashNav);
+  document.addEventListener('click', e => {
+    const t = e.target.closest('.nav-toggle');
+    const nav = document.getElementById('topnav');
+    if (!nav) return;
+    if (t) {
+      const open = nav.classList.toggle('open');
+      t.setAttribute('aria-expanded', open ? 'true' : 'false');
+      return;
+    }
+    if (!e.target.closest('.topnav') && nav.classList.contains('open')) {
+      nav.classList.remove('open');
+      const btn = document.querySelector('.nav-toggle');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    const nav = document.getElementById('topnav');
+    const btn = document.querySelector('.nav-toggle');
+    if (nav && nav.classList.contains('open')) {
+      nav.classList.remove('open');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+  });
   try {
     await loadOpds();
   } catch (e) {
