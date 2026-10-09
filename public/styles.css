@@ -81,12 +81,15 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .card{ background:var(--paper); border:var(--border) solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px; }
 
 /* ---------- Hero (landing) ---------- */
-.hero{ display:grid; grid-template-columns:1.15fr .85fr; gap:22px; align-items:start; }
+.hero{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:26px; padding-top:22px; }
 .hero-kicker{ display:inline-block; font-family:var(--font-display); font-size:12px; letter-spacing:.06em; background:var(--ink); color:#fff; padding:6px 11px; border-radius:6px; margin-bottom:14px; }
-.hero h1{ font-size:clamp(38px,8vw,66px); }
+.hero-copy{ max-width:760px; }
+.hero h1{ font-size:clamp(38px,8vw,64px); }
 .hero h1 span{ color:var(--pink-deep); }
-.hero-sub{ margin:16px 0 0; font-size:16px; color:#433f37; max-width:46ch; }
+.hero-sub{ margin:16px auto 0; font-size:16px; color:#433f37; max-width:46ch; }
 .hero-sub b{ font-weight:800; }
+.opd-card{ width:100%; max-width:640px; }
+.opd-card .input.big{ font-size:18px; padding:16px 18px; text-align:left; }
 .opd-card{ display:flex; flex-direction:column; gap:12px; }
 .field-label{ font-family:var(--font-display); font-size:13px; }
 .select.big{ width:100%; font-family:var(--font-body); font-weight:700; font-size:16px; padding:14px; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); background:var(--paper); appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><path d='M3 5l5 6 5-6' stroke='%23171512' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>"); background-repeat:no-repeat; background-position:right 14px center; padding-right:40px; cursor:pointer; }
@@ -352,7 +355,6 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
   .topnav.open{ display:flex; animation:navIn .18s ease; }
   .nav-link{ width:100%; text-align:center; font-size:14px; padding:11px 13px; }
   @keyframes navIn{ from{ opacity:0; transform:translateY(-6px); } to{ opacity:1; transform:none; } }
-  .hero{ grid-template-columns:1fr; }
   .hero h1{ font-size:clamp(30px,9vw,44px); }
   .page-title{ font-size:clamp(26px,7vw,38px); }
   .frows{ grid-template-columns:1fr; }
