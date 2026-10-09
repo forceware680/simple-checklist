@@ -70,7 +70,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 /* ---------- Layout ---------- */
 .wrap{ max-width:1280px; margin:0 auto; padding:14px 16px 64px; }
 #app.full .topbar{ display:none; }
-#app.full .footer{ display:none; }
+#app.full .foot{ display:none; }
 #app.full main.wrap{ position:fixed; inset:0; z-index:40; max-width:none; padding:12px 12px 0; overflow:hidden; display:flex; flex-direction:column; }
 #app.full main.wrap > .page-title, #app.full main.wrap > .page-sub{ display:none; }
 #app.full main.wrap .card, #app.full main.wrap #rekap-body{ flex:1; min-height:0; display:flex; flex-direction:column; }
