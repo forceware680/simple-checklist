@@ -576,6 +576,7 @@ function renderRekapRows(r) {
             <th colspan="6" class="grp-in">Penerimaan S1 (Jan–Jun)</th>
             <th colspan="6" class="grp-in">Penerimaan S2 (Jul–Des)</th>
             <th rowspan="2" class="tin strong">Total</th>
+            <th rowspan="2" class="aksi">Tarik</th>
           </tr>
           <tr>${mS1}${mS2}</tr>
         </thead>
@@ -586,9 +587,30 @@ function renderRekapRows(r) {
             ${d.months.slice(0,6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
             ${d.months.slice(6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
             <td class="n strong tot-in">${fmtID(d.total)}</td>
+            <td class="aksi"><button class="btn ghost rekap-pull-btn" data-code="${d.code}" type="button">Tarik</button></td>
           </tr>`).join('')}</tbody>
       </table>
     </div>`;
+  el.querySelectorAll('.rekap-pull-btn').forEach(btn => btn.addEventListener('click', () => rekapPullOne(btn)));
+}
+
+// Tarik 1 OPD dari sumber → upsert ke tarik_temp (cuma OPD itu yang ter-update)
+async function rekapPullOne(btn) {
+  const code = btn.dataset.code;
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    const r = await api('/api/tarik/pull?opd=' + encodeURIComponent(code), { method: 'POST' });
+    btn.textContent = '✓';
+    const tr = btn.closest('tr');
+    const tds = tr.querySelectorAll('td');
+    tds[1].innerHTML = fmtID(r.saldo_awal) + (r.saldo_src === 'th_lalu' ? '<span class="saldo-tag" title="Saldo th lalu (fallback)">th</span>' : '');
+    r.months.forEach((v, i) => { tds[2 + i].textContent = fmtID(v); });
+    tds[14].textContent = fmtID(r.total);
+  } catch (err) {
+    btn.textContent = '✕';
+  }
+  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
 }
 
 /* ---------- REKAP PER OPD (drill-down, #/rekap/:code) ---------- */

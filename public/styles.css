@@ -215,6 +215,9 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .rekap-tag{ font-family:var(--font-display); font-size:11px; background:var(--yellow); color:var(--ink); padding:2px 8px; border-radius:5px; box-shadow:2px 2px 0 var(--ink); vertical-align:middle; margin-left:4px; }
 .rekap-note{ margin:0 0 14px; font-size:13px; color:var(--muted); font-weight:600; }
 .saldo-tag{ font-family:var(--font-display); font-size:9px; background:var(--pink); color:var(--ink); padding:1px 4px; border-radius:4px; margin-left:5px; vertical-align:middle; }
+/* Rekap: kolom Aksi (tarik per OPD) */
+.sum-table.rekap td.aksi, .sum-table.rekap th.aksi{ text-align:center; }
+.rekap-pull-btn{ padding:4px 12px; font-size:12.5px; }
 .back-link{ font-weight:700; color:var(--blue-deep); text-decoration:none; }
 .back-link:hover{ text-decoration:underline; }
 .opd-link{ color:inherit; text-decoration:none; }
