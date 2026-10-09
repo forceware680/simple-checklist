@@ -45,17 +45,17 @@ function loadingBlock(text) {
   return `<div class="loading-block"><span class="spinner"></span>${esc(text)}</div>`;
 }
 function footer() {
-  return `<footer class="foot">Checklist Persediaan 2026 · Penerimaan 12 bulan · Pengeluaran 2 semester</footer>`;
+  return `<footer class="foot">Laporan Manual Persediaan 2026 · Penerimaan 12 bulan · Pengeluaran 2 semester</footer>`;
 }
 function header(active) {
   return `<header class="topbar">
     <a class="brand" href="#/">
       <span class="brand-mark">P26</span>
-      <span class="brand-name">Checklist Persediaan <b>2026</b></span>
+      <span class="brand-name">Laporan Manual Persediaan <b>2026</b></span>
     </a>
     <nav class="topnav">
       <a href="#/" class="nav-link ${active === 'home' ? 'on' : ''}">Beranda</a>
-      <a href="#/pp-pakai-habis" class="nav-link ${active === 'pp' ? 'on' : ''}">PP Pakai Habis</a>
+      <a href="#/pp-pakai-habis" class="nav-link ${active === 'pp' ? 'on' : ''}">Laporan Manual</a>
       <a href="#/rekap" class="nav-link ${active === 'rekap' ? 'on' : ''}">Rekap</a>
       <a href="#/rekonsiliasi" class="nav-link ${active === 'rekonsiliasi' ? 'on' : ''}">Rekonsiliasi</a>
     </nav>
@@ -82,8 +82,8 @@ async function renderLanding() {
       <section class="hero">
         <div class="hero-copy">
           <span class="hero-kicker">PERSEDIAAN BARANG OPD</span>
-          <h1>Checklist<br>Persediaan <span>2026</span></h1>
-          <p class="hero-sub">Checklist untuk membantu <b>penyandingan data persediaan</b> OPD dengan aplikasi <b>SIMASET</b>. Catat <b>total penerimaan per bulan</b> (Jan–Des) dan <b>total pengeluaran per semester</b> (2 semester), lalu cocokkan dengan data SIMASET.</p>
+          <h1>Laporan Manual<br>Persediaan <span>2026</span></h1>
+          <p class="hero-sub">Laporan Manual untuk membantu <b>penyandingan data persediaan</b> OPD dengan aplikasi <b>SIMASET</b>. Catat <b>total penerimaan per bulan</b> (Jan–Des) dan <b>total pengeluaran per semester</b> (2 semester), lalu cocokkan dengan data SIMASET.</p>
         </div>
         <div class="opd-card card">
           <label class="field-label" for="opd-input">Pilih OPD / Unit kamu</label>
@@ -96,17 +96,17 @@ async function renderLanding() {
 
       <section class="howto card">
         <h2>Cara pakai</h2>
-        <p class="howto-lead">Angka yang kamu isi berdasarkan <span class="src">Laporan PP Pakai Habis</span> OPD kamu.</p>
+        <p class="howto-lead">Angka yang kamu isi berdasarkan <span class="src">Laporan Manual</span> OPD kamu.</p>
         <ol class="steps">
           <li>Ketik <b>nama / kode OPD</b> kamu, lalu pilih dari daftar.</li>
           <li>Isi <b>Saldo Awal 2026</b> — stok di awal tahun (dasar Stock Opname Semester 1).</li>
           <li>Isi <b>total penerimaan</b> tiap bulan (Jan–Des) — satu angka <b>total</b> per bulan, <b>bukan per barang</b>.</li>
           <li>Isi <b>total pengeluaran</b> tiap semester (S1 &amp; S2) — juga <b>total</b>, bukan per barang.</li>
           <li><b>Saldo Awal Juli</b>, total, dan <b>Stock Opname</b> terhitung otomatis — nggak perlu diketik.</li>
-          <li>Klik <b>Simpan Checklist</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
+          <li>Klik <b>Simpan Laporan Manual</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
         </ol>
         <span class="note-chip">Total per OPD (bukan per barang) &nbsp;·&nbsp; Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Stock: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
-        <p class="howto-note">Tugas kamu sampai di <b>Simpan Checklist</b>. Angka <b>stock opname</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b> — kamu tidak perlu mengisi bagian SIMASET.</p>
+        <p class="howto-note">Tugas kamu sampai di <b>Simpan Laporan Manual</b>. Angka <b>stock opname</b> yang kamu hasilkan nanti <b>dicocokkan dengan SIMASET oleh admin</b> — kamu tidak perlu mengisi bagian SIMASET.</p>
       </section>
     </main>
     ${footer()}`;
@@ -188,7 +188,7 @@ async function renderChecklist(code) {
           <span class="cl-code">${esc(opd.PBSubk)}</span>
         </div>
       </div>
-      <div id="cl-body" class="cl-body">${loadingBlock('Memuat checklist…')}</div>
+      <div id="cl-body" class="cl-body">${loadingBlock('Memuat Laporan Manual…')}</div>
     </main>
     ${footer()}`;
 
@@ -269,7 +269,7 @@ function buildForm(entry) {
       <div id="save-msg" class="save-msg" role="status" aria-live="polite"></div>
       <div class="savebar-btns">
         <button id="tarik-btn" class="btn ghost" type="button" hidden>Tarik dari SIMASET</button>
-        <button id="save-btn" class="btn primary">Simpan Checklist</button>
+        <button id="save-btn" class="btn primary">Simpan Laporan Manual</button>
       </div>
     </div>`;
 }
@@ -334,7 +334,7 @@ async function tarikFill() {
     r.months.forEach((v, i) => setVal(MONTHS[i][0], v));
     paintTotals();
     setDirty(true);
-    if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Tersimpan ke tabel temp — form terisi, klik Simpan Checklist'; }
+    if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Tersimpan ke tabel temp — form terisi, klik Simpan Laporan Manual'; }
   } catch (err) {
     if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menarik: ' + err.message; }
   }
@@ -376,7 +376,7 @@ async function doSave() {
     await api('/api/opds/' + encodeURIComponent(clCode), { method: 'PUT', body: JSON.stringify(data) });
     const t = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     if (msg) { msg.className = 'save-msg ok'; msg.textContent = 'Tersimpan ' + t + ' ✓'; }
-    if (btn) { btn.textContent = 'Tersimpan ✓'; setTimeout(() => { btn.textContent = 'Simpan Checklist'; }, 2000); }
+    if (btn) { btn.textContent = 'Tersimpan ✓'; setTimeout(() => { btn.textContent = 'Simpan Laporan Manual'; }, 2000); }
     setDirty(false);
   } catch (err) {
     if (msg) { msg.className = 'save-msg err'; msg.textContent = 'Gagal menyimpan: ' + err.message; }
@@ -391,7 +391,7 @@ const MLBL = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov',
 async function renderStatistik() {
   app.innerHTML = header('pp') + `
     <main class="wrap" id="stats-wrap">
-      <h1 class="page-title">PP Pakai Habis</h1>
+      <h1 class="page-title">Laporan Manual</h1>
       <p class="page-sub">Rekap seluruh OPD: penerimaan per bulan &amp; pengeluaran per semester.</p>
       <section class="card admin-summary">
         <div class="sum-head">
@@ -695,10 +695,10 @@ async function renderRekonsiliasi() {
   app.innerHTML = header('rekonsiliasi') + `
     <main class="wrap">
       <h1 class="page-title">Rekonsiliasi</h1>
-      <p class="page-sub">Membandingkan <b>SIMASET</b> (data ditarik dari database SIMASET) dengan <b>checklist</b> (data diisikan pengurus). <b>Selisih</b> = SIMASET − checklist.</p>
+      <p class="page-sub">Membandingkan <b>SIMASET</b> (data ditarik dari database SIMASET) dengan <b>Laporan Manual</b> (data diisikan pengurus). <b>Selisih</b> = SIMASET − Laporan Manual.</p>
       <section class="card admin-summary">
         <div class="sum-head">
-          <h2>Rekonsiliasi <span class="rekap-tag">SIMASET vs checklist</span></h2>
+          <h2>Rekonsiliasi <span class="rekap-tag">SIMASET vs Laporan Manual</span></h2>
           <div class="sum-actions">
             <input id="rek-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
           </div>
@@ -767,7 +767,7 @@ function renderRekonsiliasiRows(r) {
     return `<div class="rek-detail">
       <h3>${esc(d.name)} <span class="sum-code">${esc(d.code)}</span></h3>
       <table class="rek-table">
-        <thead><tr><th>Komponen</th><th class="n">SIMASET</th><th class="n">Checklist</th><th class="n">Selisih</th></tr></thead>
+        <thead><tr><th>Komponen</th><th class="n">SIMASET</th><th class="n">Laporan Manual</th><th class="n">Selisih</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>`;
@@ -780,9 +780,9 @@ function renderRekonsiliasiRows(r) {
         <thead><tr>
           <th class="stick">OPD</th>
           <th class="n">Saldo <span class="th-sub">SIMASET</span></th>
-          <th class="n">Saldo <span class="th-sub">checklist</span></th>
+          <th class="n">Saldo <span class="th-sub">Laporan Manual</span></th>
           <th class="n">Penerimaan <span class="th-sub">SIMASET</span></th>
-          <th class="n">Penerimaan <span class="th-sub">checklist</span></th>
+          <th class="n">Penerimaan <span class="th-sub">Laporan Manual</span></th>
           <th class="n strong">Selisih</th>
           <th>Status</th>
         </tr></thead>
@@ -810,7 +810,7 @@ function renderAdminLogin() {
         <div class="login-head">
           <span class="login-badge">ADMIN</span>
           <h1 class="login-title">Rekonsiliasi <span>SIMASET</span></h1>
-          <p class="login-sub">Area khusus admin. Isi <b>Opname Simaset 2026</b> per OPD, lalu cocokkan dengan stock opname dari checklist.</p>
+          <p class="login-sub">Area khusus admin. Isi <b>Opname Simaset 2026</b> per OPD, lalu cocokkan dengan stock opname dari Laporan Manual.</p>
         </div>
         <form id="admin-login-form" class="login-form">
           <div class="login-field">
