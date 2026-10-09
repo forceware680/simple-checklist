@@ -70,6 +70,7 @@ function render() {
   else if (hash === '#/pp-pakai-habis') renderStatistik();
   else if (hash.startsWith('#/rekap/')) renderRekapOpd(decodeURIComponent(hash.slice(8)));
   else if (hash === '#/rekap') renderRekap();
+  else if (hash.startsWith('#/rekonsiliasi/')) renderRekonsiliasiOpd(decodeURIComponent(hash.slice(15)));
   else if (hash === '#/rekonsiliasi') renderRekonsiliasi();
   else if (hash.startsWith('#/admin')) renderAdmin();
   else renderLanding();
@@ -678,10 +679,7 @@ async function renderRekonsiliasi() {
   document.getElementById('rek-search').addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase();
     document.querySelectorAll('#rek-tbody tr[data-search]').forEach(tr => {
-      const show = tr.dataset.search.includes(q);
-      tr.style.display = show ? '' : 'none';
-      const exp = tr.nextElementSibling;
-      if (exp && exp.classList.contains('rek-exp-row')) exp.style.display = show ? '' : 'none';
+      tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
     });
   });
   loadRekonsiliasi();
@@ -711,7 +709,7 @@ function renderRekonsiliasiRows(r) {
       ? (isCocok(d) ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
       : '<span class="rek-st none">Kosong</span>';
     const chev = isBeda
-      ? `<button type="button" class="rek-exp" data-code="${esc(d.code)}" aria-expanded="false" aria-label="Lihat rincian ${esc(d.name)}"><span class="rek-exp-chev" aria-hidden="true"></span></button>`
+      ? `<a class="rek-exp" href="#/rekonsiliasi/${encodeURIComponent(d.code)}" aria-label="Lihat rincian ${esc(d.name)}"><span class="rek-exp-chev" aria-hidden="true"></span></a>`
       : '';
     return `<tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
       <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}${chev}</span></td>
@@ -743,26 +741,6 @@ function renderRekonsiliasiRows(r) {
       </table>
     </div>
     ${beda.length ? '' : '<p class="rekap-note">Semua OPD sudah cocok dengan SIMASET.</p>'}`;
-
-  // Klik panah di baris → rincian muncul tepat di bawah baris itu (bukan daftar panjang di bawah).
-  el.querySelectorAll('.rek-exp').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const code = btn.dataset.code;
-      const tr = btn.closest('tr');
-      const next = tr.nextElementSibling;
-      if (next && next.classList.contains('rek-exp-row')) {
-        next.remove();
-        btn.setAttribute('aria-expanded', 'false');
-        return;
-      }
-      const d = r.data.find(x => x.code === code);
-      const expRow = document.createElement('tr');
-      expRow.className = 'rek-exp-row';
-      expRow.innerHTML = `<td colspan="7">${buildRekDetail(d)}</td>`;
-      tr.after(expRow);
-      btn.setAttribute('aria-expanded', 'true');
-    });
-  });
 }
 
 function buildRekDetail(d) {
@@ -783,6 +761,54 @@ function buildRekDetail(d) {
       <tbody>${rows}</tbody>
     </table>
   </div>`;
+}
+
+/* ---------- REKONSILIASI PER OPD (detail, #/rekonsiliasi/:code) ---------- */
+async function renderRekonsiliasiOpd(code) {
+  app.innerHTML = header('rekonsiliasi') + `
+    <main class="wrap">
+      <h1 class="page-title" id="rekopd-title">${esc(code)}</h1>
+      <p class="page-sub"><a href="#/rekonsiliasi" class="back-link">&larr; Kembali ke Rekonsiliasi</a></p>
+      <div id="rekopd-body">${loadingBlock('Memuat…')}</div>
+    </main>
+    ${footer()}`;
+  loadRekonsiliasiOpd(code);
+}
+
+async function loadRekonsiliasiOpd(code) {
+  const el = document.getElementById('rekopd-body');
+  try {
+    const r = await api('/api/rekonsiliasi');
+    const d = r.data.find(x => x.code === code);
+    if (!d) { el.innerHTML = '<div class="error-state">OPD tidak ditemukan.</div>'; return; }
+    renderRekonsiliasiOpdRows(d);
+  } catch (err) {
+    el.innerHTML = `<div class="error-state">Gagal memuat: ${esc(err.message)}</div>`;
+  }
+}
+
+function renderRekonsiliasiOpdRows(d) {
+  const el = document.getElementById('rekopd-body');
+  const t = document.getElementById('rekopd-title'); if (t) t.textContent = d.name;
+  const hasData = d.has_sumber || d.has_checklist;
+  const selTotal = d.selisih.saldo_awal + d.selisih.total;
+  const status = hasData
+    ? (isCocok(d) ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
+    : '<span class="rek-st none">Kosong</span>';
+  el.innerHTML = `
+    <section class="card">
+      <div class="rek-d-status">
+        <div>
+          <h2 class="rek-d-h">${esc(d.name)}</h2>
+          <span class="sum-code">${esc(d.code)}</span>
+        </div>
+        <div class="rek-d-status-right">
+          ${status}
+          <span class="rek-d-sel${selTotal !== 0 ? ' neg' : ''}">Selisih ${fmtID(selTotal)}</span>
+        </div>
+      </div>
+      ${buildRekDetail(d)}
+    </section>`;
 }
 
 /* ---------- ADMIN (tersembunyi, #/admin) ---------- */

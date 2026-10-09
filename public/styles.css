@@ -235,10 +235,12 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .rek-exp:hover{ background:var(--yellow-soft); }
 .rek-exp:active{ transform:translate(1px,1px); }
 .rek-exp:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
-.rek-exp-chev{ width:9px; height:9px; border-right:2.5px solid var(--ink); border-bottom:2.5px solid var(--ink); transform:rotate(45deg); transition:transform .15s ease; }
-.rek-exp[aria-expanded="true"] .rek-exp-chev{ transform:rotate(225deg); }
-.rek-exp-row td{ background:var(--bg); padding:14px 16px 16px; border-bottom:var(--border) solid var(--ink); }
-.rek-exp-row .rek-d-body{ padding:0; }
+.rek-exp-chev{ width:9px; height:9px; border-top:2.5px solid var(--ink); border-right:2.5px solid var(--ink); transform:rotate(-45deg); }
+.rek-d-status{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+.rek-d-h{ font-family:var(--font-display); font-size:20px; margin:0 0 2px; }
+.rek-d-status-right{ display:flex; align-items:center; gap:10px; }
+.rek-d-sel{ font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.rek-d-sel.neg{ color:var(--red); }
 .rek-d-body{ padding:0 14px 14px; }
 .rek-d-body .rek-table{ border:none; border-radius:0; }
 .rek-table{ width:100%; border-collapse:separate; border-spacing:0; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); overflow:hidden; }
