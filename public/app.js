@@ -704,11 +704,10 @@ function renderRekonsiliasiRows(r) {
   const el = document.getElementById('rek-summary');
   const sumRows = r.data.map(d => {
     const hasData = d.has_sumber || d.has_checklist;
-    const isBeda = hasData && !isCocok(d);
     const status = hasData
       ? (isCocok(d) ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
       : '<span class="rek-st none">Kosong</span>';
-    const chev = isBeda
+    const chev = hasData
       ? `<a class="rek-exp" href="#/rekonsiliasi/${encodeURIComponent(d.code)}" aria-label="Lihat rincian ${esc(d.name)}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`
       : '';
     return `<tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
