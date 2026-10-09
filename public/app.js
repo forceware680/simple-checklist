@@ -580,7 +580,7 @@ function renderRekapRows(r) {
         </thead>
         <tbody>${r.data.map(d => `
           <tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
-            <td class="stick"><a class="opd-link" href="#/rekap/${encodeURIComponent(d.code)}"><span class="opd-name">${esc(d.name)}</span></a><span class="sum-code">${esc(d.code)}</span><button class="btn ghost rekap-pull-btn" data-code="${d.code}" type="button">Tarik</button></td>
+            <td class="stick"><a class="opd-link" href="#/rekap/${encodeURIComponent(d.code)}"><span class="opd-name">${esc(d.name)}</span></a><span class="sum-code">${esc(d.code)}</span><button class="btn ghost rekap-pull-btn" data-code="${d.code}" type="button">Update Data</button></td>
             <td class="n saldo">${fmtID(d.saldo_awal)}${d.saldo_src === 'th_lalu' ? '<span class="saldo-tag" title="Saldo th lalu (fallback)">th</span>' : ''}</td>
             ${d.months.slice(0,6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
             ${d.months.slice(6).map(v => `<td class="n">${fmtID(v)}</td>`).join('')}
