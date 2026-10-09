@@ -491,6 +491,7 @@ function renderRekapTable(isAdmin) {
           <button id="rekap-fs" class="btn ghost" type="button">Full Screen</button>
         </div>
       </div>
+      <p class="rekap-note">Jika kamu melakukan perubahan di <b>SIMASET</b>, silakan klik tombol <b>Update Data</b> untuk melihat rekap dengan data Up To Date.</p>
       <div id="rekap-summary">${loadingBlock('Memuat…')}</div>
     </section>`;
   wrap.querySelector('#rekap-fs').addEventListener('click', () => {
