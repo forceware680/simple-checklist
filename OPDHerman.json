@@ -1,51 +1,327 @@
 [
   {
+    "PBSubk": "010101.00000.00000",
+    "KetPBSubk": "Dinas Pendidikan dan Kebudayaan"
+  },
+  {
+    "PBSubk": "010101.00001.00000",
+    "KetPBSubk": "SD Negeri Kramat 1"
+  },
+  {
+    "PBSubk": "010101.00002.00000",
+    "KetPBSubk": "SD Negeri Kramat 2"
+  },
+  {
+    "PBSubk": "010101.00003.00000",
+    "KetPBSubk": "SD Negeri Kramat 3"
+  },
+  {
+    "PBSubk": "010101.00004.00000",
+    "KetPBSubk": "SD Negeri Kramat 4"
+  },
+  {
+    "PBSubk": "010101.00005.00000",
+    "KetPBSubk": "SD Negeri Kramat 5"
+  },
+  {
+    "PBSubk": "010101.00006.00000",
+    "KetPBSubk": "SD Negeri Potrobangsan 1"
+  },
+  {
+    "PBSubk": "010101.00007.00000",
+    "KetPBSubk": "SD Negeri Potrobangsan 2"
+  },
+  {
+    "PBSubk": "010101.00008.00000",
+    "KetPBSubk": "SD Negeri Potrobangsan 3"
+  },
+  {
+    "PBSubk": "010101.00009.00000",
+    "KetPBSubk": "SD Negeri Potrobangsan 4"
+  },
+  {
+    "PBSubk": "010101.00010.00000",
+    "KetPBSubk": "SD Negeri Wates 1"
+  },
+  {
+    "PBSubk": "010101.00011.00000",
+    "KetPBSubk": "SD Negeri Wates 2"
+  },
+  {
+    "PBSubk": "010101.00012.00000",
+    "KetPBSubk": "SD Negeri Wates 3"
+  },
+  {
+    "PBSubk": "010101.00013.00000",
+    "KetPBSubk": "SD Negeri Wates 4"
+  },
+  {
+    "PBSubk": "010101.00014.00000",
+    "KetPBSubk": "SD Negeri Wates 5"
+  },
+  {
+    "PBSubk": "010101.00015.00000",
+    "KetPBSubk": "SD Negeri Kedungsari 1"
+  },
+  {
+    "PBSubk": "010101.00016.00000",
+    "KetPBSubk": "SD Negeri Kedungsari 2"
+  },
+  {
+    "PBSubk": "010101.00017.00000",
+    "KetPBSubk": "SD Negeri Kedungsari 3"
+  },
+  {
+    "PBSubk": "010101.00018.00000",
+    "KetPBSubk": "SD Negeri Kedungsari 4"
+  },
+  {
+    "PBSubk": "010101.00019.00000",
+    "KetPBSubk": "SD Negeri Kedungsari 5"
+  },
+  {
+    "PBSubk": "010101.00020.00000",
+    "KetPBSubk": "SD Negeri Magelang 3"
+  },
+  {
+    "PBSubk": "010101.00021.00000",
+    "KetPBSubk": "SD Negeri Magelang 4"
+  },
+  {
+    "PBSubk": "010101.00022.00000",
+    "KetPBSubk": "SD Negeri Magelang 5"
+  },
+  {
+    "PBSubk": "010101.00023.00000",
+    "KetPBSubk": "SD Negeri Magelang 6"
+  },
+  {
+    "PBSubk": "010101.00024.00000",
+    "KetPBSubk": "SD Negeri Magelang 7"
+  },
+  {
+    "PBSubk": "010101.00025.00000",
+    "KetPBSubk": "SD Negeri Gelangan 1"
+  },
+  {
+    "PBSubk": "010101.00026.00000",
+    "KetPBSubk": "SD Negeri Gelangan 2/4"
+  },
+  {
+    "PBSubk": "010101.00027.00000",
+    "KetPBSubk": "SD Negeri Gelangan 3"
+  },
+  {
+    "PBSubk": "010101.00028.00000",
+    "KetPBSubk": "SD Negeri Gelangan 5"
+  },
+  {
+    "PBSubk": "010101.00029.00000",
+    "KetPBSubk": "SD Negeri Gelangan 6"
+  },
+  {
+    "PBSubk": "010101.00030.00000",
+    "KetPBSubk": "SD Negeri Gelangan 7"
+  },
+  {
+    "PBSubk": "010101.00031.00000",
+    "KetPBSubk": "SD Negeri Rejowinangun Utara 1"
+  },
+  {
+    "PBSubk": "010101.00032.00000",
+    "KetPBSubk": "SD Negeri Rejowinangun Utara 2"
+  },
+  {
+    "PBSubk": "010101.00033.00000",
+    "KetPBSubk": "SD Negeri Rejowinangun Utara 3"
+  },
+  {
+    "PBSubk": "010101.00034.00000",
+    "KetPBSubk": "SD Negeri Rejowinangun Utara 4"
+  },
+  {
+    "PBSubk": "010101.00035.00000",
+    "KetPBSubk": "SD Negeri Rejowinangun Utara 5"
+  },
+  {
+    "PBSubk": "010101.00036.00000",
+    "KetPBSubk": "SD Negeri Rejowinangun Utara 6"
+  },
+  {
+    "PBSubk": "010101.00037.00000",
+    "KetPBSubk": "SD Negeri Cacaban 1"
+  },
+  {
+    "PBSubk": "010101.00038.00000",
+    "KetPBSubk": "SD Negeri Cacaban 3"
+  },
+  {
+    "PBSubk": "010101.00039.00000",
+    "KetPBSubk": "SD Negeri Cacaban 4"
+  },
+  {
+    "PBSubk": "010101.00040.00000",
+    "KetPBSubk": "SD Negeri Cacaban 5"
+  },
+  {
+    "PBSubk": "010101.00041.00000",
+    "KetPBSubk": "SD Negeri Cacaban 6"
+  },
+  {
+    "PBSubk": "010101.00042.00000",
+    "KetPBSubk": "SD Negeri Kemirirejo 1"
+  },
+  {
+    "PBSubk": "010101.00043.00000",
+    "KetPBSubk": "SD Negeri Kemirirejo 3"
+  },
+  {
+    "PBSubk": "010101.00044.00000",
+    "KetPBSubk": "SD Negeri Rejowinangun Selatan 1"
+  },
+  {
+    "PBSubk": "010101.00045.00000",
+    "KetPBSubk": "SD Negeri Rejowinangun Selatan 2"
+  },
+  {
+    "PBSubk": "010101.00046.00000",
+    "KetPBSubk": "SD Negeri Rejowinangun Selatan 3"
+  },
+  {
+    "PBSubk": "010101.00047.00000",
+    "KetPBSubk": "SD Negeri Rejowinangun Selatan 4"
+  },
+  {
+    "PBSubk": "010101.00048.00000",
+    "KetPBSubk": "SD Negeri Rejowinangun Selatan 5"
+  },
+  {
+    "PBSubk": "010101.00049.00000",
+    "KetPBSubk": "SD Negeri Tidar 1"
+  },
+  {
+    "PBSubk": "010101.00050.00000",
+    "KetPBSubk": "SD Negeri Tidar 3"
+  },
+  {
+    "PBSubk": "010101.00051.00000",
+    "KetPBSubk": "SD Negeri Tidar 4"
+  },
+  {
+    "PBSubk": "010101.00052.00000",
+    "KetPBSubk": "SD Negeri Tidar 5"
+  },
+  {
+    "PBSubk": "010101.00053.00000",
+    "KetPBSubk": "SD Negeri Tidar 6"
+  },
+  {
+    "PBSubk": "010101.00054.00000",
+    "KetPBSubk": "SD Negeri Tidar 7"
+  },
+  {
+    "PBSubk": "010101.00055.00000",
+    "KetPBSubk": "SD Negeri Jurangombo 1"
+  },
+  {
+    "PBSubk": "010101.00056.00000",
+    "KetPBSubk": "SD Negeri Jurangombo 2"
+  },
+  {
+    "PBSubk": "010101.00057.00000",
+    "KetPBSubk": "SD Negeri Jurangombo 4"
+  },
+  {
+    "PBSubk": "010101.00058.00000",
+    "KetPBSubk": "SD Negeri Jurangombo 5"
+  },
+  {
+    "PBSubk": "010101.00059.00000",
+    "KetPBSubk": "SD Negeri Magersari 1"
+  },
+  {
+    "PBSubk": "010101.00060.00000",
+    "KetPBSubk": "SD Negeri Magersari 2"
+  },
+  {
+    "PBSubk": "010101.00061.00000",
+    "KetPBSubk": "SD Negeri Magersari 3"
+  },
+  {
+    "PBSubk": "010101.00062.00000",
+    "KetPBSubk": "SMP Negeri 1 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00063.00000",
+    "KetPBSubk": "SMP Negeri 2 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00064.00000",
+    "KetPBSubk": "SMP Negeri 3 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00065.00000",
+    "KetPBSubk": "SMP Negeri 4 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00066.00000",
+    "KetPBSubk": "SMP Negeri 5 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00067.00000",
+    "KetPBSubk": "SMP Negeri 6 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00068.00000",
+    "KetPBSubk": "SMP Negeri 7 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00069.00000",
+    "KetPBSubk": "SMP Negeri 8 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00070.00000",
+    "KetPBSubk": "SMP Negeri 9 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00071.00000",
+    "KetPBSubk": "SMP Negeri 10 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00072.00000",
+    "KetPBSubk": "SMP Negeri 11 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00073.00000",
+    "KetPBSubk": "SMP Negeri 12 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00074.00000",
+    "KetPBSubk": "SMP Negeri 13 Kota Magelang"
+  },
+  {
+    "PBSubk": "010101.00075.00000",
+    "KetPBSubk": "TK Negeri Pembina"
+  },
+  {
+    "PBSubk": "010101.00076.00000",
+    "KetPBSubk": "UPT Pendidikan Magelang Selatan"
+  },
+  {
+    "PBSubk": "010101.00077.00000",
+    "KetPBSubk": "UPT Pendidikan Magelang Tengah"
+  },
+  {
+    "PBSubk": "010101.00078.00000",
+    "KetPBSubk": "UPT Pendidikan Magelang Utara"
+  },
+  {
+    "PBSubk": "010101.00079.00000",
+    "KetPBSubk": "UPT Desa Buku"
+  },
+  {
     "PBSubk": "010201.00000.00000",
     "KetPBSubk": "Dinas Kesehatan"
-  },
-  {
-    "PBSubk": "010502.00000.00000",
-    "KetPBSubk": "Badan Penanggulangan Bencana Daerah"
-  },
-  {
-    "PBSubk": "021101.00000.00000",
-    "KetPBSubk": "Dinas Lingkungan Hidup"
-  },
-  {
-    "PBSubk": "021201.00000.00000",
-    "KetPBSubk": "Dinas Kependudukan dan Pencatatan Sipil"
-  },
-  {
-    "PBSubk": "021301.00000.00000",
-    "KetPBSubk": "Dinas Pemberdayaan Masyarakat, Perempuan, Perlindungan Anak, Pengendalian Penduduk dan Keluarga Berencana"
-  },
-  {
-    "PBSubk": "021501.00000.00000",
-    "KetPBSubk": "Dinas Perhubungan"
-  },
-  {
-    "PBSubk": "021601.00000.00000",
-    "KetPBSubk": "Dinas Komunikasi, Informatika, dan Statistik"
-  },
-  {
-    "PBSubk": "021801.00000.00000",
-    "KetPBSubk": "Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu"
-  },
-  {
-    "PBSubk": "032701.00000.00000",
-    "KetPBSubk": "Dinas Pertanian dan Pangan"
-  },
-  {
-    "PBSubk": "050301.00000.00000",
-    "KetPBSubk": "Badan Kepegawaian dan Pengembangan Sumber Daya Manusia"
-  },
-  {
-    "PBSubk": "060101.00000.00000",
-    "KetPBSubk": "Inspektorat"
-  },
-  {
-    "PBSubk": "070101.00000.00000",
-    "KetPBSubk": "Kecamatan Magelang Selatan"
   },
   {
     "PBSubk": "010201.00001.00000",
@@ -58,18 +334,6 @@
   {
     "PBSubk": "010201.00003.00000",
     "KetPBSubk": "Puskesmas Magelang Tengah (Botton)"
-  },
-  {
-    "PBSubk": "021901.00000.00000",
-    "KetPBSubk": "Dinas Kepemudaan, Olahraga, dan Pariwisata"
-  },
-  {
-    "PBSubk": "021901.00001.00000",
-    "KetPBSubk": "UPT Pengelolaan Sport Center"
-  },
-  {
-    "PBSubk": "040201.00000.00000",
-    "KetPBSubk": "Sekretariat Dewan Perwakilan Rakyat Daerah"
   },
   {
     "PBSubk": "010201.00004.00000",
@@ -100,6 +364,54 @@
     "KetPBSubk": "Public Safety Center"
   },
   {
+    "PBSubk": "010301.00000.00000",
+    "KetPBSubk": "Dinas Pekerjaan Umum dan Penataan Ruang"
+  },
+  {
+    "PBSubk": "010301.00001.00000",
+    "KetPBSubk": "UPT Pengelolaan Air Limbah Domestik"
+  },
+  {
+    "PBSubk": "010401.00000.00000",
+    "KetPBSubk": "Dinas Perumahan dan Kawasan Permukiman"
+  },
+  {
+    "PBSubk": "010401.00001.00000",
+    "KetPBSubk": "UPT Rumah Susun"
+  },
+  {
+    "PBSubk": "010401.00002.00000",
+    "KetPBSubk": "UPT Pengelolaan Air Limbah Domestik"
+  },
+  {
+    "PBSubk": "010501.00000.00000",
+    "KetPBSubk": "Satuan Polisi Pamong Praja"
+  },
+  {
+    "PBSubk": "010501.00001.00000",
+    "KetPBSubk": "UPT Pemadam Kebakaran"
+  },
+  {
+    "PBSubk": "010502.00000.00000",
+    "KetPBSubk": "Badan Penanggulangan Bencana Daerah"
+  },
+  {
+    "PBSubk": "010601.00000.00000",
+    "KetPBSubk": "Dinas Sosial"
+  },
+  {
+    "PBSubk": "020701.00000.00000",
+    "KetPBSubk": "Dinas Tenaga Kerja"
+  },
+  {
+    "PBSubk": "020701.00001.00000",
+    "KetPBSubk": "UPT Balai Latihan Kerja"
+  },
+  {
+    "PBSubk": "021101.00000.00000",
+    "KetPBSubk": "Dinas Lingkungan Hidup"
+  },
+  {
     "PBSubk": "021101.00001.00000",
     "KetPBSubk": "UPT Tempat Pengelolaan Sampah Akhir"
   },
@@ -108,12 +420,140 @@
     "KetPBSubk": "UPT Kebun Raya Gunung Tidar"
   },
   {
+    "PBSubk": "021201.00000.00000",
+    "KetPBSubk": "Dinas Kependudukan dan Pencatatan Sipil"
+  },
+  {
+    "PBSubk": "021301.00000.00000",
+    "KetPBSubk": "Dinas Pemberdayaan Masyarakat, Perempuan, Perlindungan Anak, Pengendalian Penduduk dan Keluarga Berencana"
+  },
+  {
+    "PBSubk": "021501.00000.00000",
+    "KetPBSubk": "Dinas Perhubungan"
+  },
+  {
+    "PBSubk": "021601.00000.00000",
+    "KetPBSubk": "Dinas Komunikasi, Informatika, dan Statistik"
+  },
+  {
+    "PBSubk": "021801.00000.00000",
+    "KetPBSubk": "Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu"
+  },
+  {
+    "PBSubk": "021901.00000.00000",
+    "KetPBSubk": "Dinas Kepemudaan, Olahraga, dan Pariwisata"
+  },
+  {
+    "PBSubk": "021901.00001.00000",
+    "KetPBSubk": "UPT Pengelolaan Sport Center"
+  },
+  {
+    "PBSubk": "022301.00000.00000",
+    "KetPBSubk": "Dinas Perpustakaan dan Kearsipan"
+  },
+  {
+    "PBSubk": "032701.00000.00000",
+    "KetPBSubk": "Dinas Pertanian dan Pangan"
+  },
+  {
     "PBSubk": "032701.00001.00000",
     "KetPBSubk": "UPT RPH dan Labkesmavet"
   },
   {
     "PBSubk": "032701.00002.00000",
     "KetPBSubk": "UPT Pusat Kesehatan Hewan"
+  },
+  {
+    "PBSubk": "033101.00000.00000",
+    "KetPBSubk": "Dinas Perdagangan Perindustrian Koperasi dan Usaha Mikro"
+  },
+  {
+    "PBSubk": "033101.00001.00000",
+    "KetPBSubk": "UPT Metrologi"
+  },
+  {
+    "PBSubk": "033101.00002.00000",
+    "KetPBSubk": "UPT Pasar Rejowinangun"
+  },
+  {
+    "PBSubk": "033101.00003.00000",
+    "KetPBSubk": "UPT Pasar Kebonpolo dan Cacaban"
+  },
+  {
+    "PBSubk": "033101.00004.00000",
+    "KetPBSubk": "UPT Pasar Gotong Royong"
+  },
+  {
+    "PBSubk": "033101.00005.00000",
+    "KetPBSubk": "UPT Pasar Sidomukti"
+  },
+  {
+    "PBSubk": "040101.00000.00000",
+    "KetPBSubk": "Sekretariat Daerah"
+  },
+  {
+    "PBSubk": "040101.00001.00000",
+    "KetPBSubk": "Bagian Pemerintahan"
+  },
+  {
+    "PBSubk": "040101.00002.00000",
+    "KetPBSubk": "Bagian Kesejahteraan Rakyat"
+  },
+  {
+    "PBSubk": "040101.00003.00000",
+    "KetPBSubk": "Bagian Hukum"
+  },
+  {
+    "PBSubk": "040101.00004.00000",
+    "KetPBSubk": "Bagian Perekonomian dan Sumber Daya Alam"
+  },
+  {
+    "PBSubk": "040101.00005.00000",
+    "KetPBSubk": "Bagian Administrasi Pembangunan"
+  },
+  {
+    "PBSubk": "040101.00006.00000",
+    "KetPBSubk": "Bagian Pengadaan Barang dan Jasa"
+  },
+  {
+    "PBSubk": "040101.00007.00000",
+    "KetPBSubk": "Bagian Umum"
+  },
+  {
+    "PBSubk": "040101.00008.00000",
+    "KetPBSubk": "Bagian Organisasi"
+  },
+  {
+    "PBSubk": "040101.00009.00000",
+    "KetPBSubk": "Bagian Protokol dan Komunikasi Pimpinan"
+  },
+  {
+    "PBSubk": "040201.00000.00000",
+    "KetPBSubk": "Sekretariat Dewan Perwakilan Rakyat Daerah"
+  },
+  {
+    "PBSubk": "050101.00000.00000",
+    "KetPBSubk": "Badan Perencanaan Pembangunan, Riset dan Inovasi Daerah"
+  },
+  {
+    "PBSubk": "050201.00000.00000",
+    "KetPBSubk": "Badan Pengelola Keuangan dan Aset Daerah"
+  },
+  {
+    "PBSubk": "050201.00001.00000",
+    "KetPBSubk": "PPKD"
+  },
+  {
+    "PBSubk": "050301.00000.00000",
+    "KetPBSubk": "Badan Kepegawaian dan Pengembangan Sumber Daya Manusia"
+  },
+  {
+    "PBSubk": "060101.00000.00000",
+    "KetPBSubk": "Inspektorat Daerah"
+  },
+  {
+    "PBSubk": "070101.00000.00000",
+    "KetPBSubk": "Kecamatan Magelang Selatan"
   },
   {
     "PBSubk": "070101.00001.00000",
@@ -140,7 +580,59 @@
     "KetPBSubk": "Kelurahan Tidar Utara"
   },
   {
-    "PBSubk": "050101.00000.00000",
-    "KetPBSubk": "Badan Perencanaan Pembangunan, Riset dan Inovasi Daerah"
+    "PBSubk": "070102.00000.00000",
+    "KetPBSubk": "Kecamatan Magelang Tengah"
+  },
+  {
+    "PBSubk": "070102.00001.00000",
+    "KetPBSubk": "Kelurahan Kemirirejo"
+  },
+  {
+    "PBSubk": "070102.00002.00000",
+    "KetPBSubk": "Kelurahan Cacaban"
+  },
+  {
+    "PBSubk": "070102.00003.00000",
+    "KetPBSubk": "Kelurahan Magelang"
+  },
+  {
+    "PBSubk": "070102.00004.00000",
+    "KetPBSubk": "Kelurahan Rejowinangun Utara"
+  },
+  {
+    "PBSubk": "070102.00005.00000",
+    "KetPBSubk": "Kelurahan Panjang"
+  },
+  {
+    "PBSubk": "070102.00006.00000",
+    "KetPBSubk": "Kelurahan Gelangan"
+  },
+  {
+    "PBSubk": "070103.00000.00000",
+    "KetPBSubk": "Kecamatan Magelang Utara"
+  },
+  {
+    "PBSubk": "070103.00001.00000",
+    "KetPBSubk": "Kelurahan Kramat Utara"
+  },
+  {
+    "PBSubk": "070103.00002.00000",
+    "KetPBSubk": "Kelurahan Kramat Selatan"
+  },
+  {
+    "PBSubk": "070103.00003.00000",
+    "KetPBSubk": "Kelurahan Kedungsari"
+  },
+  {
+    "PBSubk": "070103.00004.00000",
+    "KetPBSubk": "Kelurahan Wates"
+  },
+  {
+    "PBSubk": "070103.00005.00000",
+    "KetPBSubk": "Kelurahan Potrobangsan"
+  },
+  {
+    "PBSubk": "080101.00000.00000",
+    "KetPBSubk": "Badan Kesatuan Bangsa dan Politik"
   }
 ]
