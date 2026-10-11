@@ -11,6 +11,9 @@ const S1_MONTHS = new Set(['jan','feb','mar','apr','may','jun']);
 
 let OPDS = [];
 let clCode = null, clDirty = false, clSaving = false;
+// State page Rekonsiliasi yang dipertahankan saat navigate ke rincian lalu kembali
+let rekState = { filter: 'all', search: '', tableScroll: 0, pageScroll: 0 };
+let rekActive = false;
 const app = document.getElementById('app');
 
 /* ---------- helpers ---------- */
@@ -70,6 +73,7 @@ function render() {
   const hash = location.hash || '#/';
   app.setAttribute('aria-busy', 'true');
   app.classList.remove('full');
+  rekActive = false;
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
   else if (hash === '#/pp-pakai-habis') renderStatistik();
   else if (hash.startsWith('#/rekap/')) renderRekapOpd(decodeURIComponent(hash.slice(8)));
@@ -696,6 +700,7 @@ function renderRekapOpdRows(r) {
 
 /* ---------- REKONSILIASI (sumber vs checklist, #/rekonsiliasi) ---------- */
 async function renderRekonsiliasi() {
+  rekActive = true;
   app.innerHTML = header('rekonsiliasi') + `
     <main class="wrap">
       <h1 class="page-title">Rekonsiliasi</h1>
@@ -730,16 +735,26 @@ async function renderRekonsiliasi() {
       tr.style.display = (okSearch && okStatus) ? '' : 'none';
     });
   }
-  rekSearch.addEventListener('input', applyRekFilters);
-  rekFilter.addEventListener('change', applyRekFilters);
+  // Pulihkan filter + search dari state sebelum navigate
+  rekFilter.value = rekState.filter;
+  rekSearch.value = rekState.search;
+  rekSearch.addEventListener('input', () => { rekState.search = rekSearch.value; applyRekFilters(); });
+  rekFilter.addEventListener('change', () => { rekState.filter = rekFilter.value; applyRekFilters(); });
+  const rekWrap = document.querySelector('.sum-table.rek');
+  if (rekWrap) rekWrap.addEventListener('scroll', () => { rekState.tableScroll = rekWrap.scrollTop; }, { passive: true });
   document.getElementById('rek-refresh').addEventListener('click', async () => {
     const btn = document.getElementById('rek-refresh');
     btn.disabled = true;
     rekFilter.value = 'all';
+    rekState.filter = 'all';
     await loadRekonsiliasi();
+    applyRekFilters();
     btn.disabled = false;
   });
-  loadRekonsiliasi();
+  await loadRekonsiliasi();
+  applyRekFilters();
+  if (rekWrap) rekWrap.scrollTop = rekState.tableScroll;
+  requestAnimationFrame(() => window.scrollTo(0, rekState.pageScroll));
 }
 
 async function loadRekonsiliasi() {
@@ -1030,6 +1045,7 @@ async function saveOne(code) {
 /* ---------- boot ---------- */
 (async function init() {
   window.addEventListener('hashchange', render);
+  window.addEventListener('scroll', () => { if (rekActive) rekState.pageScroll = window.scrollY; }, { passive: true });
   document.addEventListener('click', guardHashNav);
   document.addEventListener('click', e => {
     const t = e.target.closest('.nav-toggle');
