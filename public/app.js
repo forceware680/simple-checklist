@@ -87,7 +87,7 @@ async function renderLanding() {
       <section class="hero">
         <div class="hero-copy">
           <h1>Rekonsiliasi Persediaan<br>Tahun Anggaran <span>2026</span></h1>
-          <p class="hero-sub">Monitoring data persediaan antara <b>SIMASET</b> dengan <b>Laporan Manual</b> pada setiap OPD/Sub Unit.</p>
+          <p class="hero-sub">Monitoring dan Rekonsiliasi data persediaan antara <b>SIMASET</b> dengan <b>Laporan Manual</b> pada setiap OPD/Sub Unit.</p>
         </div>
         <div class="opd-card card">
           <label class="field-label" for="opd-input">Pilih OPD / Unit kamu</label>
