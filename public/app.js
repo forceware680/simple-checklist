@@ -14,6 +14,9 @@ let clCode = null, clDirty = false, clSaving = false;
 // State page Rekonsiliasi yang dipertahankan saat navigate ke rincian lalu kembali
 let rekState = { filter: 'all', search: '', tableScroll: 0, pageScroll: 0 };
 let rekActive = false;
+// State page SIMASET (#/rekap) yang dipertahankan saat navigate ke rincian lalu kembali
+let rekapState = { search: '', tableScroll: 0, pageScroll: 0 };
+let rekapActive = false;
 const app = document.getElementById('app');
 
 /* ---------- helpers ---------- */
@@ -74,6 +77,7 @@ function render() {
   app.setAttribute('aria-busy', 'true');
   app.classList.remove('full');
   rekActive = false;
+  rekapActive = false;
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
   else if (hash === '#/pp-pakai-habis') renderStatistik();
   else if (hash.startsWith('#/rekap/')) renderRekapOpd(decodeURIComponent(hash.slice(8)));
@@ -508,7 +512,8 @@ async function renderRekap() {
   renderRekapTable(!!me.authenticated);
 }
 
-function renderRekapTable(isAdmin) {
+async function renderRekapTable(isAdmin) {
+  rekapActive = true;
   const body = document.getElementById('rekap-body');
   const wrap = document.getElementById('rekap-wrap');
   body.innerHTML = `
@@ -532,21 +537,37 @@ function renderRekapTable(isAdmin) {
     rekapFs.title = on ? 'Keluar Full Screen' : 'Full Screen';
     rekapFs.setAttribute('aria-label', on ? 'Keluar Full Screen' : 'Full Screen');
   });
+  const rekapSearch = wrap.querySelector('#rekap-search');
+  function applyRekapFilters() {
+    const q = rekapSearch.value.trim().toLowerCase();
+    document.querySelectorAll('#rekap-summary tbody tr').forEach(tr => {
+      tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
+    });
+  }
+  // Pulihkan search dari state sebelum navigate
+  rekapSearch.value = rekapState.search;
+  rekapSearch.addEventListener('input', () => { rekapState.search = rekapSearch.value; applyRekapFilters(); });
   wrap.querySelector('#rekap-refresh').addEventListener('click', async () => {
     const btn = wrap.querySelector('#rekap-refresh');
     btn.disabled = true;
     await loadRekap(2026);
+    applyRekapFilters();
+    attachRekapScrollCapture();
     btn.disabled = false;
   });
   const pullAllBtn = wrap.querySelector('#rekap-pullall');
   if (pullAllBtn) pullAllBtn.addEventListener('click', rekapPullAll);
-  wrap.querySelector('#rekap-search').addEventListener('input', e => {
-    const q = e.target.value.trim().toLowerCase();
-    document.querySelectorAll('#rekap-summary tbody tr').forEach(tr => {
-      tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
-    });
-  });
-  loadRekap(2026);
+  // .sum-table.rekap baru ada SETELAH loadRekap() me-render tabel
+  function attachRekapScrollCapture() {
+    const w = wrap.querySelector('.sum-table.rekap');
+    if (w) w.addEventListener('scroll', () => { rekapState.tableScroll = w.scrollTop; }, { passive: true });
+  }
+  await loadRekap(2026);
+  applyRekapFilters();
+  attachRekapScrollCapture();
+  const w = wrap.querySelector('.sum-table.rekap');
+  if (w) w.scrollTop = rekapState.tableScroll;
+  requestAnimationFrame(() => window.scrollTo(0, rekapState.pageScroll));
 }
 
 // Tarik SEMUA OPD dari sumber → simpan ke tabel temp (tarik_temp)
@@ -1051,7 +1072,10 @@ async function saveOne(code) {
 /* ---------- boot ---------- */
 (async function init() {
   window.addEventListener('hashchange', render);
-  window.addEventListener('scroll', () => { if (rekActive) rekState.pageScroll = window.scrollY; }, { passive: true });
+  window.addEventListener('scroll', () => {
+    if (rekActive) rekState.pageScroll = window.scrollY;
+    if (rekapActive) rekapState.pageScroll = window.scrollY;
+  }, { passive: true });
   document.addEventListener('click', guardHashNav);
   document.addEventListener('click', e => {
     const t = e.target.closest('.nav-toggle');
