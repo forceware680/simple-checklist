@@ -735,6 +735,7 @@ async function renderRekonsiliasi() {
   document.getElementById('rek-refresh').addEventListener('click', async () => {
     const btn = document.getElementById('rek-refresh');
     btn.disabled = true;
+    rekFilter.value = 'all';
     await loadRekonsiliasi();
     btn.disabled = false;
   });
