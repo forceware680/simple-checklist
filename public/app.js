@@ -114,7 +114,6 @@ async function renderLanding() {
           <li>Untuk melihat <b>rekonsiliasi data Laporan Manual vs SIMASET</b>, buka/klik <b>Rekonsiliasi</b> di menu navigasi.</li>
           <li>Jika menemukan <b>selisih</b>, segera <b>tindak lanjuti</b>.</li>
         </ol>
-        <span class="note-chip">Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Saldo Akhir: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
         <p class="howto-note">Setelah kamu isi, <b>rekonsiliasi</b> akan berjalan secara <b>otomatis</b>. Kamu bisa cek menu <b>Rekonsiliasi</b> di menu navigasi.</p>
       </section>
     </main>
