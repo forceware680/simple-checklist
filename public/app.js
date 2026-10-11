@@ -378,6 +378,7 @@ async function renderStatistik() {
           <h2>Rekap PP Pakai Habis Per OPD/Sub Unit</h2>
           <div class="sum-actions">
             <input id="opd-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari nama atau kode OPD">
+            <button id="refresh-stats" class="btn ghost" type="button">Refresh</button>
             <button id="fs-btn" class="btn ghost" type="button">Full Screen</button>
           </div>
         </div>
@@ -397,11 +398,23 @@ async function renderStatistik() {
       tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
     });
   });
+  document.getElementById('refresh-stats').addEventListener('click', async () => {
+    const btn = document.getElementById('refresh-stats');
+    btn.disabled = true; btn.textContent = 'Memuat…';
+    await loadStatistik();
+    btn.disabled = false; btn.textContent = 'Refresh';
+  });
+  loadStatistik();
+}
+
+async function loadStatistik() {
+  const el = document.getElementById('summary');
+  el.innerHTML = loadingBlock('Memuat rekap…');
   try {
     const sum = await api('/api/statistik');
     renderSummary(sum);
   } catch (err) {
-    document.getElementById('summary').innerHTML = `<div class="error-state">Gagal memuat: ${esc(err.message)}</div>`;
+    el.innerHTML = `<div class="error-state">Gagal memuat: ${esc(err.message)}</div>`;
   }
 }
 
@@ -494,6 +507,7 @@ function renderRekapTable(isAdmin) {
         <div class="sum-actions">
           <input id="rekap-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
           ${isAdmin ? '<button id="rekap-pullall" class="btn ghost" type="button">Tarik Semua ke Temp</button>' : ''}
+          <button id="rekap-refresh" class="btn ghost" type="button">Refresh</button>
           <button id="rekap-fs" class="btn ghost" type="button">Full Screen</button>
         </div>
       </div>
@@ -503,6 +517,12 @@ function renderRekapTable(isAdmin) {
   wrap.querySelector('#rekap-fs').addEventListener('click', () => {
     const on = app.classList.toggle('full');
     wrap.querySelector('#rekap-fs').textContent = on ? 'Keluar Full Screen' : 'Full Screen';
+  });
+  wrap.querySelector('#rekap-refresh').addEventListener('click', async () => {
+    const btn = wrap.querySelector('#rekap-refresh');
+    btn.disabled = true; btn.textContent = 'Memuat…';
+    await loadRekap(2026);
+    btn.disabled = false; btn.textContent = 'Refresh';
   });
   const pullAllBtn = wrap.querySelector('#rekap-pullall');
   if (pullAllBtn) pullAllBtn.addEventListener('click', rekapPullAll);
@@ -675,6 +695,7 @@ async function renderRekonsiliasi() {
           <h2>Rekonsiliasi <span class="rekap-tag">SIMASET vs Laporan Manual</span></h2>
           <div class="sum-actions">
             <input id="rek-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
+            <button id="rek-refresh" class="btn ghost" type="button">Refresh</button>
           </div>
         </div>
         <p class="rekap-note">Klik ikon <span class="rek-exp rek-exp-static" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span> untuk melihat rincian rekonsiliasi perbulan.</p>
@@ -687,6 +708,12 @@ async function renderRekonsiliasi() {
     document.querySelectorAll('#rek-tbody tr[data-search]').forEach(tr => {
       tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
     });
+  });
+  document.getElementById('rek-refresh').addEventListener('click', async () => {
+    const btn = document.getElementById('rek-refresh');
+    btn.disabled = true; btn.textContent = 'Memuat…';
+    await loadRekonsiliasi();
+    btn.disabled = false; btn.textContent = 'Refresh';
   });
   loadRekonsiliasi();
 }
