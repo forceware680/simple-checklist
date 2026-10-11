@@ -705,6 +705,12 @@ async function renderRekonsiliasi() {
           <h2>Rekonsiliasi <span class="rekap-tag">SIMASET vs Laporan Manual</span></h2>
           <div class="sum-actions">
             <input id="rek-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
+            <select id="rek-status-filter" class="filter" aria-label="Filter status">
+              <option value="all">Semua Status</option>
+              <option value="cocok">Cocok</option>
+              <option value="beda">Beda</option>
+              <option value="perlu">Perlu dikonfirmasi</option>
+            </select>
             <button id="rek-refresh" class="btn ghost icon-btn" type="button" title="Refresh" aria-label="Refresh">${ICON_REFRESH}</button>
           </div>
         </div>
@@ -713,12 +719,19 @@ async function renderRekonsiliasi() {
       </section>
     </main>
     ${footer()}`;
-  document.getElementById('rek-search').addEventListener('input', e => {
-    const q = e.target.value.trim().toLowerCase();
+  const rekSearch = document.getElementById('rek-search');
+  const rekFilter = document.getElementById('rek-status-filter');
+  function applyRekFilters() {
+    const q = rekSearch.value.trim().toLowerCase();
+    const st = rekFilter.value;
     document.querySelectorAll('#rek-tbody tr[data-search]').forEach(tr => {
-      tr.style.display = tr.dataset.search.includes(q) ? '' : 'none';
+      const okSearch = tr.dataset.search.includes(q);
+      const okStatus = st === 'all' || tr.dataset.status === st;
+      tr.style.display = (okSearch && okStatus) ? '' : 'none';
     });
-  });
+  }
+  rekSearch.addEventListener('input', applyRekFilters);
+  rekFilter.addEventListener('change', applyRekFilters);
   document.getElementById('rek-refresh').addEventListener('click', async () => {
     const btn = document.getElementById('rek-refresh');
     btn.disabled = true;
@@ -753,13 +766,16 @@ function renderRekonsiliasiRows(r) {
   const el = document.getElementById('rek-summary');
   const sumRows = r.data.map(d => {
     const hasData = hasRealData(d);
-    const status = hasData
-      ? (isCocok(d) ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
-      : '<span class="rek-st none">Perlu dikonfirmasi</span>';
+    const statusKey = hasData ? (isCocok(d) ? 'cocok' : 'beda') : 'perlu';
+    const status = statusKey === 'cocok'
+      ? '<span class="rek-st ok">Cocok</span>'
+      : statusKey === 'beda'
+        ? '<span class="rek-st bad">Beda</span>'
+        : '<span class="rek-st none">Perlu dikonfirmasi</span>';
     const chev = hasData
       ? `<a class="rek-exp" href="#/rekonsiliasi/${encodeURIComponent(d.code)}" aria-label="Lihat rincian ${esc(d.name)}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`
       : '';
-    return `<tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}">
+    return `<tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}" data-status="${statusKey}">
       <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}${chev}</span></td>
       <td class="n">${fmtID(d.sumber.saldo_awal)}</td>
       <td class="n">${fmtID(d.checklist.saldo_awal)}</td>
