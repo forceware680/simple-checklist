@@ -707,13 +707,19 @@ function isCocok(d) {
     d.sumber.months.every((v, i) => v === d.checklist.months[i]);
 }
 
+// Ada data nyata (bukan cuma row kosong / nol semua) di salah satu sisi
+function hasRealData(d) {
+  return d.sumber.saldo_awal !== 0 || d.sumber.months.some(v => v !== 0) ||
+         d.checklist.saldo_awal !== 0 || d.checklist.months.some(v => v !== 0);
+}
+
 function renderRekonsiliasiRows(r) {
   const el = document.getElementById('rek-summary');
   const sumRows = r.data.map(d => {
-    const hasData = d.has_sumber || d.has_checklist;
+    const hasData = hasRealData(d);
     const status = hasData
       ? (isCocok(d) ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
-      : '<span class="rek-st none">Kosong</span>';
+      : '<span class="rek-st none">Perlu dikonfirmasi</span>';
     const chev = hasData
       ? `<a class="rek-exp" href="#/rekonsiliasi/${encodeURIComponent(d.code)}" aria-label="Lihat rincian ${esc(d.name)}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`
       : '';
@@ -728,7 +734,7 @@ function renderRekonsiliasiRows(r) {
     </tr>`;
   }).join('');
 
-  const beda = r.data.filter(d => (d.has_sumber || d.has_checklist) && !isCocok(d));
+  const beda = r.data.filter(d => !(hasRealData(d) && isCocok(d)));
 
   el.innerHTML = `
     <div class="summary-stat"><b>${beda.length}</b> dari ${r.data.length} OPD belum cocok dengan SIMASET</div>
@@ -796,11 +802,11 @@ async function loadRekonsiliasiOpd(code) {
 function renderRekonsiliasiOpdRows(d) {
   const el = document.getElementById('rekopd-body');
   const t = document.getElementById('rekopd-title'); if (t) t.textContent = d.name;
-  const hasData = d.has_sumber || d.has_checklist;
+  const hasData = hasRealData(d);
   const selTotal = d.selisih.saldo_awal + d.selisih.total;
   const status = hasData
     ? (isCocok(d) ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>')
-    : '<span class="rek-st none">Kosong</span>';
+    : '<span class="rek-st none">Perlu dikonfirmasi</span>';
   el.innerHTML = `
     <section class="card">
       <div class="rek-d-status">
