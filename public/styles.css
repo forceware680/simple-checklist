@@ -114,6 +114,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .btn:disabled:hover{ transform:none; box-shadow:var(--shadow); }
 .btn.primary{ background:var(--yellow); }
 .btn.ghost{ background:var(--paper); }
+.btn.icon-btn{ padding:9px 10px; }
 
 /* ---------- How to ---------- */
 .howto{ margin-top:22px; }

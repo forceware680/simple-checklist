@@ -368,6 +368,10 @@ async function doSave() {
 /* ---------- STATISTIK ---------- */
 const MLBL = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
+const ICON_REFRESH = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>';
+const ICON_EXPAND = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>';
+const ICON_MINIMIZE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>';
+
 async function renderStatistik() {
   app.innerHTML = header('pp') + `
     <main class="wrap" id="stats-wrap">
@@ -378,8 +382,8 @@ async function renderStatistik() {
           <h2>Rekap PP Pakai Habis Per OPD/Sub Unit</h2>
           <div class="sum-actions">
             <input id="opd-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari nama atau kode OPD">
-            <button id="refresh-stats" class="btn ghost" type="button">Refresh</button>
-            <button id="fs-btn" class="btn ghost" type="button">Full Screen</button>
+            <button id="refresh-stats" class="btn ghost icon-btn" type="button" title="Refresh" aria-label="Refresh">${ICON_REFRESH}</button>
+            <button id="fs-btn" class="btn ghost icon-btn" type="button" title="Full Screen" aria-label="Full Screen">${ICON_EXPAND}</button>
           </div>
         </div>
         <div id="summary">${loadingBlock('Memuat rekap…')}</div>
@@ -387,9 +391,12 @@ async function renderStatistik() {
     </main>
     ${footer()}`;
   const wrap = document.getElementById('stats-wrap');
-  document.getElementById('fs-btn').addEventListener('click', () => {
+  const fsBtn = document.getElementById('fs-btn');
+  fsBtn.addEventListener('click', () => {
     const on = app.classList.toggle('full');
-    document.getElementById('fs-btn').textContent = on ? 'Keluar Full Screen' : 'Full Screen';
+    fsBtn.innerHTML = on ? ICON_MINIMIZE : ICON_EXPAND;
+    fsBtn.title = on ? 'Keluar Full Screen' : 'Full Screen';
+    fsBtn.setAttribute('aria-label', on ? 'Keluar Full Screen' : 'Full Screen');
   });
   const searchInput = document.getElementById('opd-search');
   searchInput.addEventListener('input', () => {
@@ -400,9 +407,9 @@ async function renderStatistik() {
   });
   document.getElementById('refresh-stats').addEventListener('click', async () => {
     const btn = document.getElementById('refresh-stats');
-    btn.disabled = true; btn.textContent = 'Memuat…';
+    btn.disabled = true;
     await loadStatistik();
-    btn.disabled = false; btn.textContent = 'Refresh';
+    btn.disabled = false;
   });
   loadStatistik();
 }
@@ -507,22 +514,25 @@ function renderRekapTable(isAdmin) {
         <div class="sum-actions">
           <input id="rekap-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
           ${isAdmin ? '<button id="rekap-pullall" class="btn ghost" type="button">Tarik Semua ke Temp</button>' : ''}
-          <button id="rekap-refresh" class="btn ghost" type="button">Refresh</button>
-          <button id="rekap-fs" class="btn ghost" type="button">Full Screen</button>
+          <button id="rekap-refresh" class="btn ghost icon-btn" type="button" title="Refresh" aria-label="Refresh">${ICON_REFRESH}</button>
+          <button id="rekap-fs" class="btn ghost icon-btn" type="button" title="Full Screen" aria-label="Full Screen">${ICON_EXPAND}</button>
         </div>
       </div>
       <p class="rekap-note">Jika kamu melakukan perubahan di <b>SIMASET</b>, silakan klik tombol <b>Update Data</b> untuk melihat rekap dengan data Up To Date.</p>
       <div id="rekap-summary">${loadingBlock('Memuat…')}</div>
     </section>`;
-  wrap.querySelector('#rekap-fs').addEventListener('click', () => {
+  const rekapFs = wrap.querySelector('#rekap-fs');
+  rekapFs.addEventListener('click', () => {
     const on = app.classList.toggle('full');
-    wrap.querySelector('#rekap-fs').textContent = on ? 'Keluar Full Screen' : 'Full Screen';
+    rekapFs.innerHTML = on ? ICON_MINIMIZE : ICON_EXPAND;
+    rekapFs.title = on ? 'Keluar Full Screen' : 'Full Screen';
+    rekapFs.setAttribute('aria-label', on ? 'Keluar Full Screen' : 'Full Screen');
   });
   wrap.querySelector('#rekap-refresh').addEventListener('click', async () => {
     const btn = wrap.querySelector('#rekap-refresh');
-    btn.disabled = true; btn.textContent = 'Memuat…';
+    btn.disabled = true;
     await loadRekap(2026);
-    btn.disabled = false; btn.textContent = 'Refresh';
+    btn.disabled = false;
   });
   const pullAllBtn = wrap.querySelector('#rekap-pullall');
   if (pullAllBtn) pullAllBtn.addEventListener('click', rekapPullAll);
@@ -695,7 +705,7 @@ async function renderRekonsiliasi() {
           <h2>Rekonsiliasi <span class="rekap-tag">SIMASET vs Laporan Manual</span></h2>
           <div class="sum-actions">
             <input id="rek-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
-            <button id="rek-refresh" class="btn ghost" type="button">Refresh</button>
+            <button id="rek-refresh" class="btn ghost icon-btn" type="button" title="Refresh" aria-label="Refresh">${ICON_REFRESH}</button>
           </div>
         </div>
         <p class="rekap-note">Klik ikon <span class="rek-exp rek-exp-static" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span> untuk melihat rincian rekonsiliasi perbulan.</p>
@@ -711,9 +721,9 @@ async function renderRekonsiliasi() {
   });
   document.getElementById('rek-refresh').addEventListener('click', async () => {
     const btn = document.getElementById('rek-refresh');
-    btn.disabled = true; btn.textContent = 'Memuat…';
+    btn.disabled = true;
     await loadRekonsiliasi();
-    btn.disabled = false; btn.textContent = 'Refresh';
+    btn.disabled = false;
   });
   loadRekonsiliasi();
 }
