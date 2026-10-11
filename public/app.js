@@ -103,18 +103,18 @@ async function renderLanding() {
         <p class="howto-lead">Angka yang kamu isi berdasarkan <span class="src">Laporan Manual</span> OPD kamu.</p>
         <ol class="steps">
           <li>Ketik <b>nama / kode OPD</b> kamu, lalu pilih dari daftar.</li>
-          <li>Isi <b>Saldo Awal 2026</b>, stok di awal tahun (dasar Saldo Akhir Semester 1).</li>
-          <li>Isi <b>total penerimaan</b> tiap bulan (Jan–Des), satu angka <b>total</b> per bulan, <b>bukan per barang</b>.</li>
-          <li>Isi <b>total pengeluaran</b> tiap semester (S1 &amp; S2), juga <b>total</b>, bukan per barang.</li>
-          <li><b>Saldo Awal Juli</b>, total, dan <b>Saldo Akhir</b> terhitung otomatis, nggak perlu diketik.</li>
+          <li>Isi <b>Saldo Awal 2026</b>.</li>
+          <li>Isi <b>total penerimaan</b> tiap bulan (Jan–Des).</li>
+          <li>Isi <b>total pengeluaran</b> tiap semester (S1 &amp; S2).</li>
+          <li><b>Saldo Awal Juli</b> dan <b>Saldo Akhir</b> terhitung otomatis, nggak perlu diketik.</li>
           <li>Klik <b>Simpan</b>. Mau keluar sebelum simpan? Akan ada peringatan dulu.</li>
           <li>Setelah kamu <b>simpan</b>, kamu bisa cek hasil yang telah di input di menu navigasi <b>Laporan Manual</b>.</li>
+          <li>Kolom terakhir (<b>Saldo Akhir SIMASET 2026</b>) akan di isi admin setelah pengeluaran dilakukan dalam 1 tahun.</li>
           <li>Untuk melihat <b>rekap data SIMASET persediaan per bulan</b>, buka/klik <b>SIMASET</b> di menu navigasi.</li>
           <li>Untuk melihat <b>rekonsiliasi data Laporan Manual vs SIMASET</b>, buka/klik <b>Rekonsiliasi</b> di menu navigasi.</li>
           <li>Jika menemukan <b>selisih</b>, segera <b>tindak lanjuti</b>.</li>
         </ol>
-        <span class="note-chip">Total per OPD (bukan per barang) &nbsp;·&nbsp; Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Saldo Akhir: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
-        <p class="howto-note">Setelah kamu isi, <b>rekonsiliasi</b> akan berjalan secara <b>otomatis</b>. Kamu bisa cek menu <b>Rekonsiliasi</b> di menu navigasi.</p>
+        <span class="note-chip">Penerimaan: 12 bulan &nbsp;·&nbsp; Pengeluaran: 2 semester &nbsp;·&nbsp; Saldo Awal Juli &amp; Saldo Akhir: otomatis &nbsp;·&nbsp; Max 2 desimal</span>
       </section>
     </main>
     ${footer()}`;
