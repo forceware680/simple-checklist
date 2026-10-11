@@ -740,8 +740,11 @@ async function renderRekonsiliasi() {
   rekSearch.value = rekState.search;
   rekSearch.addEventListener('input', () => { rekState.search = rekSearch.value; applyRekFilters(); });
   rekFilter.addEventListener('change', () => { rekState.filter = rekFilter.value; applyRekFilters(); });
-  const rekWrap = document.querySelector('.sum-table.rek');
-  if (rekWrap) rekWrap.addEventListener('scroll', () => { rekState.tableScroll = rekWrap.scrollTop; }, { passive: true });
+  // .sum-table.rek baru ada SETELAH loadRekonsiliasi() me-render tabel
+  function attachRekScrollCapture() {
+    const wrap = document.querySelector('.sum-table.rek');
+    if (wrap) wrap.addEventListener('scroll', () => { rekState.tableScroll = wrap.scrollTop; }, { passive: true });
+  }
   document.getElementById('rek-refresh').addEventListener('click', async () => {
     const btn = document.getElementById('rek-refresh');
     btn.disabled = true;
@@ -749,10 +752,13 @@ async function renderRekonsiliasi() {
     rekState.filter = 'all';
     await loadRekonsiliasi();
     applyRekFilters();
+    attachRekScrollCapture();
     btn.disabled = false;
   });
   await loadRekonsiliasi();
   applyRekFilters();
+  attachRekScrollCapture();
+  const rekWrap = document.querySelector('.sum-table.rek');
   if (rekWrap) rekWrap.scrollTop = rekState.tableScroll;
   requestAnimationFrame(() => window.scrollTo(0, rekState.pageScroll));
 }
