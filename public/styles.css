@@ -312,8 +312,9 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .login-btn{ width:100%; font-size:16px; padding:14px; margin-top:4px; }
 .login-form .save-msg{ text-align:center; }
 .admin-card{ padding:18px; }
-.admin-table{ overflow-x:auto; border:2px solid var(--ink); border-radius:8px; }
+.admin-table{ overflow:auto; max-height:82vh; border:2px solid var(--ink); border-radius:8px; }
 .admin-table table{ width:100%; border-collapse:separate; border-spacing:0; min-width:640px; font-size:13px; }
+.admin-table thead{ position:sticky; top:0; z-index:4; }
 .admin-table th, .admin-table td{ padding:10px 12px; text-align:left; border-bottom:1.5px solid rgba(23,21,18,.12); }
 .admin-table thead th{ background:var(--ink); color:#fff; font-family:var(--font-display); font-size:11px; white-space:nowrap; }
 .admin-table .n{ text-align:right; font-variant-numeric:tabular-nums; }
@@ -332,6 +333,8 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .admin .loading-row td{ text-align:center; padding:28px; color:var(--muted); }
 .admin .selisih.zero{ color:var(--green); font-weight:800; }
 .admin .selisih.neg{ color:var(--red); font-weight:800; }
+.admin-table thead th.opd-col{ position:sticky; left:0; z-index:5; }
+.admin-table td.opd-col{ position:sticky; left:0; z-index:2; background:var(--paper); border-right:2px solid var(--ink); }
 .sum-table .opd-name{ display:block; font-weight:700; font-size:13px; line-height:1.25; }
 .sum-table tbody tr:hover td{ background:#fbf7ec; }
 .sum-table tbody tr:hover td.tot-in{ background:#fff3c4; }
@@ -371,4 +374,15 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
   .tip-bubble{ width:200px; right:0; }
   .rek-d-body{ overflow-x:auto; }
   .rek-table{ min-width:440px; }
+  .admin-head{ flex-direction:column; align-items:stretch; }
+  .admin-tools{ flex-wrap:wrap; }
+  .admin .search{ flex:1; min-width:0; }
+  .admin-actions{ flex-direction:column; align-items:stretch; }
+  .admin-actions .btn{ width:100%; }
+  .admin-card{ padding:12px; }
+  .admin-auth{ padding:24px 16px; }
+  .admin-table{ max-height:70vh; }
+  .admin-table .opd-col{ min-width:150px; max-width:190px; }
+  .admin-inp{ padding:13px 10px; }
+  .admin-save-btn{ padding:13px 12px; min-width:96px; }
 }
