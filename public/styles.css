@@ -248,7 +248,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .rekap-pull-btn{ margin-top:6px; padding:3px 12px; font-size:12px; }
 
 /* Rekonsiliasi: tabel sumber vs checklist */
-.sum-table.rek table{ min-width:880px; }
+.sum-table.rek table{ min-width:940px; }
 .sum-table.rek .th-sub{ display:block; font-size:10px; font-weight:600; color:var(--muted); }
 .sum-table.rek td.st{ white-space:nowrap; }
 .rek-st{ display:inline-block; padding:2px 9px; font-size:12px; font-weight:800; border:2px solid var(--ink); border-radius:6px; }

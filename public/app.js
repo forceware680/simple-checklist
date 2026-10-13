@@ -12,7 +12,7 @@ const S1_MONTHS = new Set(['jan','feb','mar','apr','may','jun']);
 let OPDS = [];
 let clCode = null, clDirty = false, clSaving = false;
 // State page Rekonsiliasi yang dipertahankan saat navigate ke rincian lalu kembali
-let rekState = { filter: 'all', search: '', tableScroll: 0, pageScroll: 0 };
+let rekState = { filterS1: 'all', filterS2: 'all', search: '', tableScroll: 0, pageScroll: 0 };
 let rekActive = false;
 // State page SIMASET (#/rekap) yang dipertahankan saat navigate ke rincian lalu kembali
 let rekapState = { search: '', tableScroll: 0, pageScroll: 0 };
@@ -731,11 +731,17 @@ async function renderRekonsiliasi() {
           <h2>Rekonsiliasi <span class="rekap-tag">SIMASET vs Laporan Manual</span></h2>
           <div class="sum-actions">
             <input id="rek-search" class="search" type="search" placeholder="Cari nama / kode OPD…" aria-label="Cari OPD">
-            <select id="rek-status-filter" class="filter" aria-label="Filter status">
-              <option value="all">Semua Status</option>
-              <option value="cocok">Cocok</option>
-              <option value="beda">Beda</option>
-              <option value="perlu">Perlu dikonfirmasi</option>
+            <select id="rek-filter-s1" class="filter" aria-label="Filter status S1">
+              <option value="all">S1: Semua</option>
+              <option value="pk">S1: PK</option>
+              <option value="cocok">S1: Cocok</option>
+              <option value="beda">S1: Beda</option>
+            </select>
+            <select id="rek-filter-s2" class="filter" aria-label="Filter status S2">
+              <option value="all">S2: Semua</option>
+              <option value="pk">S2: PK</option>
+              <option value="cocok">S2: Cocok</option>
+              <option value="beda">S2: Beda</option>
             </select>
             <button id="rek-refresh" class="btn ghost icon-btn" type="button" title="Refresh" aria-label="Refresh">${ICON_REFRESH}</button>
           </div>
@@ -746,21 +752,26 @@ async function renderRekonsiliasi() {
     </main>
     ${footer()}`;
   const rekSearch = document.getElementById('rek-search');
-  const rekFilter = document.getElementById('rek-status-filter');
+  const rekFilterS1 = document.getElementById('rek-filter-s1');
+  const rekFilterS2 = document.getElementById('rek-filter-s2');
   function applyRekFilters() {
     const q = rekSearch.value.trim().toLowerCase();
-    const st = rekFilter.value;
+    const f1 = rekFilterS1.value;
+    const f2 = rekFilterS2.value;
     document.querySelectorAll('#rek-tbody tr[data-search]').forEach(tr => {
       const okSearch = tr.dataset.search.includes(q);
-      const okStatus = st === 'all' || tr.dataset.status === st;
-      tr.style.display = (okSearch && okStatus) ? '' : 'none';
+      const okS1 = f1 === 'all' || tr.dataset.statusS1 === f1;
+      const okS2 = f2 === 'all' || tr.dataset.statusS2 === f2;
+      tr.style.display = (okSearch && okS1 && okS2) ? '' : 'none';
     });
   }
   // Pulihkan filter + search dari state sebelum navigate
-  rekFilter.value = rekState.filter;
+  rekFilterS1.value = rekState.filterS1 || 'all';
+  rekFilterS2.value = rekState.filterS2 || 'all';
   rekSearch.value = rekState.search;
   rekSearch.addEventListener('input', () => { rekState.search = rekSearch.value; applyRekFilters(); });
-  rekFilter.addEventListener('change', () => { rekState.filter = rekFilter.value; applyRekFilters(); });
+  rekFilterS1.addEventListener('change', () => { rekState.filterS1 = rekFilterS1.value; applyRekFilters(); });
+  rekFilterS2.addEventListener('change', () => { rekState.filterS2 = rekFilterS2.value; applyRekFilters(); });
   // .sum-table.rek baru ada SETELAH loadRekonsiliasi() me-render tabel
   function attachRekScrollCapture() {
     const wrap = document.querySelector('.sum-table.rek');
@@ -769,8 +780,10 @@ async function renderRekonsiliasi() {
   document.getElementById('rek-refresh').addEventListener('click', async () => {
     const btn = document.getElementById('rek-refresh');
     btn.disabled = true;
-    rekFilter.value = 'all';
-    rekState.filter = 'all';
+    rekFilterS1.value = 'all';
+    rekFilterS2.value = 'all';
+    rekState.filterS1 = 'all';
+    rekState.filterS2 = 'all';
     await loadRekonsiliasi();
     applyRekFilters();
     attachRekScrollCapture();
@@ -794,9 +807,30 @@ async function loadRekonsiliasi() {
   }
 }
 
-function isCocok(d) {
+function isCocokS1(d) {
   return d.sumber.saldo_awal === d.checklist.saldo_awal &&
-    d.sumber.months.every((v, i) => v === d.checklist.months[i]);
+    d.sumber.months.slice(0, 6).every((v, i) => v === d.checklist.months[i]);
+}
+function isCocokS2(d) {
+  return d.sumber.months.slice(6, 12).every((v, i) => v === d.checklist.months[i + 6]);
+}
+function isCocok(d) {
+  return isCocokS1(d) && isCocokS2(d);
+}
+// Ada data nyata di semester (bukan nol semua di kedua sisi)
+function s1HasData(d) {
+  return d.sumber.saldo_awal !== 0 || d.checklist.saldo_awal !== 0 ||
+    d.sumber.months.slice(0, 6).some(v => v !== 0) || d.checklist.months.slice(0, 6).some(v => v !== 0);
+}
+function s2HasData(d) {
+  return d.sumber.months.slice(6, 12).some(v => v !== 0) || d.checklist.months.slice(6, 12).some(v => v !== 0);
+}
+// Status per semester: 'pk' (belum ada data) | 'cocok' | 'beda'
+function s1Status(d) {
+  return !s1HasData(d) ? 'pk' : (isCocokS1(d) ? 'cocok' : 'beda');
+}
+function s2Status(d) {
+  return !s2HasData(d) ? 'pk' : (isCocokS2(d) ? 'cocok' : 'beda');
 }
 
 // Ada data nyata (bukan cuma row kosong / nol semua) di salah satu sisi
@@ -809,27 +843,28 @@ function renderRekonsiliasiRows(r) {
   const el = document.getElementById('rek-summary');
   const sumRows = r.data.map(d => {
     const hasData = hasRealData(d);
-    const statusKey = hasData ? (isCocok(d) ? 'cocok' : 'beda') : 'perlu';
-    const status = statusKey === 'cocok'
-      ? '<span class="rek-st ok">Cocok</span>'
-      : statusKey === 'beda'
-        ? '<span class="rek-st bad">Beda</span>'
-        : '<span class="rek-st none">Perlu dikonfirmasi</span>';
+    const s1 = s1Status(d);
+    const s2 = s2Status(d);
+    const statusKey = (s1 === 'pk' && s2 === 'pk') ? 'perlu' : (s1 === 'cocok' && s2 === 'cocok') ? 'cocok' : 'beda';
+    const stCell = st => st === 'pk'
+      ? '<span class="rek-st none">PK</span>'
+      : st === 'cocok' ? '<span class="rek-st ok">Cocok</span>' : '<span class="rek-st bad">Beda</span>';
     const chev = hasData
       ? `<a class="rek-exp" href="#/rekonsiliasi/${encodeURIComponent(d.code)}" aria-label="Lihat rincian ${esc(d.name)}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`
       : '';
-    return `<tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}" data-status="${statusKey}">
+    return `<tr data-search="${esc((d.name + ' ' + d.code).toLowerCase())}" data-status="${statusKey}" data-status-s1="${s1}" data-status-s2="${s2}">
       <td class="stick"><span class="opd-name">${esc(d.name)}</span><span class="sum-code">${esc(d.code)}${chev}</span></td>
       <td class="n">${fmtID(d.sumber.saldo_awal)}</td>
       <td class="n">${fmtID(d.checklist.saldo_awal)}</td>
       <td class="n">${fmtID(d.sumber.total)}</td>
       <td class="n">${fmtID(d.checklist.total)}</td>
       <td class="n strong ${(d.selisih.saldo_awal + d.selisih.total) !== 0 ? 'neg' : ''}">${fmtID(d.selisih.saldo_awal + d.selisih.total)}</td>
-      <td class="st">${status}</td>
+      <td class="st">${stCell(s1)}</td>
+      <td class="st">${stCell(s2)}</td>
     </tr>`;
   }).join('');
 
-  const beda = r.data.filter(d => !(hasRealData(d) && isCocok(d)));
+  const beda = r.data.filter(d => !(s1Status(d) === 'cocok' && s2Status(d) === 'cocok'));
 
   el.innerHTML = `
     <div class="summary-stat"><b>${beda.length}</b> dari ${r.data.length} OPD belum cocok dengan SIMASET</div>
@@ -842,7 +877,8 @@ function renderRekonsiliasiRows(r) {
           <th class="n">Penerimaan <span class="th-sub">SIMASET</span></th>
           <th class="n">Penerimaan <span class="th-sub">Laporan Manual</span></th>
           <th class="n strong">Selisih</th>
-          <th>Status</th>
+          <th class="st">Status <span class="th-sub">S1 · Jan–Jun</span></th>
+          <th class="st">Status <span class="th-sub">S2 · Jul–Des</span></th>
         </tr></thead>
         <tbody id="rek-tbody">${sumRows}</tbody>
       </table>
