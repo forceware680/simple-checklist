@@ -78,6 +78,7 @@ function render() {
   app.classList.remove('full');
   rekActive = false;
   rekapActive = false;
+  if (!hash.startsWith('#/opd/')) setDirty(false); // keluar form → bersihkan state dirty (pengingat cuma 1x)
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
   else if (hash === '#/pp-pakai-habis') renderStatistik();
   else if (hash.startsWith('#/rekap/')) renderRekapOpd(decodeURIComponent(hash.slice(8)));
