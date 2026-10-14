@@ -204,6 +204,13 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .sum-head .filter{ font-family:var(--font-body); font-size:14px; font-weight:600; padding:9px 12px; border:2px solid var(--ink); border-radius:7px; background:var(--paper); color:var(--ink); cursor:pointer; }
 .sum-head .filter:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
 .summary-stat b{ font-family:var(--font-display); font-size:20px; color:var(--pink-deep); }
+.running{ overflow:hidden; white-space:nowrap; border:var(--border) solid var(--ink); border-radius:var(--radius); background:var(--paper); box-shadow:var(--shadow); margin-bottom:16px; padding:9px 0; }
+.running-track{ display:inline-block; animation:rekrun 26s linear infinite; font-family:var(--font-display); font-size:15px; color:var(--ink); letter-spacing:.2px; }
+.running-track span{ padding-right:28px; }
+.running-track .st-c{ color:var(--green); }
+.running-track .st-b{ color:var(--red); }
+.running-track .st-p{ color:var(--muted); }
+@keyframes rekrun{ from{ transform:translateX(0); } to{ transform:translateX(-16.6667%); } }
 .sum-table{ overflow:auto; max-height:82vh; border:2px solid var(--ink); border-radius:8px; }
 .sum-table table{ border-collapse:separate; border-spacing:0; width:100%; min-width:1720px; font-size:12px; }
 .sum-table th, .sum-table td{ padding:8px 10px; text-align:left; border-bottom:1.5px solid rgba(23,21,18,.12); }

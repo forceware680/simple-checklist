@@ -724,6 +724,7 @@ async function renderRekonsiliasi() {
   rekActive = true;
   app.innerHTML = header('rekonsiliasi') + `
     <main class="wrap">
+      <div class="running" id="rek-running"></div>
       <h1 class="page-title">Rekonsiliasi</h1>
       <p class="page-sub">Perbandingan Data antara yang di input di <b>SIMASET</b> dengan <b>Laporan Manual</b> (PP Pakai Habis) Pengurus Barang.</p>
       <section class="card admin-summary">
@@ -865,9 +866,14 @@ function renderRekonsiliasiRows(r) {
   }).join('');
 
   const beda = r.data.filter(d => !(s1Status(d) === 'cocok' && s2Status(d) === 'cocok'));
+  const s1c = r.data.filter(d => s1Status(d) === 'cocok').length;
+  const s1b = r.data.filter(d => s1Status(d) === 'beda').length;
+  const s1p = r.data.filter(d => s1Status(d) === 'pk').length;
+  const s2c = r.data.filter(d => s2Status(d) === 'cocok').length;
+  const s2b = r.data.filter(d => s2Status(d) === 'beda').length;
+  const s2p = r.data.filter(d => s2Status(d) === 'pk').length;
 
   el.innerHTML = `
-    <div class="summary-stat"><b>${beda.length}</b> dari ${r.data.length} OPD belum cocok dengan SIMASET</div>
     <div class="sum-table rek">
       <table>
         <thead><tr>
@@ -884,6 +890,13 @@ function renderRekonsiliasiRows(r) {
       </table>
     </div>
     ${beda.length ? '' : '<p class="rekap-note">Semua OPD sudah cocok dengan SIMASET.</p>'}`;
+  // running text ringkasan per-semester di atas header
+  const run = document.getElementById('rek-running');
+  if (run) {
+    const txt = `S1 (Jan–Jun): <b class="st-c">${s1c}</b> Cocok · <b class="st-b">${s1b}</b> Beda · <b class="st-p">${s1p}</b> PK &nbsp;•&nbsp; S2 (Jul–Des): <b class="st-c">${s2c}</b> Cocok · <b class="st-b">${s2b}</b> Beda · <b class="st-p">${s2p}</b> PK &nbsp;•&nbsp; `;
+    const copy = `<span>${txt}</span>`;
+    run.innerHTML = `<div class="running-track">${copy.repeat(6)}</div>`;
+  }
 }
 
 function buildRekDetail(d) {
