@@ -56,7 +56,9 @@ function footer() {
 function header(active) {
   return `<header class="topbar">
     <a class="brand" href="#/">
-      <span class="brand-mark">P26</span>
+      <span class="brand-mark">
+        <svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bidang Aset"><rect width="128" height="128" rx="24" fill="#111111"/><rect x="22" y="62" width="26" height="40" rx="5" fill="#FFD23F"/><rect x="54" y="40" width="26" height="62" rx="5" fill="#FFD23F"/><rect x="86" y="16" width="26" height="86" rx="5" fill="#E23A82"/></svg>
+      </span>
       <span class="brand-name">Rekonsiliasi Persediaan <b>2026</b></span>
     </a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="topnav" aria-label="Buka menu navigasi">
