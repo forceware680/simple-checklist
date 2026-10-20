@@ -274,11 +274,11 @@ function buildForm(entry) {
     </div>
 
     <div class="ringkasan">
-      <div class="rk in"><span>Total Penerimaan</span><b class="rk-in">0</b></div>
-      <div class="rk out"><span>Total Pengeluaran</span><b class="rk-out">0</b></div>
-      <div class="rk stock"><span>Saldo Akhir S1</span><b class="rk-stock1">0</b></div>
-      <div class="rk stock"><span>Saldo Akhir S2</span><b class="rk-stock2">0</b></div>
-      <div class="rk stock"><span>Saldo Akhir Tahunan</span><b class="rk-stocky">0</b></div>
+      <div class="rk in"><span title="Total nilai masuk sudah termasuk Saldo Awal 2026.">Total Nilai Masuk</span><b class="rk-in">0</b></div>
+      <div class="rk out"><span title="Pengeluaran sudah termasuk dengan saldo awal.">Total Pengeluaran</span><b class="rk-out">0</b></div>
+      <div class="rk stock"><span title="Saldo Awal + Penerimaan (Jan–Jun) − Pengeluaran S1.">Saldo Akhir S1</span><b class="rk-stock1">0</b></div>
+      <div class="rk stock"><span title="Saldo Awal Juli + Penerimaan (Jul–Des) − Pengeluaran S2.">Saldo Akhir S2</span><b class="rk-stock2">0</b></div>
+      <div class="rk stock"><span title="Total Nilai Masuk − Total Pengeluaran.">Saldo Akhir Tahunan</span><b class="rk-stocky">0</b></div>
     </div>
 
     <div class="savebar">
@@ -308,7 +308,7 @@ function paintTotals() {
   if (salJuliEl) salJuliEl.value = fmtID(saldoJuli); // isi otomatis
   const set = (cls, val) => { const el = document.querySelector('.' + cls); if (el) el.textContent = fmtID(val); };
   set('tot-in', inT); set('tot-out', outT);
-  set('rk-in', inT); set('rk-out', outT);
+  set('rk-in', inT + saldoAwal); set('rk-out', outT); // Total Penerimaan = Subtotal penerimaan + Saldo Awal 2026
   set('rk-stock1', stock1); set('rk-stock2', stock2); set('rk-stocky', stockYear);
   document.querySelector('.rk-stock1')?.classList.toggle('neg', stock1 < 0);
   document.querySelector('.rk-stock2')?.classList.toggle('neg', stock2 < 0);

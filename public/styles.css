@@ -167,7 +167,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 /* ---------- Ringkasan ---------- */
 .ringkasan{ margin-top:22px; display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:16px; }
 .rk{ display:flex; flex-direction:column; gap:4px; min-width:0; border:var(--border) solid var(--ink); border-radius:var(--radius-sm); padding:14px 16px; background:#fff; box-shadow:var(--shadow-sm); }
-.rk span{ font-family:var(--font-display); font-size:12px; letter-spacing:.02em; color:var(--muted); }
+.rk span{ font-family:var(--font-display); font-size:12px; letter-spacing:.02em; color:var(--muted); cursor:help; }
 .rk b{ font-family:var(--font-display); font-size:clamp(18px,2.4vw,26px); white-space:nowrap; font-variant-numeric:tabular-nums; }
 .rk.in{ background:var(--yellow-soft); box-shadow:none; border-width:2px; }
 .rk.out{ background:var(--pink-soft); box-shadow:none; border-width:2px; }
