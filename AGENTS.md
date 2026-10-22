@@ -131,7 +131,7 @@ Color semantics: yellow = penerimaan, pink = pengeluaran, blue = focus, blue-dee
 
 ## Deployment
 
-- Docker: single-stage `node:22-alpine`, `npm ci --omit=dev`, runs as `node`, `CMD ["node","server.js"]`, `EXPOSE 3000`.
+- Docker: single-stage `node:22.23.4-alpine` (pinned; Node.js security release 21 Oct 2026 fixes 22.x), `npm ci --omit=dev`, runs as `node`, `CMD ["node","server.js"]`, `EXPOSE 3000`.
 - On **Coolify**: add a Dockerfile-type app pointing at this repo; set env vars in the dashboard (NOT via a `.env` file): `DATABASE_URL`, `PORT=3000`, `ADMIN_USER`, `ADMIN_PASS`, `ADMIN_SECRET`.
 - **`ADMIN_SECRET` must be set** — if empty, the HMAC key is empty and admin tokens are forgeable.
 - `.env` is gitignored and never committed.
