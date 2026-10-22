@@ -102,6 +102,8 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .opd-list{ position:absolute; top:100%; left:0; right:0; margin-top:6px; background:var(--paper); border:var(--border) solid var(--ink); border-radius:var(--radius-sm); box-shadow:var(--shadow); max-height:280px; overflow:auto; z-index:30; padding:6px; list-style:none; }
 .opd-list[hidden]{ display:none; }
 .opd-list li[role=option]{ display:flex; flex-direction:column; gap:2px; padding:10px 11px; border-radius:6px; cursor:pointer; }
+.opd-list.ac-enter{ animation:acIn .16s cubic-bezier(.16,1,.3,1); }
+@keyframes acIn{ from{ opacity:0; transform:translateY(-6px); } to{ opacity:1; transform:none; } }
 .opd-list li[role=option]:hover, .opd-list li[role=option].active{ background:var(--yellow-soft); }
 .opd-ac-name{ font-family:var(--font-body); font-weight:700; font-size:15px; }
 .opd-ac-code{ font-family:var(--font-body); font-weight:600; font-size:11px; color:var(--muted); }
@@ -118,11 +120,44 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .btn.icon-btn{ padding:9px 10px; }
 
 /* ---------- How to ---------- */
+/* ---------- Progres pengisian (beranda) ---------- */
+/* 1 kotak = 1 OPD: meter memetakan model data app (satu baris per OPD), bukan bar kontinu generik. */
+.prog{ margin-top:22px; }
+.prog h2{ font-size:20px; margin-bottom:10px; }
+.prog-sub{ margin:0; font-size:15px; font-weight:600; color:#433f37; max-width:56ch; }
+.prog-sub b{ font-weight:800; }
+.prog-body{ margin-top:16px; }
+.prog-state{ display:flex; align-items:center; gap:10px; font-weight:700; color:var(--muted); }
+.prog-state.err{ color:var(--red); }
+.prog-retry{ margin-top:12px; }
+.prog-row{ display:grid; grid-template-columns:auto 1fr; gap:20px; align-items:center; }
+.prog-num{ font-family:var(--font-display); font-size:clamp(34px,4.6vw,46px); line-height:.95; letter-spacing:.5px; white-space:nowrap; font-variant-numeric:tabular-nums; min-width:150px; }
+.prog-pct-sign{ font-size:.55em; color:var(--green); display:inline-block; }
+.prog-pct-sign.settle{ animation:pctSettle .5s cubic-bezier(.16,1,.3,1); }
+@keyframes pctSettle{ 0%{ transform:translateY(0) scale(1); } 45%{ transform:translateY(-3px) scale(1.08); } 100%{ transform:translateY(0) scale(1); } }
+.prog-meter{ border:var(--border) solid var(--ink); border-radius:var(--radius-sm); box-shadow:var(--shadow-sm); background:var(--paper); padding:9px 10px; }
+.prog-ticks{ display:flex; gap:1px; height:26px; }
+.prog-ticks i{ flex:1; min-width:2px; background:#ded5c2; border-radius:2px; transition:transform .3s cubic-bezier(.16,1,.3,1), opacity .3s ease, background-color .3s ease; transition-delay:var(--d,0ms); }
+.prog-ticks.pre i{ opacity:0; transform:scaleY(.3); }
+.prog-ticks i.in{ transform:scaleY(1); opacity:1; }
+.prog-ticks i.in.on{ background:var(--green); }
+.prog-fill{ display:none; height:22px; background:#ded5c2; border-radius:4px; }
+.prog-fill span{ display:block; height:100%; background:var(--green); border-radius:4px; transform-origin:left; transform:scaleX(0); transition:transform .9s cubic-bezier(.16,1,.3,1); }
+.prog-legend{ margin:14px 0 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; font-weight:700; color:#433f37; }
+.prog-legend b{ font-family:var(--font-display); font-weight:400; }
+.lg{ width:14px; height:14px; border:2px solid var(--ink); border-radius:3px; }
+.lg-done{ background:var(--green); }
+.lg-wait{ background:#ded5c2; }
+.lg-note{ color:var(--muted); font-weight:600; }
+.lg-ticks{ color:var(--muted); font-weight:600; }
+
 .howto{ margin-top:22px; }
 .howto h2{ font-size:20px; margin-bottom:14px; }
 .steps{ margin:0; padding:0; list-style:none; counter-reset:s; display:grid; gap:10px; }
 .steps li{ counter-increment:s; position:relative; padding-left:44px; font-weight:600; }
 .steps li::before{ content:counter(s); position:absolute; left:0; top:-2px; width:30px; height:30px; display:grid; place-items:center; font-family:var(--font-display); font-size:15px; background:var(--yellow); border:var(--border) solid var(--ink); border-radius:8px; box-shadow:var(--shadow-sm); }
+.steps.wait li{ opacity:0; transform:translateX(-8px); }
+.steps.go li{ opacity:1; transform:none; transition:opacity .3s ease, transform .34s cubic-bezier(.16,1,.3,1); transition-delay:calc(var(--i,0) * 45ms); }
 .note-chip{ display:inline-block; margin-top:16px; font-family:var(--font-display); font-size:12px; background:var(--pink); color:var(--ink); border:var(--border) solid var(--ink); border-radius:7px; padding:8px 12px; box-shadow:var(--shadow-sm); }
 .howto-note{ margin:16px 0 0; font-size:14px; font-weight:700; color:var(--ink); background:var(--pink); border:var(--border) solid var(--ink); border-radius:8px; padding:12px 14px; box-shadow:var(--shadow-sm); }
 .howto-lead{ margin:0 0 14px; font-size:15px; font-weight:700; color:var(--ink); }
@@ -393,4 +428,23 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
   .admin-table .opd-col{ min-width:150px; max-width:190px; }
   .admin-inp{ padding:13px 10px; }
   .admin-save-btn{ padding:13px 12px; min-width:96px; }
+  .prog-row{ grid-template-columns:1fr; gap:14px; }
+  .prog-ticks{ display:none; }
+  .prog-fill{ display:block; }
+  .lg-ticks{ display:none; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  /* reduced-motion = lebih lembut, bukan nonaktif: ruang gerak dihapus, fade tetap jalan */
+  .prog-ticks i{ transition:opacity .45s ease; transform:none; transition-delay:0ms; }
+  .prog-ticks.pre i{ opacity:0; transform:none; }
+  .prog-ticks i.in{ opacity:1; transform:none; }
+  .prog-fill span{ transition:opacity .45s ease; transform:none; }
+  .prog-fill.pre span{ opacity:0; }
+  .prog-fill.in span{ opacity:1; }
+  .prog-pct-sign.settle{ animation:none; }
+  .steps.wait li{ transform:none; }
+  .steps.go li{ transition:opacity .4s ease; transform:none; transition-delay:0ms; }
+  .opd-list.ac-enter{ animation:acFade .3s ease; }
+  @keyframes acFade{ from{ opacity:0; } to{ opacity:1; } }
 }

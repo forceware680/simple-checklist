@@ -17,6 +17,7 @@ let rekActive = false;
 // State page SIMASET (#/rekap) yang dipertahankan saat navigate ke rincian lalu kembali
 let rekapState = { search: '', tableScroll: 0, pageScroll: 0 };
 let rekapActive = false;
+let revealIOs = [];
 const app = document.getElementById('app');
 
 /* ---------- helpers ---------- */
@@ -36,6 +37,8 @@ function esc(s) {
 const round2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
 const ID_FMT = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtID = n => ID_FMT.format(round2(Number(n) || 0));
+const INT_FMT = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 });
+const fmtInt = n => INT_FMT.format(Math.round(Number(n) || 0));
 const parseMoney = raw => { const n = parseFloat(String(raw).replace(/\./g, '').replace(',', '.')); return isFinite(n) ? n : 0; };
 const liveFormat = raw => {
   let intStr = '', decStr = '', seenDec = false;
@@ -80,6 +83,7 @@ function render() {
   app.classList.remove('full');
   rekActive = false;
   rekapActive = false;
+  if (revealIOs.length) { revealIOs.forEach(io => io.disconnect()); revealIOs = []; }
   if (!hash.startsWith('#/opd/')) setDirty(false); // keluar form → bersihkan state dirty (pengingat cuma 1x)
   if (hash.startsWith('#/opd/')) renderChecklist(decodeURIComponent(hash.slice(6)));
   else if (hash === '#/pp-pakai-habis') renderStatistik();
@@ -109,6 +113,14 @@ async function renderLanding() {
         </div>
       </section>
 
+      <section class="prog card">
+        <h2>Progres pengisian</h2>
+        <p class="prog-sub">Berapa OPD/Sub Unit yang sudah menyimpan <b>Laporan Manual</b>. angkanya diambil dari data yang tersimpan di aplikasi ini.</p>
+        <div class="prog-body" id="prog-body">
+          <div class="prog-state"><span class="spinner"></span>Memuat progres…</div>
+        </div>
+      </section>
+
       <section class="howto card">
         <h2>Cara pakai</h2>
         <p class="howto-lead">Angka yang kamu isi berdasarkan <span class="src">Laporan Manual</span> OPD kamu.</p>
@@ -130,6 +142,28 @@ async function renderLanding() {
     </main>
     ${footer()}`;
 
+  loadProgress();
+
+  const steps = document.querySelector('.steps');
+  if (steps && 'IntersectionObserver' in window) {
+    [...steps.children].forEach((li, i) => li.style.setProperty('--i', i));
+    steps.classList.add('wait');
+    const stepsIO = new IntersectionObserver(entries => {
+      if (!entries.some(e => e.isIntersecting)) return;
+      revealIOs = revealIOs.filter(io => io !== stepsIO);
+      stepsIO.disconnect();
+      steps.classList.add('go');
+    }, { threshold: 0.18 });
+    revealIOs.push(stepsIO);
+    stepsIO.observe(steps);
+    setTimeout(() => {
+      if (!revealIOs.includes(stepsIO)) return;
+      revealIOs = revealIOs.filter(io => io !== stepsIO);
+      stepsIO.disconnect();
+      steps.classList.add('go');
+    }, 1500);
+  }
+
   const input = document.getElementById('opd-input');
   const list = document.getElementById('opd-list');
   let activeIdx = -1;
@@ -143,11 +177,13 @@ async function renderLanding() {
   };
   const renderList = q => {
     const items = matches(q);
+    const opening = list.hidden;
     list.innerHTML = items.length
       ? items.map((o, i) => `<li role="option" data-code="${esc(o.PBSubk)}" class="${i === activeIdx ? 'active' : ''}"><span class="opd-ac-name">${esc(o.KetPBSubk)}</span><span class="opd-ac-code">${esc(o.PBSubk)}</span></li>`).join('')
       : '<li class="opd-empty">Tidak ada OPD cocok</li>';
     list.hidden = false;
     input.setAttribute('aria-expanded', 'true');
+    if (opening) list.classList.add('ac-enter');
   };
   const setActive = idx => {
     const items = [...list.querySelectorAll('li[role=option]')];
@@ -184,6 +220,104 @@ async function renderLanding() {
     const li = e.target.closest('li[role=option]');
     if (li) { e.preventDefault(); go(li.dataset.code); }
   });
+  list.addEventListener('animationend', () => list.classList.remove('ac-enter'));
+}
+
+/* ---------- PROGRES PENGISIAN (beranda) ---------- */
+const hasEntryData = r => (Number(r.saldo_awal) || 0) > 0 || (Number(r.total_in) || 0) > 0 || (Number(r.total_out) || 0) > 0;
+
+async function loadProgress() {
+  const body = document.getElementById('prog-body');
+  if (!body) return;
+  let rows;
+  try {
+    rows = await api('/api/statistik');
+  } catch (err) {
+    body.innerHTML = `<div class="prog-state err">Gagal memuat progres: ${esc(err.message)}</div>
+      <button type="button" class="btn ghost prog-retry">Coba lagi</button>`;
+    const retry = body.querySelector('.prog-retry');
+    if (retry) retry.addEventListener('click', loadProgress);
+    return;
+  }
+  const total = rows.length;
+  if (!total) {
+    body.innerHTML = '<div class="prog-state">Belum ada OPD terdaftar.</div>';
+    return;
+  }
+  const done = rows.filter(hasEntryData).length;
+  const pct = (done / total) * 100;
+  const pctTxt = pct.toFixed(1).replace('.', ',');
+
+  const ticks = rows.map((r, i) => `<i class="${hasEntryData(r) ? 'on' : ''}" style="--d:${Math.min(i * 5, 800)}ms"></i>`).join('');
+
+  body.innerHTML = `
+    <div class="prog-row">
+      <div class="prog-num"><span id="prog-pct">0,0</span><span class="prog-pct-sign">%</span></div>
+      <div class="prog-meter" role="progressbar" aria-label="Progres pengisian Laporan Manual" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}" aria-valuetext="${pctTxt}% OPD sudah mengisi, ${fmtInt(done)} dari ${fmtInt(total)}">
+        <div class="prog-ticks">${ticks}</div>
+        <div class="prog-fill"><span></span></div>
+      </div>
+    </div>
+    <p class="prog-legend">
+      <span class="lg lg-done"></span><span>Sudah <b>${fmtInt(done)}</b></span>
+      <span class="lg lg-wait"></span><span>Belum <b>${fmtInt(total - done)}</b></span>
+      <span class="lg-note">dari ${fmtInt(total)} OPD/Sub Unit</span>
+      <span class="lg-ticks">1 kotak = 1 OPD</span>
+    </p>`;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pctEl = document.getElementById('prog-pct');
+  const sign = body.querySelector('.prog-pct-sign');
+  const fillSpan = body.querySelector('.prog-fill span');
+
+  const strip = body.querySelector('.prog-ticks');
+  if (strip) strip.classList.add('pre');
+  if (fillSpan && fillSpan.parentElement) fillSpan.parentElement.classList.add('pre');
+  // meter main saat masuk viewport (kalau di bawah fold, sapuan nggak kelewat), dengan fallback biar konten tetap tampil
+  const play = () => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (fillSpan) {
+          fillSpan.style.transform = 'scaleX(' + (pct / 100) + ')';
+          if (fillSpan.parentElement) fillSpan.parentElement.classList.add('in');
+        }
+        body.querySelectorAll('.prog-ticks i').forEach(el => el.classList.add('in'));
+      });
+    });
+  };
+  if ('IntersectionObserver' in window) {
+    const meterIO = new IntersectionObserver(entries => {
+      if (!entries.some(e => e.isIntersecting)) return;
+      revealIOs = revealIOs.filter(io => io !== meterIO);
+      meterIO.disconnect();
+      play();
+    }, { threshold: 0.3 });
+    revealIOs.push(meterIO);
+    meterIO.observe(body);
+    setTimeout(() => {
+      if (!revealIOs.includes(meterIO)) return;
+      revealIOs = revealIOs.filter(io => io !== meterIO);
+      meterIO.disconnect();
+      play();
+    }, 1500);
+  } else {
+    play();
+  }
+
+  if (!pctEl) return;
+  if (reduce) { pctEl.textContent = pctTxt; return; }
+  const t0 = performance.now(), dur = 900;
+  const step = now => {
+    const p = Math.min(1, (now - t0) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    pctEl.textContent = (pct * eased).toFixed(1).replace('.', ',');
+    if (p < 1) requestAnimationFrame(step);
+    else {
+      pctEl.textContent = pctTxt;
+      if (sign) sign.classList.add('settle');
+    }
+  };
+  requestAnimationFrame(step);
 }
 
 /* ---------- CHECKLIST ---------- */
